@@ -150,7 +150,7 @@
     }
     .app-hero h1 {
       font-size: clamp(34px, 4.5vw, 56px);
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: -2px;
       line-height: 1.1;
       color: var(--text);
@@ -220,11 +220,11 @@
     .btn-copy:hover { background: var(--teal-dim); border-color: var(--teal-border); box-shadow: none; }
     .btn-copy.copied { color: var(--muted); }
     /* FLOATING CTA */
-    #floating-btn-wrap { position: fixed; bottom: 28px; right: 32px; z-index: 100; display: flex; align-items: center; transition: opacity 0.25s, transform 0.25s; }
-    #floating-btn-wrap.hidden { opacity: 0; transform: translateY(14px); pointer-events: none; }
-    #floating-btn { width: auto; background: var(--teal); color: #000; border: none; border-radius: 999px; padding: 16px 28px; font-size: 14px; font-weight: 700; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; box-shadow: 0 4px 28px rgba(0,200,150,0.4), 0 2px 10px rgba(0,0,0,0.55); transition: background 0.18s, transform 0.1s, box-shadow 0.18s; }
-    #floating-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 36px rgba(0,200,150,0.5), 0 4px 14px rgba(0,0,0,0.55); }
-    #floating-btn:active { transform: translateY(-1px); }
+    #floating-btn-wrap { display: flex; justify-content: flex-end; padding-top: 10px; transition: opacity 0.25s, transform 0.25s; overflow: hidden; }
+    #floating-btn-wrap.hidden { opacity: 0; pointer-events: none; max-height: 0; padding-top: 0; }
+    #floating-btn { background: var(--teal); color: #000; border: none; border-radius: 999px; padding: 14px 28px; font-size: 14px; font-weight: 700; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; transition: background 0.18s, transform 0.12s; }
+    #floating-btn:hover { transform: translateY(-2px); }
+    #floating-btn:active { transform: translateY(0px); }
     #floating-btn:disabled { opacity: .4; cursor: not-allowed; }
     .spinner { width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-top-color: rgba(0,0,0,0.75); border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -359,8 +359,8 @@
       .swatch { width: 22px; height: 22px; }
       .design-thumbs { gap: 7px; }
       .card-header h1 { font-size: 15px; }
-      #floating-btn-wrap { bottom: 20px; right: 20px; }
-      #floating-btn-wrap.hidden { transform: translateY(14px); }
+      #floating-btn-wrap { justify-content: stretch; }
+      #floating-btn { width: 100%; }
     }
   </style>
 </head>
@@ -549,6 +549,12 @@
           <div class="swatches" id="bg-swatches"></div>
         </div>
       </div>
+      <div id="floating-btn-wrap">
+        <button id="floating-btn" onclick="floatingBtnClick()">
+          <div class="spinner" id="floating-spinner"></div>
+          <span id="floating-btn-text">Continuar &#8594;</span>
+        </button>
+      </div>
     </div>
   </div>
   <!-- SUCCESS -->
@@ -640,12 +646,7 @@
     <span class="app-footer-copy">tr4nsfer.me © 2026 · Hecho en México 🇲🇽</span>
   </div>
 </footer>
-<div id="floating-btn-wrap">
-  <button id="floating-btn" onclick="floatingBtnClick()">
-    <div class="spinner" id="floating-spinner"></div>
-    <span id="floating-btn-text">Continuar &#8594;</span>
-  </button>
-</div><script>
+<script>
   const GHL_WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
   const BANCOS = {
     '133':{ nombre:'ACTINVER',          domain:'actinver.com' },
