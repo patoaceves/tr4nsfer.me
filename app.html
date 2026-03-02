@@ -130,11 +130,11 @@
     .lc-inner { position: relative; z-index: 1; height: 100%; padding: 14px 12px 16px; display: flex; flex-direction: column; justify-content: space-between; }
     .lc-top { display: flex; align-items: center; justify-content: space-between; }
     .lc-logo-dot { font-size: 8.5px; font-weight: 700; letter-spacing: -0.01em; opacity: 0.75; }
-    .lc-bank { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px; }
+    .lc-bank { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px; align-self: flex-start; }
     .lc-bank-icon { width: 20px; height: 20px; border-radius: 5px; object-fit: contain; background: rgba(255,255,255,0.15); display: none; }
     .lc-bank-name { font-size: 14px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
-    .lc-middle { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 6px 0; }
-    .lc-group { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .lc-middle { text-align: left; flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-evenly; padding: 6px 0; }
+    .lc-group { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
     .lc-section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
     .lc-clabe-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
     .lc-clabe { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; opacity: 1; font-family: "Inter",sans-serif; line-height: 1.3; white-space: nowrap; }
@@ -218,17 +218,17 @@
     @media (max-width: 700px) {
       .design-thumb { width: 54px; height: 62px; border-radius: 8px; }
       .design-thumb-label { font-size: 8px; }
-      #main-layout.active { grid-template-columns: 1fr; margin: 0 auto; width: 100%; max-width: 480px; }
+      #main-layout.active { grid-template-columns: 1fr; margin: 0 auto; width: 100%; max-width: 100%; }
       .right-col { display: flex; position: static; }
       #main-layout.step2 .left-col  { order: 2; }
       #main-layout.step2 .right-col { order: 1; }
       #main-layout.step2 .color-editor { display: none; }
-      .page { padding: 24px 16px 100px; }
-      .card { padding: 22px 20px; margin-left: auto; margin-right: auto; }
-      .card-frame { padding: 24px 20px; }
-      .live-card { width: min(360px, 92vw); aspect-ratio: auto; height: 380px; border-radius: 18px; }
+      .page { padding: 20px 14px 100px; overflow-x: hidden; }
+      .card { padding: 18px 16px; margin-left: auto; margin-right: auto; }
+      .card-frame { padding: 16px 14px; }
+      .live-card { width: min(300px, 88vw); aspect-ratio: auto; height: 320px; border-radius: 16px; }
       .lc-inner { padding: 16px 16px 18px; display: flex; flex-direction: column; height: 100%; }
-      .lc-middle { flex: 1; justify-content: space-evenly; gap: 0; padding: 4px 0; }
+      .lc-middle { flex: 1; justify-content: space-evenly; gap: 0; padding: 4px 0; align-items: flex-start; text-align: left; }
       .lc-group { gap: 2px; }
       .lc-bank { padding: 6px 14px 6px 7px; margin-bottom: 0; }
       .lc-bank-icon { width: 18px; height: 18px; }
@@ -240,6 +240,13 @@
       .lc-logo-dot { font-size: 10px; }
       .lc-alias { font-size: 13px; margin-top: 3px; }
       .form-row { grid-template-columns: 1fr; }
+      input, select, textarea { font-size: 13px; padding: 9px 11px; }
+      label { font-size: 9.5px; }
+      .color-editor { padding: 14px 12px; }
+      .swatches { gap: 5px; }
+      .swatch { width: 22px; height: 22px; }
+      .design-thumbs { gap: 7px; }
+      .card-header h1 { font-size: 15px; }
       #floating-btn-wrap { bottom: 20px; right: 20px; }
       #floating-btn-wrap.hidden { transform: translateY(14px); }
     }
