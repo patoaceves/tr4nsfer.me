@@ -125,14 +125,14 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     /* PREVIEW CARD */
     .card-frame { width: 100%; padding: 32px 24px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
-    .live-card { width: 295px; aspect-ratio: 1 / 1.586; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
+    .live-card { width: 330px; aspect-ratio: 1 / 1.586; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
     .card-design-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
     .lc-inner { position: relative; z-index: 1; height: 100%; padding: 14px 12px 16px; display: flex; flex-direction: column; justify-content: space-between; }
     .lc-top { display: flex; align-items: center; justify-content: space-between; }
     .lc-logo-dot { font-size: 8.5px; font-weight: 700; letter-spacing: -0.01em; opacity: 0.75; }
     .lc-bank { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px; }
     .lc-bank-icon { width: 20px; height: 20px; border-radius: 5px; object-fit: contain; background: rgba(255,255,255,0.15); display: none; }
-    .lc-bank-name { font-size: 12px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
+    .lc-bank-name { font-size: 14px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
     .lc-middle { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 6px 0; }
     .lc-group { display: flex; flex-direction: column; align-items: center; gap: 1px; }
     .lc-section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.45; }
@@ -216,6 +216,8 @@
     .footer-note { text-align: center; font-size: 11px; color: var(--muted2); margin-top: 18px; line-height: 1.7; position: relative; z-index: 1; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 700px) {
+      .design-thumb { width: 54px; height: 62px; border-radius: 8px; }
+      .design-thumb-label { font-size: 8px; }
       #main-layout.active { grid-template-columns: 1fr; }
       .right-col { display: flex; position: static; }
       #main-layout.step2 .left-col  { order: 2; }
@@ -224,19 +226,19 @@
       .page { padding: 24px 28px 100px; }
       .card { padding: 22px 20px; }
       .card-frame { padding: 24px 20px; }
-      .live-card { width: min(280px, 80vw); aspect-ratio: 1 / 1.586; height: auto; border-radius: 16px; }
+      .live-card { width: min(360px, 92vw); aspect-ratio: auto; height: 380px; border-radius: 18px; }
       .lc-inner { padding: 16px 16px 18px; display: flex; flex-direction: column; height: 100%; }
-      .lc-middle { flex: 1; justify-content: space-evenly; padding: 0; }
-      .lc-group { gap: 5px; }
+      .lc-middle { flex: 1; justify-content: space-evenly; gap: 0; padding: 4px 0; }
+      .lc-group { gap: 2px; }
       .lc-bank { padding: 6px 14px 6px 7px; margin-bottom: 0; }
       .lc-bank-icon { width: 18px; height: 18px; }
-      .lc-bank-name { font-size: 12px; }
-      .lc-clabe-label, .lc-section-label { font-size: 8px; letter-spacing: 0.12em; }
-      .lc-clabe { font-size: 13px; letter-spacing: 0.04em; }
-      .lc-name { font-size: 13px; }
-      .lc-cardnum { font-size: 13px; }
-      .lc-logo-dot { font-size: 8px; }
-      .lc-alias { font-size: 11px; margin-top: 3px; }
+      .lc-bank-name { font-size: 14px; }
+      .lc-clabe-label, .lc-section-label { font-size: 10px; letter-spacing: 0.12em; }
+      .lc-clabe { font-size: 15px; letter-spacing: 0.04em; }
+      .lc-name { font-size: 15px; }
+      .lc-cardnum { font-size: 15px; }
+      .lc-logo-dot { font-size: 10px; }
+      .lc-alias { font-size: 13px; margin-top: 3px; }
       .form-row { grid-template-columns: 1fr; }
       #floating-btn-wrap { bottom: 20px; right: 20px; }
       #floating-btn-wrap.hidden { transform: translateY(14px); }
@@ -411,7 +413,7 @@
           <div class="design-picker" id="design-picker"></div>
         </div>
         <div class="color-section">
-          <div class="color-section-label">Color de tarjeta</div>
+          <div class="color-section-label">Color</div>
           <div class="swatches" id="card-swatches"></div>
         </div>
         <div class="color-section">
@@ -498,7 +500,7 @@
       </div>
     </div>
   </div>
-  <div class="footer-note">tr4nsfer.me &middot; Recibe transferencias. Sin WhatsApp, sin riesgos.</div>
+  <div class="footer-note">tr4nsfer.me &copy; 2026</div>
 </div>
 <div id="floating-btn-wrap">
   <button id="floating-btn" onclick="floatingBtnClick()">
@@ -564,14 +566,14 @@
     '014':{ nombre:'SANTANDER',         domain:'santander.com.mx' },
     '044':{ nombre:'SCOTIABANK',        domain:'scotiabank.com.mx' },
     '728':{ nombre:'SPIN BY OXXO',      domain:'spinbyoxxo.com.mx' },
-    '646':{ nombre:'STP',               domain:'stpmex.com' },
+    '646':{ nombre:'STP',               domain:'stp.mx' },
     '703':{ nombre:'TESORED',           domain:'tesored.com' },
     '138':{ nombre:'UALA',              domain:'ualabee.com' },
     '617':{ nombre:'VALMEX',            domain:'valmex.com.mx' },
     '605':{ nombre:'VALUE',             domain:'value.mx' },
     '113':{ nombre:'VE POR MAS',        domain:'bx.com.mx' },
     '141':{ nombre:'VOLKSWAGEN',        domain:'vwfs.mx' },
-    '846':{ nombre:'STP',               domain:'stpmex.com' },
+    '846':{ nombre:'STP',               domain:'stp.mx' },
   };
   const favicon = d => `https://www.google.com/s2/favicons?domain=${d}&sz=32`;
   const CARD_DESIGNS = [
@@ -581,19 +583,19 @@
       thumbRender: () => `<svg viewBox="0 0 38 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 38,0 38,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="24,0 38,0 38,14" fill="rgba(255,255,255,0.07)"/><polygon points="0,49 38,23 38,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`
     },
     {
-      id: 'puntos', label: 'Puntos',
-      render: () => `<svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="hfade-r" cx="80%" cy="20%" r="90%"><stop offset="0%" stop-color="rgba(255,255,255,0.26)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><pattern id="dots-r" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.3" fill="rgba(255,255,255,1)"/></pattern><mask id="dotmask-r"><rect width="100" height="159" fill="url(#hfade-r)"/></mask></defs><rect width="100" height="159" fill="url(#dots-r)" mask="url(#dotmask-r)"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="hft" cx="80%" cy="20%" r="90%"><stop offset="0%" stop-color="rgba(255,255,255,0.26)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><pattern id="dt" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="0.9" fill="rgba(255,255,255,1)"/></pattern><mask id="dmt"><rect width="38" height="60" fill="url(#hft)"/></mask></defs><rect width="38" height="60" fill="url(#dt)" mask="url(#dmt)"/></svg>`
+      id: 'aurora', label: 'Aurora',
+      render: () => `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-c" cx="82%" cy="14%" r="42%"><stop offset="0%" stop-color="rgba(255,255,255,0.14)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/><rect width="100%" height="100%" fill="url(#au-c)"/></svg>`,
+      thumbRender: () => `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="at-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-c" cx="82%" cy="14%" r="42%"><stop offset="0%" stop-color="rgba(255,255,255,0.14)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#at-a)"/><rect width="100%" height="100%" fill="url(#at-b)"/><rect width="100%" height="100%" fill="url(#at-c)"/></svg>`
     },
     {
       id: 'espiral', label: 'Espiral',
-      render: () => `<svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q64,114 100,104" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/><path d="M0,159 Q62,128 100,122" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/><path d="M0,159 Q56,139 100,136" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,159 Q50,148 100,148" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q20,18 78,0" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q19,29 38,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q22,37 38,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><path d="M0,60 Q24,43 38,40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/><path d="M0,60 Q23,49 38,47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,60 Q20,54 38,53" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,60 Q14,20 30,0" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.6"/></svg>`
+      render: () => `<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q64,114 100,104" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/><path d="M0,159 Q62,128 100,122" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/><path d="M0,159 Q56,139 100,136" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,159 Q50,148 100,148" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q20,18 78,0" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/></svg>`,
+      thumbRender: () => `<svg viewBox="0 0 38 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q19,29 38,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q22,37 38,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><path d="M0,60 Q24,43 38,40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/><path d="M0,60 Q23,49 38,47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,60 Q20,54 38,53" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,60 Q14,20 30,0" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.6"/></svg>`
     },
     {
-      id: 'minimal', label: 'Minimal',
-      render: () => `<svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><line x1="12" y1="108" x2="88" y2="108" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><rect x="12" y="114" width="28" height="1" fill="rgba(255,255,255,0.07)" rx="0.5"/><rect x="12" y="118" width="18" height="1" fill="rgba(255,255,255,0.05)" rx="0.5"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><line x1="5" y1="42" x2="33" y2="42" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><rect x="5" y="45" width="10" height="0.8" fill="rgba(255,255,255,0.07)" rx="0.4"/><rect x="5" y="48" width="7" height="0.8" fill="rgba(255,255,255,0.05)" rx="0.4"/></svg>`
+      id: 'solido', label: 'Sólido',
+      render: () => ``,
+      thumbRender: () => ``
     },
   ];
   let selectedDesign       = 0;
@@ -601,10 +603,10 @@
   let selectedBgColor      = '#000000';
   let currentStep          = 1;
   const CARD_PRESETS = [
-    { label:'Verde', value:'linear-gradient(135deg,#004d38,#00c896)' },
-    { label:'Negro', value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)' },
-    { label:'Rosa',  value:'linear-gradient(135deg,#7a2050,#e8719a)' },
-    { label:'Azul',  value:'linear-gradient(135deg,#0f3460,#1a6fb5)' },
+    { label:'Verde', value:'linear-gradient(135deg,#004d38,#00c896)', solid:'#00a87a' },
+    { label:'Negro', value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)', solid:'#000000' },
+    { label:'Rosa',  value:'linear-gradient(135deg,#7a2050,#e8719a)', solid:'#c0537a' },
+    { label:'Azul',  value:'linear-gradient(135deg,#0f3460,#1a6fb5)', solid:'#145a96' },
   ];
   const BG_PRESETS = [
     { label:'Negro',  value:'#000000' },
@@ -711,8 +713,8 @@
     if (nombre) {
       const nombreUp = nombre.toUpperCase();
       nombreEl.textContent = nombreUp;
-      if (nombreUp.length > 18)      { nombreEl.style.fontSize = '10px'; nombreEl.style.letterSpacing = '0.02em'; }
-      else if (nombreUp.length > 14) { nombreEl.style.fontSize = '12px'; nombreEl.style.letterSpacing = '0.03em'; }
+      if (nombreUp.length > 120)      { nombreEl.style.fontSize = '10px'; nombreEl.style.letterSpacing = '0.02em'; }
+      else if (nombreUp.length > 100) { nombreEl.style.fontSize = '12px'; nombreEl.style.letterSpacing = '0.03em'; }
       else                            { nombreEl.style.fontSize = ''; nombreEl.style.letterSpacing = ''; }
       nombreGroup.style.display = 'flex';
     } else {
@@ -779,13 +781,15 @@
       wrap.className = 'design-thumb-wrap';
       const thumb = document.createElement('div');
       thumb.className = 'design-thumb' + (i === 0 ? ' active' : '');
-      thumb.style.background = selectedCardGradient;
+      const preset0 = CARD_PRESETS.find(p => p.value === selectedCardGradient);
+      thumb.style.background = (d.id === 'solido' && preset0) ? preset0.solid : selectedCardGradient;
       thumb.innerHTML = d.thumbRender();
       thumb.onclick = () => {
         selectedDesign = i;
         document.querySelectorAll('.design-thumb').forEach(t => t.classList.remove('active'));
         thumb.classList.add('active');
         renderDesign($('card-design-layer'), i);
+        applyCardColor();
       };
       const lbl = document.createElement('div');
       lbl.className = 'design-thumb-label';
@@ -801,7 +805,8 @@
     CARD_PRESETS.forEach((p, i) => {
       const sw = document.createElement('div');
       sw.className = 'swatch' + (i === 0 ? ' active' : '');
-      sw.style.background = p.value;
+      sw.style.background = p.solid || p.value;
+      if (p.label === 'Negro') sw.style.border = '1px solid #333';
       if (p.label === 'Blanco') sw.style.border = '1px solid #444';
       sw.title = p.label;
       sw.onclick = () => {
@@ -815,7 +820,7 @@
     BG_PRESETS.forEach((p, i) => {
       const sw = document.createElement('div');
       sw.className = 'swatch' + (i === 0 ? ' active' : '');
-      sw.style.background = p.value;
+      sw.style.background = p.solid || p.value;
       if (p.value === '#000000') sw.style.border = '1px solid #333';
       if (p.label === 'Blanco')  sw.style.border = '1px solid #888';
       sw.title = p.label;
@@ -830,9 +835,15 @@
   }
   function applyCardColor() {
     const card = $('live-card');
-    card.style.background = selectedCardGradient;
-    document.querySelectorAll('.design-thumb').forEach(t => { t.style.background = selectedCardGradient; });
-    const hex = selectedCardGradient.match(/#([0-9a-f]{6})/i);
+    const isSolido = CARD_DESIGNS[selectedDesign] && CARD_DESIGNS[selectedDesign].id === 'solido';
+    const preset = CARD_PRESETS.find(p => p.value === selectedCardGradient);
+    const bg = isSolido && preset ? preset.solid : selectedCardGradient;
+    card.style.background = bg;
+    const preset1 = CARD_PRESETS.find(p => p.value === selectedCardGradient);
+    document.querySelectorAll('.design-thumb').forEach((t, i) => {
+      t.style.background = (CARD_DESIGNS[i] && CARD_DESIGNS[i].id === 'solido' && preset1) ? preset1.solid : selectedCardGradient;
+    });
+    const hex = bg.match(/#([0-9a-f]{6})/i);
     if (hex) {
       const n   = parseInt(hex[1], 16);
       const lum = (0.299*(n>>16) + 0.587*((n>>8)&0xff) + 0.114*(n&0xff)) / 255;
