@@ -1,41 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tr4nsfer.me</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no"/>
+  <title>tr4nsfer.me — Recibe pagos por SPEI con un solo link</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg:          #000000;
-      --surface:     #111111;
-      --surface2:    #191919;
-      --teal:        #00c896;
-      --teal-dark:   #00a87a;
-      --teal-dim:    rgba(0,200,150,0.09);
-      --teal-border: rgba(0,200,150,0.20);
-      --text:        #f0f0f0;
-      --text-soft:   #c8c8c8;
-      --muted:       #5a5a5a;
-      --muted2:      #333333;
-      --border:      #1e1e1e;
-      --border2:     #272727;
-      --input-bg:    #0c0c0c;
-      --error:       #f04040;
+      --bg:       #000000;
+      --surface:  #111111;
+      --surface2: #191919;
+      --border:   rgba(255,255,255,0.07);
+      --accent:   #00c896;
+      --accent-d: #009e78;
+      --text:     #f0f0f0;
+      --muted:    #888;
+      --dim:      #444;
+      --r:        14px;
     }
-    html, body { min-height: 100%; }
-    body {
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      position: relative;
-      overflow-x: hidden;
-    }
+
+    html { scroll-behavior: smooth; scroll-snap-type: y mandatory; overflow-y: scroll; height: 100%; }
+    body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
     .shapes { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .geo-shape { position: absolute; bottom: -100px; animation: riseShape linear infinite; }
     .geo-square { border: 1px solid rgba(0,200,150,0.18); }
@@ -43,1134 +34,543 @@
     .geo-triangle { line-height: 0; }
     @keyframes riseShape {
       0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
-      10%  { opacity: 1; }
-      88%  { opacity: 0.65; }
+      8%   { opacity: 1; }
+      92%  { opacity: 1; }
       100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
     }
-    .page {
-      position: relative; z-index: 1; min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 100px 20px 60px;
-    }
-    /* ─── HEADER ──────────────────────────────────────── */
+
+    /* HEADER */
     header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 48px;
-      background: rgba(0,0,0,0.82);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 48px;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
     }
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      line-height: 1;
-    }
+    .logo { display: inline-flex; align-items: center; text-decoration: none; line-height: 1; }
     .logo img { height: 28px; width: auto; display: block; }
-    .header-nav {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-    .header-nav a {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .header-nav a:hover { color: var(--text); }
-    .btn-nav {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 18px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 600;
-      background: var(--teal);
-      color: #000;
-      text-decoration: none;
-      transition: all 0.2s;
-      border: none;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .btn-nav:hover { background: #00daa6; transform: translateY(-1px); }
+    nav { display: flex; align-items: center; gap: 36px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    nav a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    nav a:hover, nav a.active { color: var(--text); }
 
-    /* ─── FOOTER ──────────────────────────────────────── */
-    .app-footer {
-      width: 100%;
-      border-top: 1px solid var(--border);
-      padding: 32px 48px;
-      position: relative;
-      z-index: 1;
-    }
-    .app-footer-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .app-footer img { height: 22px; width: auto; opacity: 0.5; }
-    .app-footer-copy { font-size: 12px; color: var(--muted); }
-    .app-footer a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
-    .app-footer a:hover { color: var(--text); }
-
-    .logo-dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; box-shadow: 0 0 8px var(--teal); }
-
-    /* ─── APP HERO TITLE ──────────────────────────────── */
-    .app-hero {
-      width: 100%;
-      text-align: center;
-      padding: 48px 20px 44px;
-      background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,200,150,0.08) 0%, transparent 70%);
-      animation: fadeUp 0.4s ease both;
-      transition: opacity 0.28s ease, transform 0.28s ease;
-    }
-    .app-hero.hero-exit {
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-    }
-    .app-hero.hero-enter {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    .app-hero h1 {
-      font-size: clamp(34px, 4.5vw, 56px);
-      font-weight: 900;
-      letter-spacing: -2px;
-      line-height: 1.1;
-      color: var(--text);
-      margin-bottom: 14px;
-    }
-    .app-hero p {
-      font-size: 16px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .view { display: none; width: 100%; }
-    .view.active { display: flex; flex-direction: column; align-items: center; }
-    /* MAIN LAYOUT */
-    #main-layout { display: none; width: 100%; max-width: 960px; animation: fadeUp 0.4s ease 0.08s both; }
-    #main-layout.active { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-    .left-col { position: relative; min-height: 0; }
-    .left-panel { width: 100%; transition: opacity 0.3s ease, transform 0.3s ease; }
-    .left-panel.exit-left { position: absolute; top: 0; left: 0; width: 100%; opacity: 0; transform: translateX(-18px); pointer-events: none; }
-    .left-panel.hidden { display: none; }
-    .left-panel.enter-right { opacity: 0; transform: translateX(18px); }
-    .right-col { position: sticky; top: 32px; display: flex; flex-direction: column; gap: 16px; }
-    /* CARD */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px 26px 24px; box-shadow: 0 0 0 1px rgba(0,200,150,0.03), 0 20px 60px rgba(0,0,0,0.55); }
-    .card-header { margin-bottom: 22px; }
-    .n26-bar { width: 22px; height: 2.5px; background: var(--teal); border-radius: 2px; margin-bottom: 14px; box-shadow: 0 0 8px rgba(0,200,150,0.4); }
-    .card-header h1 { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: -0.025em; }
-    .card-header p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
-    /* FORM */
-    .field { margin-bottom: 13px; }
-    label { display: block; font-size: 10.5px; font-weight: 500; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
-    label .req { color: var(--teal); margin-left: 1px; opacity: 0.8; }
-    label .opt { color: var(--muted2); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 10px; margin-left: 4px; }
-    input[type="text"], input[type="tel"], input[type="email"] {
-      width: 100%; background: var(--input-bg); border: 1px solid var(--border2); border-radius: 9px;
-      color: var(--text-soft); font-size: 13.5px; font-family: "Inter", sans-serif; font-weight: 400;
-      padding: 10px 12px; transition: border-color 0.18s, box-shadow 0.18s;
-      appearance: none; -webkit-appearance: none; outline: none; letter-spacing: -0.01em;
-    }
-    input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-dim); }
-    input::placeholder { color: #222; }
-    input[readonly] { cursor: default; }
-    input[readonly]:focus { border-color: var(--border2); box-shadow: none; }
-    .banco-wrap { position: relative; }
-    .banco-wrap input { padding-right: 40px; }
-    .banco-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 4px; object-fit: contain; display: none; background: var(--surface2); }
-    .banco-wrap.detected input { color: var(--teal); border-color: var(--teal-border); }
-    #clabe.complete { color: var(--teal); border-color: var(--teal-border); box-shadow: 0 0 0 3px var(--teal-dim); padding-right: 42px; }
-    .clabe-wrap { position: relative; }
-    .clabe-verified { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none; pointer-events: none; }
-    #clabe.complete ~ .clabe-verified { display: block; }
-    .banco-wrap.detected .banco-icon { display: block; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .field-error { font-size: 10.5px; color: var(--error); display: none; margin-top: 4px; }
-    .has-error input { border-color: var(--error) !important; box-shadow: 0 0 0 3px rgba(240,64,64,0.08) !important; }
-    .has-error .field-error { display: block; }
-    .input-prefix-wrap { position: relative; }
-    .input-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); pointer-events: none; z-index: 1; }
-    .input-prefix-wrap input { padding-left: 22px; }
     /* BUTTONS */
-    .btn { width: 100%; background: var(--teal); color: #000; border: none; border-radius: 9px; padding: 12px 18px; font-size: 13.5px; font-weight: 600; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; transition: background 0.18s, transform 0.1s, box-shadow 0.18s; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn:hover { background: var(--teal-dark); box-shadow: 0 0 18px rgba(0,200,150,0.22); }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
-    .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--muted); font-size: 12.5px; padding: 11px 18px; margin-top: 8px; }
-    .btn-outline:hover { border-color: var(--muted2); color: var(--text-soft); background: transparent; box-shadow: none; }
-    .btn-copy { background: var(--surface2); color: var(--teal); border: 1px solid var(--border2); padding: 7px 12px; font-size: 11px; font-weight: 500; width: auto; margin-top: 0; border-radius: 7px; flex-shrink: 0; letter-spacing: 0; }
-    .btn-copy:hover { background: var(--teal-dim); border-color: var(--teal-border); box-shadow: none; }
-    .btn-copy.copied { color: var(--muted); }
-    /* FLOATING CTA */
-    #floating-btn-wrap { display: flex; justify-content: flex-end; padding-top: 10px; transition: opacity 0.25s, transform 0.25s; overflow: hidden; }
-    #floating-btn-wrap.hidden { opacity: 0; pointer-events: none; max-height: 0; padding-top: 0; }
-    #floating-btn { background: var(--teal); color: #000; border: none; border-radius: 999px; padding: 14px 28px; font-size: 14px; font-weight: 700; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; transition: background 0.18s, transform 0.12s; }
-    #floating-btn:hover { transform: translateY(-2px); }
-    #floating-btn:active { transform: translateY(0px); }
-    #floating-btn:disabled { opacity: .4; cursor: not-allowed; }
-    .spinner { width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-top-color: rgba(0,0,0,0.75); border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    /* PREVIEW CARD */
-    .card-frame { width: 100%; padding: 32px 24px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
-    .live-card { width: 330px; aspect-ratio: 1 / 1.11; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
-    .card-design-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
-    .lc-inner { position: relative; z-index: 1; height: 100%; padding: 16px 22px 18px; display: flex; flex-direction: column; justify-content: space-between; }
-    .lc-top { display: flex; align-items: center; justify-content: space-between; }
-    .lc-logo-dot { display: flex; align-items: center; }
-    .lc-logo-dot img { height: 14px; width: auto; display: block; opacity: 0.75; }
-    .lc-bank { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px; align-self: flex-start; }
-    .lc-bank-icon { width: 20px; height: 20px; border-radius: 5px; object-fit: contain; background: rgba(255,255,255,0.15); display: none; }
-    .lc-bank-name { font-size: 14px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
-    .lc-middle { text-align: left; flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-evenly; padding: 6px 0; }
-    .lc-group { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
-    .lc-section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
-    .lc-clabe-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
-    .lc-clabe { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; opacity: 1; font-family: "Inter",sans-serif; line-height: 1.3; white-space: nowrap; }
-    .lc-copy-row { display: flex; align-items: center; gap: 6px; }
-    .lc-copy-btn { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; opacity: 0.5; transition: opacity 0.2s; flex-shrink: 0; }
-    .lc-copy-btn:hover { opacity: 1; }
-    .lc-name { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 1; font-family: "Inter",sans-serif; white-space: nowrap; transition: font-size 0.15s; }
-    .lc-alias { font-size: 10px; opacity: 0.6; letter-spacing: 2.5px; text-transform: uppercase; margin-top: 4px; font-family: "Inter",sans-serif; font-weight: 700; }
-    .lc-cardnum { font-size: 14px; font-weight: 600; font-family: "Inter",sans-serif; opacity: 1; letter-spacing: 0.04em; line-height: 1.3; white-space: nowrap; }
-    .lc-empty-hint { font-size: 10px; opacity: 0.3; letter-spacing: 0.08em; text-transform: uppercase; font-family: "SF Mono","Fira Code",monospace; }
-    .live-card.light-text { color: #ffffff; }
-    .live-card.dark-text  { color: #1a1a1a; }
-    /* COLOR EDITOR */
-    .color-editor { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 16px; transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.35s ease; overflow: hidden; max-height: 400px; transform-origin: top; }
-    .color-editor.fade-out { opacity: 0; transform: translateY(-8px); max-height: 0; padding-top: 0; padding-bottom: 0; border-color: transparent; pointer-events: none; }
-    .color-editor-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 16px; }
-    .color-section { margin-bottom: 16px; }
-    .color-section:last-child { margin-bottom: 0; }
-    .color-section-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; }
-    .design-picker { display: flex; gap: 9px; flex-wrap: wrap; }
-    .design-thumb-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
-    .design-thumb { width: 54px; height: 60px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; overflow: hidden; position: relative; background: linear-gradient(135deg, #004d38, #00c896); transition: transform 0.15s, border-color 0.15s; }
-    .design-thumb:hover { transform: scale(1.1); }
-    .design-thumb.active { border-color: #ffffff; }
-    .design-thumb svg, .design-thumb .dt-aurora { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-    .design-thumb-label { font-size: 7.5px; color: var(--muted); letter-spacing: 0.04em; text-align: center; }
-    .swatches { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    .swatch { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; flex-shrink: 0; }
-    .swatch:hover { transform: scale(1.12); }
-    .swatch.active { border-color: #ffffff; }
-    /* STEP 2 */
-    .step2-back { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 999px; font-family: "Inter", sans-serif; padding: 11px 20px; margin-bottom: 16px; transition: background 0.18s, border-color 0.18s, transform 0.1s; }
-    .step2-back:hover { background: #222; border-color: #333; transform: translateY(-1px); }
-    .step2-back:active { transform: translateY(0); }
-    .step2-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .step2-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); flex-shrink: 0; }
-    .step2-badge-text { font-size: 12px; color: var(--text-soft); font-weight: 500; }
-    .step2-badge-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
-    .btn-submit-form { width: 100%; background: var(--teal); color: #000; border: none; border-radius: 999px; padding: 14px 24px; font-size: 14px; font-weight: 700; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 20px; transition: transform 0.1s, box-shadow 0.18s; box-shadow: 0 2px 12px rgba(0,200,150,0.25); }
-    .btn-submit-form:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,200,150,0.35); background: var(--teal) !important; }
-    .btn-submit-form:active { transform: translateY(0); background: var(--teal) !important; }
-    .btn-submit-form:disabled { opacity: .4; cursor: not-allowed; }
-    .security-notice { display: flex; align-items: flex-start; gap: 8px; background: rgba(0,200,150,0.05); border: 1px solid rgba(0,200,150,0.18); border-radius: 10px; padding: 11px 13px; font-size: 11.5px; color: rgba(255,255,255,0.55); line-height: 1.55; margin-bottom: 18px; flex-shrink: 0; }
-    .security-notice svg { flex-shrink: 0; margin-top: 1px; }
-    .consent-block { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
-    .consent-row { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; position: relative; text-transform: none; letter-spacing: 0; font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,0.5); margin-bottom: 0; }
-    .consent-row input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-    .consent-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border2); background: var(--input-bg); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; }
-    .consent-check svg { opacity: 0; transition: opacity 0.15s; }
-    .consent-row input:checked ~ .consent-check { background: var(--teal); border-color: var(--teal); }
-    .consent-row input:checked ~ .consent-check svg { opacity: 1; }
-    .consent-text { font-size: 11.5px; color: rgba(255,255,255,0.5); line-height: 1.55; flex: 1; text-transform: none; letter-spacing: 0; font-weight: 400; }
-    .consent-link { color: var(--teal); text-decoration: none; opacity: 0.85; }
-    .consent-link:hover { opacity: 1; text-decoration: underline; }
-    .consent-row .field-error { position: absolute; bottom: -16px; left: 28px; margin-top: 0; }
-    .consent-row.has-error .consent-check { border-color: var(--error); }
-    .consent-row.has-error .field-error { display: block; }
-    /* SUCCESS */
-    #view-success .card { text-align: center; max-width: 440px; }
-    .success-icon { width: 48px; height: 48px; background: var(--teal-dim); border: 1px solid var(--teal-border); border-radius: 13px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--teal); font-size: 1.2rem; font-weight: 500; box-shadow: 0 0 20px rgba(0,200,150,0.12); }
-    #view-success h2 { font-size: 1.05rem; margin-bottom: 5px; font-weight: 600; letter-spacing: -0.025em; }
-    #view-success p  { color: var(--muted); margin-bottom: 20px; font-size: 12px; line-height: 1.6; }
-    .link-box { background: var(--input-bg); border: 1px solid var(--border2); border-radius: 9px; padding: 11px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; text-align: left; }
-    .link-box span { font-size: 11px; color: var(--teal); font-weight: 400; word-break: break-all; }
-    /* PROFILE */
-    #view-profile .card { text-align: left; max-width: 440px; }
-    .profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
-    .avatar { width: 42px; height: 42px; background: var(--teal-dim); border: 1px solid var(--teal-border); border-radius: 11px; display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 12px; font-weight: 600; flex-shrink: 0; }
-    .profile-name { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; }
-    .profile-sub  { color: var(--muted); font-size: 11px; margin-top: 2px; display: flex; align-items: center; gap: 5px; }
-    .profile-bank-icon { width: 13px; height: 13px; border-radius: 3px; object-fit: contain; }
-    .data-section { margin-bottom: 14px; }
-    .data-section-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted2); margin-bottom: 7px; }
-    .data-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 13px; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; margin-bottom: 5px; gap: 10px; }
-    .data-row:last-child { margin-bottom: 0; }
-    .data-label { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
-    .data-value { font-size: 13px; font-weight: 500; color: var(--text-soft); letter-spacing: -0.01em; }
-    .data-value.mono { font-family: "SF Mono","Fira Code","Courier New",monospace; font-size: 12px; letter-spacing: 0.04em; color: var(--text); }
-    .data-label-row { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
-    .data-bank-icon { width: 13px; height: 13px; border-radius: 3px; object-fit: contain; }
-    .notice { background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 11px; color: var(--muted); margin-top: 12px; line-height: 1.6; display: flex; gap: 7px; align-items: flex-start; }
-    .footer-note { text-align: center; font-size: 11px; color: var(--muted2); margin-top: 18px; line-height: 1.7; position: relative; z-index: 1; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 700px) {
-      .design-thumb { width: 54px; height: 60px; border-radius: 8px; }
-      .design-thumb-label { font-size: 8px; }
-      #main-layout.active { grid-template-columns: 1fr; margin: 0 auto; width: 100%; max-width: 100%; }
-      .right-col { display: flex; position: static; }
-      #main-layout.step2 .left-col  { order: 2; }
-      #main-layout.step2 .right-col { order: 1; }
-      #main-layout.step2 .color-editor { display: none; }
-      .page { padding: 80px 14px 100px; overflow-x: hidden; }
-      .app-hero { padding: 32px 16px 28px; }
-      .app-hero h1 { font-size: 30px; letter-spacing: -1.2px; }
-      .app-hero p  { font-size: 14px; }
-      .card { padding: 18px 16px; margin-left: auto; margin-right: auto; }
-      .card-frame { padding: 16px 14px; }
-      .live-card { width: min(300px, 88vw); aspect-ratio: auto; height: 320px; border-radius: 16px; }
-      .lc-inner { padding: 16px 22px 18px; display: flex; flex-direction: column; height: 100%; }
-      .lc-middle { flex: 1; justify-content: space-evenly; gap: 0; padding: 4px 0; align-items: flex-start; text-align: left; }
-      .lc-group { gap: 2px; }
-      .lc-bank { padding: 6px 14px 6px 7px; margin-bottom: 0; }
-      .lc-bank-icon { width: 18px; height: 18px; }
-      .lc-bank-name { font-size: 14px; }
-      .lc-clabe-label, .lc-section-label { font-size: 10px; letter-spacing: 0.12em; }
-      .lc-clabe { font-size: 15px; letter-spacing: 0.04em; }
-      .lc-name { font-size: 15px; }
-      .lc-cardnum { font-size: 15px; }
-      .lc-logo-dot { font-size: 10px; }
-      .lc-alias { font-size: 13px; margin-top: 3px; }
-      .form-row { grid-template-columns: 1fr; }
-      input, select, textarea { font-size: 13px; padding: 9px 11px; }
-      label { font-size: 9.5px; }
-      .color-editor { padding: 14px 12px; }
-      .swatches { gap: 5px; }
-      .swatch { width: 22px; height: 22px; }
-      .design-thumbs { gap: 7px; }
-      .card-header h1 { font-size: 15px; }
-      #floating-btn-wrap { justify-content: stretch; }
-      #floating-btn { width: 100%; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 22px; border-radius: 100px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none; transition: all 0.2s; border: none; white-space: nowrap; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: #00daa6; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,200,150,0.3); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .btn-lg { padding: 15px 34px; font-size: 16px; }
+    .btn-full { width: 100%; }
+
+    /* LAYOUT */
+    main { position: relative; z-index: 1; }
+    .section-wrap { max-width: 1100px; margin: 0 auto; padding: 110px 48px; }
+    section + section { border-top: 1px solid var(--border); }
+    section { scroll-snap-align: start; scroll-snap-stop: always; }
+    footer { scroll-snap-align: start; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    h2 { font-size: clamp(30px, 3.5vw, 46px); font-weight: 800; letter-spacing: -1.2px; line-height: 1.1; margin-bottom: 14px; }
+    .section-sub { font-size: 16px; color: var(--muted); line-height: 1.7; max-width: 560px; margin-bottom: 56px; }
+
+    /* HERO */
+    #inicio { min-height: 100vh; display: flex; align-items: center; }
+    .hero-inner { max-width: 1100px; margin: 0 auto; padding: 160px 48px 100px; display: grid; grid-template-columns: 1fr 480px; gap: 64px; align-items: center; width: 100%; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 100px; background: rgba(0,200,150,0.09); border: 1px solid rgba(0,200,150,0.22); color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 26px; }
+    .hero-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 2s infinite; }
+    @keyframes blink { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(0.75); } }
+    h1 { font-size: clamp(40px, 4.5vw, 60px); font-weight: 900; letter-spacing: -2px; line-height: 1.04; margin-bottom: 22px; }
+    h1 .accent { color: var(--accent); }
+    .hero-sub { font-size: 19px; color: var(--muted); line-height: 1.65; margin-bottom: 38px; font-weight: 400; max-width: 460px; }
+    .hero-actions { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .hero-note { font-size: 12px; color: var(--dim); letter-spacing: 0.2px; }
+    .hero-visual { display: flex; align-items: center; justify-content: center; perspective: 900px; }
+    .card-mock { width: 340px; aspect-ratio: 1 / 1.15; border-radius: 20px; background: linear-gradient(135deg, #004d38 0%, #00c896 100%); position: relative; overflow: hidden; box-shadow: 0 40px 90px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: space-between; padding: 26px; transform: rotate(-4deg) rotateX(4deg); transition: transform 0.4s ease; cursor: default; }
+    .card-mock:hover { transform: rotate(-1deg) rotateX(2deg) scale(1.02); }
+    .cm-diag { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .cm-top { position: relative; z-index: 1; }
+    .cm-top img { height: 18px; width: auto; display: block; opacity: 0.8; }
+    .cm-bank { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.13); backdrop-filter: blur(8px); border-radius: 100px; padding: 8px 16px; width: fit-content; align-self: center; position: relative; z-index: 1; }
+    .cm-bank-icon { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; }
+    .cm-bank-name { font-size: 14px; font-weight: 400; color: #fff; letter-spacing: 0.5px; }
+    .cm-middle { display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 1; text-align: left; }
+    .cm-field label { display: block; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 4px; text-align: left; }
+    .cm-field span { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; color: #fff !important; text-decoration: none !important; -webkit-text-decoration: none !important; line-height: 1.3; }
+    .cm-field a, .cm-field span a { color: #fff !important; text-decoration: none !important; }
+    .cm-bottom { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); position: relative; z-index: 1; text-align: left; }
+
+    /* CÓMO FUNCIONA */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 48px; }
+    .step-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 32px 28px; transition: border-color 0.25s, transform 0.25s; }
+    .step-card:hover { border-color: rgba(0,200,150,0.28); transform: translateY(-3px); }
+    .step-num { width: 38px; height: 38px; border-radius: 10px; background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.2); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; color: var(--accent); margin-bottom: 20px; }
+    .step-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
+    .step-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+    .center-cta { display: flex; justify-content: center; }
+
+    /* TRUST */
+    .trust-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .trust-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 36px 32px; }
+    .trust-card h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.35; margin-bottom: 24px; }
+    .trust-list { list-style: none; display: flex; flex-direction: column; gap: 13px; }
+    .trust-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--muted); line-height: 1.55; }
+    .trust-check { width: 18px; height: 18px; min-width: 18px; border-radius: 50%; background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.25); margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+    .trust-note { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--dim); line-height: 1.7; }
+
+    /* CTA FINAL */
+    #cta-final { text-align: center; background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,200,150,0.13) 0%, transparent 70%); }
+    #cta-final h2 { font-size: clamp(34px, 4.5vw, 56px); font-weight: 800; letter-spacing: -2px; line-height: 1.1; margin-bottom: 36px; }
+
+    /* ─── PRICING ─────────────────────────────────────── */
+    .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 780px; }
+
+    /* Shared base */
+    .pricing-card { border-radius: var(--r); padding: 38px 34px; position: relative; }
+    .pricing-plan  { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .pricing-price { font-size: 44px; font-weight: 900; letter-spacing: -2px; margin-bottom: 6px; line-height: 1; }
+    .pricing-price sub { font-size: 16px; font-weight: 400; color: var(--muted); letter-spacing: 0; vertical-align: baseline; }
+    .pricing-desc  { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+    .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 11px; margin-bottom: 34px; }
+    .pricing-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+    .pf-check { width: 18px; height: 18px; min-width: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .pf-check.on  { background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.25); }
+    .pf-check.off { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+
+    /* ── Plan Básico — fondo verde oscuro como los step-num ── */
+    .pricing-card.basic {
+      background: linear-gradient(145deg, #002e20 0%, #004d38 45%, #007a58 100%);
+      border: 1px solid rgba(0,200,150,0.28);
+      box-shadow: 0 0 0 1px rgba(0,200,150,0.06), 0 20px 56px rgba(0,168,120,0.2);
     }
+    .pricing-card.basic .pricing-badge {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.25);
+      font-size: 11px; font-weight: 700; padding: 4px 16px; border-radius: 100px;
+      letter-spacing: 0.5px; white-space: nowrap;
+    }
+    .pricing-card.basic .pricing-plan  { color: rgba(255,255,255,0.55); }
+    .pricing-card.basic .pricing-price { color: #fff; }
+    .pricing-card.basic .pricing-price sub { color: rgba(255,255,255,0.5); }
+    .pricing-card.basic .pricing-desc  { color: rgba(255,255,255,0.6); }
+    .pricing-card.basic .pricing-features li { color: rgba(255,255,255,0.82); }
+    .pricing-card.basic .pf-check.on {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    /* CTA button sobre fondo verde */
+    .btn-basic {
+      display: inline-flex; align-items: center; justify-content: center; width: 100%;
+      padding: 13px 22px; border-radius: 100px; font-size: 14px; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none;
+      transition: all 0.22s; white-space: nowrap;
+      background: rgba(255,255,255,0.13);
+      border: 1.5px solid rgba(255,255,255,0.28);
+      color: #fff;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .btn-basic:hover {
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.45);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    }
+
+    /* ── Plan Pro — Amex Black ── */
+    .pricing-card.pro {
+      background: #000000;
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 20px 56px rgba(0,0,0,0.9);
+    }
+    /* Línea plateada en la parte superior */
+    .pricing-card.pro::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(180,180,190,0.35) 20%,
+        rgba(220,222,230,0.95) 50%,
+        rgba(180,180,190,0.35) 80%,
+        transparent 100%);
+      border-radius: var(--r) var(--r) 0 0;
+    }
+    .pricing-card.pro .pro-badge {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(90deg, #5a5a6a, #b0b2be, #dcdee8, #b0b2be, #5a5a6a);
+      color: #080808; font-size: 10px; font-weight: 800;
+      padding: 4px 18px; border-radius: 100px;
+      letter-spacing: 1.5px; white-space: nowrap; text-transform: uppercase;
+    }
+    .pricing-card.pro .pricing-plan  { color: rgba(190,192,205,0.65); letter-spacing: 3.5px; }
+    .pricing-card.pro .pricing-price { color: rgba(255,255,255,0.18); }
+    .pricing-card.pro .pricing-desc  { color: rgba(255,255,255,0.32); }
+    .pricing-card.pro .pricing-features li { color: rgba(255,255,255,0.28); }
+    .pricing-card.pro .pf-check.off {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .soon-pill-pro {
+      display: inline-flex; align-items: center;
+      padding: 7px 20px; border-radius: 100px;
+      background: rgba(190,192,205,0.06);
+      border: 1px solid rgba(190,192,205,0.18);
+      font-size: 11px; font-weight: 600;
+      color: rgba(190,192,205,0.55);
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+
+    /* FAQ */
+    .faq-list { max-width: 720px; display: flex; flex-direction: column; gap: 3px; }
+    .faq-item { border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; transition: border-color 0.2s; }
+    .faq-item.open { border-color: rgba(0,200,150,0.28); }
+    .faq-q { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; cursor: pointer; background: var(--surface); user-select: none; transition: background 0.2s; }
+    .faq-q:hover { background: var(--surface2); }
+    .faq-q-text { font-size: 15px; font-weight: 600; color: var(--text); }
+    .faq-icon { width: 22px; height: 22px; min-width: 22px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); transition: transform 0.25s, border-color 0.2s, color 0.2s; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); border-color: rgba(0,200,150,0.35); color: var(--accent); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.32s ease; background: var(--surface); }
+    .faq-item.open .faq-a { max-height: 160px; }
+    .faq-a-inner { padding: 0 24px 22px; font-size: 14px; color: var(--muted); line-height: 1.75; }
+
+    /* FOOTER */
+    footer { position: relative; z-index: 1; width: 100%; border-top: 1px solid var(--border); padding: 64px 48px 40px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; margin-bottom: 48px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; }
+    .footer-logo { display: block; margin-bottom: 12px; }
+    .footer-tagline { font-size: 13px; color: var(--muted); line-height: 1.65; max-width: 250px; }
+    .footer-col h4 { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim); margin-bottom: 18px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer-col ul li a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--text); }
+    .footer-col ul li a.ft-cta { color: var(--accent); font-weight: 600; }
+    .footer-col ul li a.ft-cta:hover { color: #00daa6; }
+    .footer-bottom { padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .footer-copy { font-size: 12px; color: var(--dim); }
+
+    /* MOBILE */
+    @media (max-width: 860px) {
+      header { padding: 0 24px; }
+      .nav-links { display: none; }
+      .hero-inner { grid-template-columns: 1fr; padding: 120px 24px 80px; text-align: center; gap: 48px; }
+      .hero-sub { max-width: 100%; }
+      .hero-actions { justify-content: center; }
+      .hero-note { text-align: center; }
+      .hero-visual { order: -1; justify-content: center; }
+      .card-mock { width: min(270px, 80vw); aspect-ratio: 1 / 1.25; transform: rotate(-2deg); font-size: 11px; }
+      .section-wrap { padding: 80px 24px; }
+      .steps { grid-template-columns: 1fr; }
+      .trust-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 100%; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      footer { padding: 48px 24px 32px; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      h1 { letter-spacing: -1.5px; }
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .btn-lg { text-align: center; }
+      .cm-field span { font-size: 13px; letter-spacing: 0; }
+      .cm-bank-name { font-size: 14px; }
+    }
+
+    /* SIDE NAV DOTS */
+    #side-nav { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .side-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.12); cursor: pointer; transition: all 0.3s ease; position: relative; }
+    .side-dot:hover { background: rgba(255,255,255,0.5); transform: scale(1.3); }
+    .side-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(0,200,150,0.6); transform: scale(1.2); }
+    .side-dot-label { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); background: rgba(15,15,15,0.92); border: 1px solid var(--border); color: var(--text); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; letter-spacing: 0.3px; }
+    .side-dot:hover .side-dot-label { opacity: 1; }
+    @media (max-width: 860px) { #side-nav { display: none; } }
   </style>
 </head>
 <body>
-<div class="shapes" id="shapes" aria-hidden="true"></div>
+  <div class="shapes" id="shapes" aria-hidden="true"></div>
 
-<header>
-  <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
-  <div class="header-nav">
-    <a href="index.html">Inicio</a>
-    <a href="index.html#pricing">Pricing</a>
-    <a href="index.html#ayuda">Ayuda</a>
-    <a href="app.html" class="btn-nav">Crear mi link</a>
-  </div>
-</header>
+  <header>
+    <a href="#inicio" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+    <nav>
+      <div class="nav-links">
+        <a href="#inicio">Inicio</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#ayuda">Ayuda</a>
+      </div>
+      <a href="app.html" class="btn btn-primary" style="padding:8px 18px;font-size:13px;">Crear mi link</a>
+    </nav>
+  </header>
 
-<div class="page">
-  <div class="app-hero" id="app-hero">
-    <h1 id="app-hero-title">Empieza aquí</h1>
-    <p id="app-hero-sub">Ingresa tus datos y personaliza tu tarjeta.</p>
-  </div>
-  <div id="main-layout">
-    <div class="left-col" id="left-col">
-      <!-- PANEL 1 -->
-      <div class="left-panel" id="panel-step1">
-        <div class="card">
-          <div class="card-header">
-            <div class="n26-bar"></div>
-            <h1>Datos de la cuenta</h1>
-            <p>Comparte tus datos bancarios de forma r&#225;pida y segura.</p>
+  <nav id="side-nav">
+    <div class="side-dot active" data-target="inicio"><span class="side-dot-label">Inicio</span></div>
+    <div class="side-dot" data-target="como-funciona"><span class="side-dot-label">Cómo funciona</span></div>
+    <div class="side-dot" data-target="seguridad"><span class="side-dot-label">Confianza</span></div>
+    <div class="side-dot" data-target="cta-final"><span class="side-dot-label">Empezar</span></div>
+    <div class="side-dot" data-target="pricing"><span class="side-dot-label">Precios</span></div>
+    <div class="side-dot" data-target="ayuda"><span class="side-dot-label">FAQ</span></div>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <section id="inicio">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <div class="hero-tag"><span class="hero-tag-dot"></span>Perfil de cobro personal</div>
+          <h1>Tu información bancaria,<br>lista para <span class="accent">compartir.</span></h1>
+          <p class="hero-sub">Crea tu perfil, compártelo y ten tus datos siempre listos.</p>
+          <div class="hero-actions">
+            <a href="app.html" class="btn btn-primary btn-lg">Crear mi link</a>
+            <a href="#como-funciona" class="btn btn-ghost btn-lg">Cómo funciona</a>
           </div>
-          <div class="security-notice">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="#00c896" stroke-width="1.8" stroke-linejoin="round"/>
-              <path d="M9 12l2 2 4-4" stroke="#00c896" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <p class="hero-note">Gratis · Seguro · Sin fricción</p>
+        </div>
+        <div class="hero-visual">
+          <div class="card-mock">
+            <svg class="cm-diag" viewBox="0 0 100 159" preserveAspectRatio="none">
+              <polygon points="0,0 100,0 100,55 0,115" fill="rgba(255,255,255,0.07)"/>
+              <polygon points="0,159 100,159 100,105 0,148" fill="rgba(0,0,0,0.13)"/>
             </svg>
-            <span>Tu informaci&#243;n est&#225; cifrada y es 100% confidencial. No vendemos ni compartimos tus datos con nadie.</span>
-          </div>
-          <div class="field" id="fg-nombre-cuenta">
-            <label>Nombre de la cuenta <span class="req">*</span></label>
-            <input type="text" id="nombre-cuenta" placeholder="Ej. Pagos Freelance" oninput="updateCard()" />
-            <span class="field-error">Ingresa un nombre para esta cuenta.</span>
-          </div>
-          <div class="field" id="fg-clabe">
-            <label>CLABE interbancaria <span class="req">*</span></label>
-            <div class="clabe-wrap">
-              <input type="tel" id="clabe" placeholder="18 d&#237;gitos" maxlength="18" inputmode="numeric" oninput="onClabeInput()" />
-              <svg class="clabe-verified" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+            <div class="cm-top"><img src="logo-white.png" alt="tr4nsfer.me"/></div>
+            <div class="cm-bank">
+              <div class="cm-bank-icon"><img src="https://www.google.com/s2/favicons?domain=bbva.mx&sz=32" width="18" height="18" style="border-radius:4px;display:block;" alt="BBVA"/></div>
+              <div class="cm-bank-name">BBVA</div>
             </div>
-            <span class="field-error">La CLABE debe tener exactamente 18 d&#237;gitos.</span>
-          </div>
-          <div class="field" id="fg-banco">
-            <label>Banco</label>
-            <div class="banco-wrap" id="banco-wrap">
-              <input type="text" id="banco" placeholder="Se detecta al ingresar tu CLABE" readonly />
-              <img id="banco-icon" class="banco-icon" src="" alt="" />
-            </div>
-          </div>
-          <div class="field" id="fg-tarjeta">
-            <label>N&#250;mero de tarjeta <span class="opt">&#8212; opcional</span></label>
-            <input type="tel" id="tarjeta" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" oninput="onTarjetaInput()" />
-            <span class="field-error">Debe tener 16 d&#237;gitos.</span>
-          </div>
-          <div class="field">
-            <label>Alias <span class="opt">&#8212; opcional</span></label>
-            <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios&#8230;" oninput="updateCard()" />
-          </div>
-        </div>
-      </div>
-      <!-- PANEL 2 -->
-      <div class="left-panel hidden" id="panel-step2">
-        <button class="step2-back" onclick="backToStep1()">&#8592; Volver</button>
-        <div class="step2-badge">
-          <div class="step2-badge-dot"></div>
-          <div>
-            <div class="step2-badge-text" id="step2-nombre-cuenta">&#8212;</div>
-            <div class="step2-badge-sub" id="step2-banco">&#8212;</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="n26-bar"></div>
-            <h1>Informaci&#243;n personal</h1>
-            <p>Completa tus datos para activar tu perfil.</p>
-          </div>
-          <div class="field" id="fg-nombre">
-            <label>Nombre completo <span class="req">*</span></label>
-            <input type="text" id="nombre" placeholder="Ej. Mar&#237;a Garc&#237;a L&#243;pez" autocomplete="name" />
-            <span class="field-error">Ingresa tu nombre completo.</span>
-          </div>
-          <div class="field" id="fg-email">
-            <label>Correo electr&#243;nico <span class="req">*</span></label>
-            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" />
-            <span class="field-error">Ingresa un correo v&#225;lido.</span>
-          </div>
-          <div class="form-row">
-            <div class="field" id="fg-instagram">
-              <label>Instagram <span class="req">*</span></label>
-              <div class="input-prefix-wrap">
-                <span class="input-prefix">@</span>
-                <input type="text" id="instagram" placeholder="usuario" />
+            <div class="cm-middle">
+              <div class="cm-field">
+                <label>CLABE</label>
+                <div style="display:flex;align-items:center;gap:6px;"><span>0121 8003 5393 9658</span><button onclick="(function(){navigator.clipboard.writeText('012180035393958');const i=document.getElementById('cp-clabe');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-clabe" width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
-              <span class="field-error">Ingresa tu usuario.</span>
-            </div>
-            <div class="field">
-              <label>WhatsApp <span class="opt">&#8212; opcional</span></label>
-              <input type="tel" id="whatsapp" placeholder="10 d&#237;gitos" maxlength="10" inputmode="numeric" />
-            </div>
-          </div>
-          <div class="consent-block">
-            <label class="consent-row" id="fg-consent1">
-              <input type="checkbox" id="consent1" />
-              <span class="consent-check">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <span class="consent-text">Entiendo que al generar mi perfil, mis datos de dep&#243;sito ser&#225;n visibles para cualquier persona que acceda al link.</span>
-              <span class="field-error">Debes aceptar para continuar.</span>
-            </label>
-            <label class="consent-row" id="fg-consent2">
-              <input type="checkbox" id="consent2" />
-              <span class="consent-check">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <span class="consent-text">He le&#237;do y acepto los <a href="#" class="consent-link">T&#233;rminos y Condiciones</a> y la <a href="#" class="consent-link">Pol&#237;tica de Privacidad</a>.</span>
-              <span class="field-error">Debes aceptar para continuar.</span>
-            </label>
-          </div>
-          <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-              <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div class="spinner" id="spinner"></div>
-            <span id="btn-text">Generar mi Link</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- RIGHT COLUMN -->
-    <div class="right-col">
-      <div class="card-frame" id="card-frame">
-        <div class="live-card light-text" id="live-card">
-          <div class="card-design-layer" id="card-design-layer"></div>
-          <div class="lc-inner">
-            <div class="lc-top">
-              <span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span>
-            </div>
-            <div class="lc-middle">
-              <div class="lc-bank" id="lc-bank" style="display:none;">
-                <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
-                <span class="lc-bank-name" id="lc-bank-name">&#8212;</span>
+              <div class="cm-field">
+                <label>Número de tarjeta</label>
+                <div style="display:flex;align-items:center;gap:6px;"><span>4152 3141 0012 5678</span><button onclick="(function(){navigator.clipboard.writeText('4152314100125678');const i=document.getElementById('cp-card');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-card" width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
-              <div class="lc-group" id="lc-clabe-group" style="display:none;">
-                <div class="lc-clabe-label">CLABE</div>
-                <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
-              </div>
-              <div class="lc-group" id="lc-tarjeta-group" style="display:none;">
-                <div class="lc-section-label">TARJETA</div>
-                <div class="lc-copy-row"><div class="lc-cardnum" id="lc-cardnum"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-cardnum');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
-              </div>
-              <div class="lc-group" id="lc-nombre-group" style="display:none;">
-                <div class="lc-section-label">NOMBRE DE CUENTA</div>
-                <div class="lc-copy-row"><div class="lc-name" id="lc-nombre-val"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-nombre-val');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+              <div class="cm-field">
+                <label>Nombre de cuenta</label>
+                <div style="display:flex;align-items:center;gap:6px;"><span>MAURICIO PONCE TORRES</span><button onclick="(function(){navigator.clipboard.writeText('MAURICIO PONCE TORRES');const i=document.getElementById('cp-name');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-name" width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
             </div>
-            <div class="lc-bottom">
-              <div class="lc-alias" id="lc-alias"></div>
-            </div>
+            <div class="cm-bottom">Cuenta Fiscal</div>
           </div>
         </div>
       </div>
-      <div class="color-editor" id="color-editor">
-        <div class="color-editor-title">Personaliza tu tarjeta</div>
-        <div class="color-section">
-          <div class="color-section-label">Dise&#241;o</div>
-          <div class="design-picker" id="design-picker"></div>
+    </section>
+
+    <!-- CÓMO FUNCIONA -->
+    <section id="como-funciona">
+      <div class="section-wrap">
+        <div class="eyebrow">Paso a paso</div>
+        <h2>Cómo funciona</h2>
+        <p class="section-sub">Cuatro pasos y listo.</p>
+        <div class="steps">
+          <div class="step-card"><div class="step-num">1</div><div class="step-title">Ingresa tus datos</div><p class="step-desc">Captura tu CLABE y la información básica de tu cuenta en segundos.</p></div>
+          <div class="step-card"><div class="step-num">2</div><div class="step-title">Personaliza tu perfil</div><p class="step-desc">Diseña tu tarjeta y adapta el portal a tu estilo.</p></div>
+          <div class="step-card"><div class="step-num">3</div><div class="step-title">Genera tu link</div><p class="step-desc">Generamos una página personalizada con tu información lista para compartir.</p></div>
+          <div class="step-card"><div class="step-num">4</div><div class="step-title">Compártelo</div><p class="step-desc">Envía tu link donde quieras. Quien lo reciba copia tus datos en segundos.</p></div>
         </div>
-        <div class="color-section">
-          <div class="color-section-label">Color</div>
-          <div class="swatches" id="card-swatches"></div>
-        </div>
-        <div class="color-section">
-          <div class="color-section-label">Fondo</div>
-          <div class="swatches" id="bg-swatches"></div>
+        <div class="center-cta"><a href="app.html" class="btn btn-primary btn-lg">Crear mi link</a></div>
+      </div>
+    </section>
+
+    <!-- SEGURIDAD -->
+    <section id="seguridad">
+      <div class="section-wrap">
+        <div class="eyebrow">Confianza</div>
+        <h2>Diseñado para tu tranquilidad</h2>
+        <p class="section-sub">Tu información solo se usa para lo que acordamos.</p>
+        <div class="trust-grid">
+          <div class="trust-card">
+            <h3>Tu perfil solo muestra lo necesario para recibir transferencias.</h3>
+            <ul class="trust-list">
+              <li><span class="trust-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>No pedimos contraseñas.</li>
+              <li><span class="trust-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>No tenemos acceso a tu banca en línea.</li>
+              <li><span class="trust-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>No podemos mover tu dinero.</li>
+              <li><span class="trust-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Solo mostramos datos de depósito.</li>
+            </ul>
+            <p class="trust-note">tr4nsfer.me es una herramienta para compartir información, no un intermediario financiero.</p>
+          </div>
+          <div class="trust-card">
+            <h3>Tú decides con quién compartes tu link.</h3>
+            <ul class="trust-list">
+              <li><span class="trust-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Cualquiera con el link podrá ver tus datos de depósito.</li>
+              <li><span class="trust-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>No indexamos perfiles en buscadores.</li>
+              <li><span class="trust-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>No vendemos ni compartimos tu información.</li>
+            </ul>
+            <p class="trust-note">Te recomendamos compartir tu link únicamente con personas de confianza.</p>
+          </div>
         </div>
       </div>
-      <div id="floating-btn-wrap">
-        <button id="floating-btn" onclick="floatingBtnClick()">
-          <div class="spinner" id="floating-spinner"></div>
-          <span id="floating-btn-text">Continuar &#8594;</span>
-        </button>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section id="cta-final">
+      <div class="section-wrap" style="text-align:center;">
+        <h2>Haz que pagarte<br>sea más simple.</h2>
+        <a href="app.html" class="btn btn-primary btn-lg">Crear mi link</a>
       </div>
-    </div>
-  </div>
-  <!-- SUCCESS -->
-  <div id="view-success" class="view">
-    <div class="card">
-      <div class="success-icon">&#10003;</div>
-      <h2>Tu link est&#225; listo</h2>
-      <p>Comparte este link y cualquiera podr&#225; ver tus datos para hacerte el SPEI.</p>
-      <div class="link-box">
-        <span id="generated-link">&#8212;</span>
-        <button class="btn btn-copy" id="btn-copy-link" onclick="copyLink()">Copiar</button>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing">
+      <div class="section-wrap">
+        <div class="eyebrow">Precios</div>
+        <h2>Simple y transparente</h2>
+        <p class="section-sub">Gratis hoy y siempre. Profesionaliza cuando lo necesites.</p>
+        <div class="pricing-grid">
+
+          <!-- PLAN BÁSICO — verde oscuro -->
+          <div class="pricing-card basic">
+            <div class="pricing-badge">Disponible ahora</div>
+            <div class="pricing-plan">Plan Básico</div>
+            <div class="pricing-price">$0 <sub>/ mes</sub></div>
+            <p class="pricing-desc">Todo lo que necesitas para empezar.</p>
+            <ul class="pricing-features">
+              <li><span class="pf-check on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1 perfil</li>
+              <li><span class="pf-check on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Link personalizado</li>
+              <li><span class="pf-check on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Datos para SPEI</li>
+              <li><span class="pf-check on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Diseño personalizable</li>
+              <li><span class="pf-check on"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Compartir por WhatsApp</li>
+            </ul>
+            <a href="app.html" class="btn-basic">Crear mi link gratis</a>
+          </div>
+
+          <!-- PLAN PRO — Amex Black -->
+          <div class="pricing-card pro">
+            <div class="pro-badge">Próximamente</div>
+            <div class="pricing-plan">Plan Pro</div>
+            <div class="pricing-price">Pronto</div>
+            <p class="pricing-desc">Más control. Más perfiles. Más herramientas.</p>
+            <ul class="pricing-features">
+              <li><span class="pf-check off"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(190,192,205,0.25)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Múltiples perfiles</li>
+              <li><span class="pf-check off"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(190,192,205,0.25)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Control de visibilidad</li>
+              <li><span class="pf-check off"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(190,192,205,0.25)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Estadísticas básicas</li>
+              <li><span class="pf-check off"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="rgba(190,192,205,0.25)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Soporte prioritario</li>
+            </ul>
+            <div style="display:flex;justify-content:center;">
+              <span class="soon-pill-pro">Muy pronto</span>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <button class="btn" onclick="shareWhatsApp()">Compartir por WhatsApp</button>
-      <button class="btn btn-outline" onclick="resetToStep1()">+ Crear otro</button>
-    </div>
-  </div>
-  <!-- PROFILE -->
-  <div id="view-profile" class="view">
-    <div class="card">
-      <div class="profile-header">
-        <div class="avatar" id="prof-avatar">&#8212;</div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="ayuda">
+      <div class="section-wrap">
+        <div class="eyebrow">FAQ</div>
+        <h2>Preguntas frecuentes</h2>
+        <p class="section-sub">Todo lo que necesitas saber sobre tr4nsfer.me.</p>
+        <div class="faq-list">
+          <div class="faq-item open">
+            <div class="faq-q"><span class="faq-q-text">¿Qué es la CLABE?</span><span class="faq-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></div>
+            <div class="faq-a"><p class="faq-a-inner">Es tu número de 18 dígitos para recibir transferencias interbancarias (SPEI). Lo encuentras en tu app bancaria o estado de cuenta.</p></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q"><span class="faq-q-text">¿Necesito compartir mi contraseña?</span><span class="faq-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></div>
+            <div class="faq-a"><p class="faq-a-inner">No. Nunca pedimos contraseñas ni acceso a tu cuenta bancaria. Solo necesitas tu CLABE y datos básicos.</p></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q"><span class="faq-q-text">¿Puedo agregar mi número de tarjeta?</span><span class="faq-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></div>
+            <div class="faq-a"><p class="faq-a-inner">Sí, es opcional. Puedes incluirlo para quienes prefieran hacer un pago con tarjeta en lugar de SPEI.</p></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q"><span class="faq-q-text">¿Qué pasa si mi banco no se detecta automáticamente?</span><span class="faq-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></div>
+            <div class="faq-a"><p class="faq-a-inner">Puedes continuar sin problema. La CLABE seguirá siendo válida para recibir SPEI independientemente de si se muestra el nombre del banco.</p></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q"><span class="faq-q-text">¿Puedo eliminar mi perfil?</span><span class="faq-icon"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span></div>
+            <div class="faq-a"><p class="faq-a-inner">Próximamente podrás reemplazar o gestionar tu perfil desde un panel de control. Por ahora contáctanos si necesitas hacer algún cambio.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-grid">
         <div>
-          <div class="profile-name" id="prof-name">&#8212;</div>
-          <div class="profile-sub">
-            <img id="prof-bank-icon" class="profile-bank-icon" src="" alt="" style="display:none;" />
-            <span id="prof-bank">&#8212;</span>
-          </div>
+          <a href="#inicio" class="logo footer-logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+          <p class="footer-tagline">Recibe pagos por SPEI con un solo link.</p>
         </div>
-      </div>
-      <div class="data-section">
-        <div class="data-section-label">Datos para SPEI</div>
-        <div class="data-row">
-          <div>
-            <div class="data-label-row">
-              <img id="row-banco-icon" class="data-bank-icon" src="" alt="" style="display:none;" />
-              <span class="data-label">CLABE interbancaria</span>
-            </div>
-            <div class="data-value mono" id="prof-clabe">&#8212;</div>
-          </div>
-          <button class="btn btn-copy" onclick="copyField('prof-clabe', this)">Copiar</button>
+        <div class="footer-col">
+          <h4>Menú</h4>
+          <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#ayuda">Ayuda</a></li>
+            <li><a href="app.html" class="ft-cta">Crear mi link →</a></li>
+          </ul>
         </div>
-        <div class="data-row" id="row-tarjeta" style="display:none;">
-          <div>
-            <div class="data-label">N&#250;mero de tarjeta</div>
-            <div class="data-value mono" id="prof-tarjeta">&#8212;</div>
-          </div>
-          <button class="btn btn-copy" onclick="copyField('prof-tarjeta', this)">Copiar</button>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Términos</a></li>
+            <li><a href="#">Política de Privacidad</a></li>
+          </ul>
         </div>
-        <div class="data-row">
-          <div>
-            <div class="data-label">Titular</div>
-            <div class="data-value" id="prof-titular">&#8212;</div>
-          </div>
-          <button class="btn btn-copy" onclick="copyField('prof-titular', this)">Copiar</button>
-        </div>
-      </div>
-      <div class="data-section">
-        <div class="data-section-label">Contacto</div>
-        <div class="data-row" id="row-instagram">
-          <div>
-            <div class="data-label">Instagram</div>
-            <div class="data-value" id="prof-instagram">&#8212;</div>
-          </div>
-          <button class="btn btn-copy" onclick="copyField('prof-instagram', this)">Copiar</button>
-        </div>
-        <div class="data-row" id="row-whatsapp" style="display:none;">
-          <div>
-            <div class="data-label">WhatsApp</div>
-            <div class="data-value" id="prof-whatsapp">&#8212;</div>
-          </div>
-          <button class="btn btn-copy" onclick="copyField('prof-whatsapp', this)">Copiar</button>
-        </div>
-      </div>
-      <div class="notice">
-        <span>&#128274;</span>
-        <span>Solo para recibir SPEI. No incluye contrase&#241;as ni acceso a tu cuenta.</span>
       </div>
     </div>
-  </div>
-</div>
+    <div class="footer-bottom">
+      <span class="footer-copy">tr4nsfer.me © 2026</span>
+      <span class="footer-copy">Hecho en México 🇲🇽</span>
+    </div>
+  </footer>
 
-<!-- ─── FOOTER CORREGIDO ──────────────────────────────── -->
-<footer class="app-footer">
-  <div class="app-footer-inner">
-    <a href="index.html"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
-    <div style="display:flex;gap:24px;align-items:center;">
-      <a href="index.html#pricing">Pricing</a>
-      <a href="index.html#ayuda">Ayuda</a>
-      <a href="index.html#inicio">Términos</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:24px;">
-      <span class="app-footer-copy">tr4nsfer.me © 2026</span>
-      <span class="app-footer-copy">Hecho en México 🇲🇽</span>
-    </div>
-  </div>
-</footer>
-
-<script>
-  const GHL_WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
-  const BANCOS = {
-    '133':{ nombre:'ACTINVER',          domain:'actinver.com' },
-    '062':{ nombre:'AFIRME',            domain:'afirme.com' },
-    '721':{ nombre:'albo',              domain:'albo.mx' },
-    '706':{ nombre:'ARCUS FI',          domain:'arcusfi.com' },
-    '127':{ nombre:'BANCO AZTECA',      domain:'bancoazteca.com.mx' },
-    '030':{ nombre:'BAJÍO',             domain:'bb.com.mx' },
-    '002':{ nombre:'BANAMEX',           domain:'banamex.com' },
-    '154':{ nombre:'BANCO COVALTO',     domain:'covalto.com' },
-    '006':{ nombre:'BANCOMEXT',         domain:'bancomext.com' },
-    '137':{ nombre:'BANCOPPEL',         domain:'bancoppel.com' },
-    '152':{ nombre:'BANCREA',           domain:'bancrea.com' },
-    '019':{ nombre:'BANJERCITO',        domain:'banjercito.com.mx' },
-    '147':{ nombre:'BANKAOOL',          domain:'bankaool.com' },
-    '106':{ nombre:'BANK OF AMERICA',   domain:'bankofamerica.com' },
-    '009':{ nombre:'BANOBRAS',          domain:'banobras.gob.mx' },
-    '072':{ nombre:'BANORTE',           domain:'banorte.com' },
-    '058':{ nombre:'BANREGIO',          domain:'banregio.com' },
-    '060':{ nombre:'BANSI',             domain:'bansi.com.mx' },
-    '129':{ nombre:'BARCLAYS',          domain:'barclays.com.mx' },
-    '012':{ nombre:'BBVA MEXICO',       domain:'bbva.mx' },
-    '112':{ nombre:'BMONEX',            domain:'monex.com.mx' },
-    '677':{ nombre:'CAJA POP MEXICANA', domain:'cajaPopMexicana.coop' },
-    '715':{ nombre:'CASHI',             domain:'cashi.mx' },
-    '631':{ nombre:'CI BOLSA',          domain:'cibolsa.com' },
-    '124':{ nombre:'CITI MEXICO',       domain:'citibanamex.com' },
-    '130':{ nombre:'COMPARTAMOS',       domain:'compartamos.mx' },
-    '140':{ nombre:'CONSUBANCO',        domain:'consubanco.com' },
-    '723':{ nombre:'Cuenca',            domain:'cuenca.com' },
-    '616':{ nombre:'FINAMEX',           domain:'finamex.com.mx' },
-    '634':{ nombre:'FINCOMUN',          domain:'fincomun.com.mx' },
-    '699':{ nombre:'FONDEADORA',        domain:'fondeadora.com' },
-    '601':{ nombre:'GBM',               domain:'gbm.com.mx' },
-    '167':{ nombre:'HEY BANCO',         domain:'heybanco.com' },
-    '021':{ nombre:'HSBC',              domain:'hsbc.com.mx' },
-    '036':{ nombre:'INBURSA',           domain:'inbursa.com' },
-    '136':{ nombre:'INTERCAM BANCO',    domain:'intercam.com.mx' },
-    '059':{ nombre:'INVEX',             domain:'invex.com' },
-    '110':{ nombre:'JP MORGAN',         domain:'jpmorgan.com' },
-    '128':{ nombre:'KAPITAL',           domain:'kapital.mx' },
-    '661':{ nombre:'KLAR',              domain:'klar.mx' },
-    '653':{ nombre:'KUSPIT',            domain:'kuspit.com' },
-    '670':{ nombre:'LIBERTAD',          domain:'libertad.com.mx' },
-    '602':{ nombre:'MASARI',            domain:'masari.com.mx' },
-    '722':{ nombre:'MERCADO PAGO',      domain:'mercadopago.com.mx' },
-    '042':{ nombre:'MIFEL',             domain:'mifel.com' },
-    '600':{ nombre:'MONEXCB',           domain:'monex.com.mx' },
-    '132':{ nombre:'MULTIVA',           domain:'multiva.com.mx' },
-    '135':{ nombre:'NAFIN',             domain:'nafin.com' },
-    '638':{ nombre:'NU MEXICO',         domain:'nu.com.mx' },
-    '710':{ nombre:'NVIO',              domain:'nvio.mx' },
-    '148':{ nombre:'PAGATODO',          domain:'pagatodo.com' },
-    '620':{ nombre:'PROFUTURO',         domain:'profuturo.com.mx' },
-    '156':{ nombre:'SABADELL',          domain:'sabadell.mx' },
-    '014':{ nombre:'SANTANDER',         domain:'santander.com.mx' },
-    '044':{ nombre:'SCOTIABANK',        domain:'scotiabank.com.mx' },
-    '728':{ nombre:'SPIN BY OXXO',      domain:'spinbyoxxo.com.mx' },
-    '646':{ nombre:'STP',               domain:'stp.mx' },
-    '703':{ nombre:'TESORED',           domain:'tesored.com' },
-    '138':{ nombre:'UALA',              domain:'ualabee.com' },
-    '617':{ nombre:'VALMEX',            domain:'valmex.com.mx' },
-    '605':{ nombre:'VALUE',             domain:'value.mx' },
-    '113':{ nombre:'VE POR MAS',        domain:'bx.com.mx' },
-    '141':{ nombre:'VOLKSWAGEN',        domain:'vwfs.mx' },
-    '846':{ nombre:'STP',               domain:'stp.mx' },
-  };
-  const favicon = d => `https://www.google.com/s2/favicons?domain=${d}&sz=32`;
-  const CARD_DESIGNS = [
-    {
-      id: 'diagonal', label: 'Diagonal',
-      render: () => `<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,58 0,125" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,38" fill="rgba(255,255,255,0.07)"/><polygon points="0,130 100,60 100,159 0,159" fill="rgba(255,255,255,0.05)"/><line x1="0" y1="125" x2="100" y2="58" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 54,0 54,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="34,0 54,0 54,14" fill="rgba(255,255,255,0.07)"/><polygon points="0,49 54,23 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`
-    },
-    {
-      id: 'aurora', label: 'Aurora',
-      render: () => `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-c" cx="82%" cy="14%" r="42%"><stop offset="0%" stop-color="rgba(255,255,255,0.14)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/><rect width="100%" height="100%" fill="url(#au-c)"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="at-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-c" cx="82%" cy="14%" r="42%"><stop offset="0%" stop-color="rgba(255,255,255,0.14)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#at-a)"/><rect width="100%" height="100%" fill="url(#at-b)"/><rect width="100%" height="100%" fill="url(#at-c)"/></svg>`
-    },
-    {
-      id: 'espiral', label: 'Espiral',
-      render: () => `<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q64,114 100,104" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/><path d="M0,159 Q62,128 100,122" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/><path d="M0,159 Q56,139 100,136" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,159 Q50,148 100,148" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q20,18 78,0" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q27,29 54,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q31,37 54,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><path d="M0,60 Q34,43 54,40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/><path d="M0,60 Q33,49 54,47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,60 Q28,54 54,53" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,60 Q20,20 43,0" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.6"/></svg>`
-    },
-    {
-      id: 'solido', label: 'Sólido',
-      render: () => ``,
-      thumbRender: () => ``
-    },
-  ];
-  let selectedDesign       = 0;
-  let selectedCardGradient = 'linear-gradient(135deg,#004d38,#00c896)';
-  let selectedBgColor      = '#000000';
-  let currentStep          = 1;
-  const CARD_PRESETS = [
-    { label:'Verde', value:'linear-gradient(135deg,#004d38,#00c896)', solid:'#00a87a' },
-    { label:'Negro', value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)', solid:'#000000' },
-    { label:'Rosa',  value:'linear-gradient(135deg,#7a2050,#e8719a)', solid:'#c0537a' },
-    { label:'Azul',  value:'linear-gradient(135deg,#0f3460,#1a6fb5)', solid:'#145a96' },
-  ];
-  const BG_PRESETS = [
-    { label:'Negro',  value:'#000000' },
-    { label:'Blanco', value:'#f0f0f0' },
-  ];
-  const store = {};
-  const $ = id => document.getElementById(id);
-  function setFloatingBtn({ text, spinner: showSpinner, disabled, visible }) {
-    const wrap   = $('floating-btn-wrap');
-    const btn    = $('floating-btn');
-    const spinEl = $('floating-spinner');
-    const textEl = $('floating-btn-text');
-    if (visible === false) wrap.classList.add('hidden');
-    else wrap.classList.remove('hidden');
-    if (text !== undefined)        textEl.textContent = text;
-    if (showSpinner !== undefined) spinEl.style.display = showSpinner ? 'inline-block' : 'none';
-    if (disabled !== undefined)    btn.disabled = disabled;
-  }
-  function floatingBtnClick() {
-    if (currentStep === 1) goToStep2();
-    else if (currentStep === 2) submitForm();
-  }
-  function showMainLayout() {
-    $('main-layout').classList.add('active');
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    setFloatingBtn({ visible: true });
-  }
-  function hideMainLayout() {
-    $('main-layout').classList.remove('active');
-    setFloatingBtn({ visible: false });
-  }
-  function showView(id) {
-    hideMainLayout();
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    $(id).classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  function transitionLeftPanel(fromId, toId, onSwap) {
-    const fromEl = $(fromId);
-    const toEl   = $(toId);
-    fromEl.classList.add('exit-left');
-    setTimeout(() => {
-      fromEl.classList.add('hidden');
-      fromEl.classList.remove('exit-left');
-      toEl.classList.remove('hidden');
-      toEl.classList.add('enter-right');
-      if (onSwap) onSwap();
-      toEl.getBoundingClientRect();
-      toEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-      toEl.classList.remove('enter-right');
-      setTimeout(() => { toEl.style.transition = ''; }, 320);
-    }, 280);
-  }
-  function transitionHero(title, subtitle) {
-    const hero = $('app-hero');
-    hero.classList.add('hero-exit');
-    setTimeout(() => {
-      $('app-hero-title').textContent = title;
-      $('app-hero-sub').textContent   = subtitle;
-      hero.classList.remove('hero-exit');
-      hero.classList.add('hero-enter');
-      hero.getBoundingClientRect();
-      hero.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
-      hero.classList.remove('hero-enter');
-      setTimeout(() => { hero.style.transition = ''; }, 300);
-    }, 290);
-  }
-  function goToStep2() {
-    const nombreCuenta = $('nombre-cuenta').value.trim();
-    const clabe        = $('clabe').value.replace(/\D/g,'');
-    const tarjeta      = $('tarjeta').value.replace(/\D/g,'');
-    let ok = true;
-    if (setError('fg-nombre-cuenta', nombreCuenta.length < 2)) ok = false;
-    if (setError('fg-clabe', clabe.length !== 18))             ok = false;
-    if (tarjeta.length > 0 && setError('fg-tarjeta', tarjeta.length !== 16)) ok = false;
-    else setError('fg-tarjeta', false);
-    if (!ok) return;
-    const bancoCode = clabe.substring(0, 3);
-    const bancoData = BANCOS[bancoCode];
-    $('step2-nombre-cuenta').textContent = nombreCuenta + ($('alias').value.trim() ? ` · ${$('alias').value.trim()}` : '');
-    $('step2-banco').textContent = bancoData ? bancoData.nombre : 'Banco no identificado';
-    $('color-editor').classList.add('fade-out');
-    setFloatingBtn({ visible: false });
-    transitionHero('Último paso', 'Completa tu información y crea tu link personal.');
-    transitionLeftPanel('panel-step1', 'panel-step2', () => {
-      currentStep = 2;
-      $('main-layout').classList.add('step2');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-  function backToStep1() {
-    $('color-editor').classList.remove('fade-out');
-    transitionHero('Empieza aquí', 'Ingresa tus datos y personaliza tu tarjeta.');
-    transitionLeftPanel('panel-step2', 'panel-step1', () => {
-      currentStep = 1;
-      $('main-layout').classList.remove('step2');
-      setFloatingBtn({ text: 'Continuar →', visible: true });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-  function resetToStep1() {
-    currentStep = 1;
-    $('color-editor').classList.remove('fade-out');
-    $('panel-step2').classList.add('hidden');
-    $('panel-step1').classList.remove('hidden');
-    $('panel-step1').classList.remove('exit-left');
-    $('panel-step1').style.opacity = '';
-    $('panel-step1').style.transform = '';
-    showMainLayout();
-    setFloatingBtn({ text: 'Continuar →', visible: true });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  function updateCard() {
-    const nombre  = $('nombre-cuenta').value.trim();
-    const alias   = $('alias').value.trim();
-    const clabe   = $('clabe').value.replace(/\D/g,'');
-    const tarjeta = $('tarjeta').value.replace(/\D/g,'');
-    const nombreGroup = $('lc-nombre-group');
-    const nombreEl    = $('lc-nombre-val');
-    if (nombre) {
-      const nombreUp = nombre.toUpperCase();
-      nombreEl.textContent = nombreUp;
-      if (nombreUp.length > 38)       { nombreEl.style.fontSize = '10px'; nombreEl.style.letterSpacing = '0.02em'; }
-      else if (nombreUp.length > 26)  { nombreEl.style.fontSize = '12px'; nombreEl.style.letterSpacing = '0.03em'; }
-      else                            { nombreEl.style.fontSize = ''; nombreEl.style.letterSpacing = ''; }
-      nombreGroup.style.display = 'flex';
-    } else {
-      nombreGroup.style.display = 'none';
-    }
-    $('lc-alias').textContent = alias ? alias.toUpperCase() : '';
-    const clabeGroup = $('lc-clabe-group');
-    if (clabe.length >= 1) {
-      const p = clabe.padEnd(18,'·');
-      $('lc-clabe').textContent = p.substring(0,4)+' '+p.substring(4,8)+' '+p.substring(8,13)+' '+p.substring(13,18);
-      clabeGroup.style.display = 'flex';
-    } else {
-      clabeGroup.style.display = 'none';
-    }
-    const tGroup = $('lc-tarjeta-group');
-    if (tarjeta.length >= 1) {
-      const t = tarjeta.padEnd(16,'·');
-      $('lc-cardnum').textContent = t.substring(0,4)+' '+t.substring(4,8)+' '+t.substring(8,12)+' '+t.substring(12,16);
-      tGroup.style.display = 'flex';
-    } else {
-      $('lc-cardnum').textContent = '';
-      tGroup.style.display = 'none';
-    }
-  }
-  function onClabeInput() {
-    const input = $('clabe');
-    input.value = input.value.replace(/\D/g,'').substring(0, 18);
-    input.classList.toggle('complete', input.value.length === 18);
-    const code       = input.value.substring(0, 3);
-    const wrap       = $('banco-wrap');
-    const bancoInput = $('banco');
-    const iconEl     = $('banco-icon');
-    const lcBank     = $('lc-bank');
-    if (code.length === 3 && BANCOS[code]) {
-      const b = BANCOS[code];
-      bancoInput.value = b.nombre;
-      iconEl.src = favicon(b.domain); iconEl.alt = b.nombre;
-      wrap.classList.add('detected');
-      $('lc-bank-icon').src = favicon(b.domain);
-      $('lc-bank-icon').style.display = 'block';
-      $('lc-bank-name').textContent = b.nombre;
-      lcBank.style.display = 'flex';
-    } else {
-      bancoInput.value = ''; iconEl.src = '';
-      wrap.classList.remove('detected');
-      lcBank.style.display = 'none';
-    }
-    updateCard();
-  }
-  function onTarjetaInput() {
-    const input = $('tarjeta');
-    let v = input.value.replace(/\D/g,'').substring(0, 16);
-    input.value = v.replace(/(.{4})/g,'$1 ').trim();
-    updateCard();
-  }
-  function renderDesign(containerEl, designIndex) {
-    if (!containerEl) return;
-    containerEl.innerHTML = CARD_DESIGNS[designIndex].render();
-  }
-  function buildDesignPicker() {
-    const picker = $('design-picker');
-    CARD_DESIGNS.forEach((d, i) => {
-      const wrap  = document.createElement('div');
-      wrap.className = 'design-thumb-wrap';
-      const thumb = document.createElement('div');
-      thumb.className = 'design-thumb' + (i === 0 ? ' active' : '');
-      const preset0 = CARD_PRESETS.find(p => p.value === selectedCardGradient);
-      thumb.style.background = (d.id === 'solido' && preset0) ? preset0.solid : selectedCardGradient;
-      thumb.innerHTML = d.thumbRender();
-      thumb.onclick = () => {
-        selectedDesign = i;
-        document.querySelectorAll('.design-thumb').forEach(t => t.classList.remove('active'));
-        thumb.classList.add('active');
-        renderDesign($('card-design-layer'), i);
-        applyCardColor();
-      };
-      const lbl = document.createElement('div');
-      lbl.className = 'design-thumb-label';
-      lbl.textContent = d.label;
-      wrap.appendChild(thumb);
-      wrap.appendChild(lbl);
-      picker.appendChild(wrap);
-    });
-  }
-  function buildSwatches() {
-    const cardWrap = $('card-swatches');
-    const bgWrap   = $('bg-swatches');
-    CARD_PRESETS.forEach((p, i) => {
-      const sw = document.createElement('div');
-      sw.className = 'swatch' + (i === 0 ? ' active' : '');
-      sw.style.background = p.solid || p.value;
-      if (p.label === 'Negro') sw.style.border = '1px solid #333';
-      if (p.label === 'Blanco') sw.style.border = '1px solid #444';
-      sw.title = p.label;
-      sw.onclick = () => {
-        document.querySelectorAll('#card-swatches .swatch').forEach(s => s.classList.remove('active'));
-        sw.classList.add('active');
-        selectedCardGradient = p.value;
-        applyCardColor();
-      };
-      cardWrap.appendChild(sw);
-    });
-    BG_PRESETS.forEach((p, i) => {
-      const sw = document.createElement('div');
-      sw.className = 'swatch' + (i === 0 ? ' active' : '');
-      sw.style.background = p.solid || p.value;
-      if (p.value === '#000000') sw.style.border = '1px solid #333';
-      if (p.label === 'Blanco')  sw.style.border = '1px solid #888';
-      sw.title = p.label;
-      sw.onclick = () => {
-        document.querySelectorAll('#bg-swatches .swatch').forEach(s => s.classList.remove('active'));
-        sw.classList.add('active');
-        selectedBgColor = p.value;
-        applyBgColor();
-      };
-      bgWrap.appendChild(sw);
-    });
-  }
-  function applyCardColor() {
-    const card = $('live-card');
-    const isSolido = CARD_DESIGNS[selectedDesign] && CARD_DESIGNS[selectedDesign].id === 'solido';
-    const preset = CARD_PRESETS.find(p => p.value === selectedCardGradient);
-    const bg = isSolido && preset ? preset.solid : selectedCardGradient;
-    card.style.background = bg;
-    const preset1 = CARD_PRESETS.find(p => p.value === selectedCardGradient);
-    document.querySelectorAll('.design-thumb').forEach((t, i) => {
-      t.style.background = (CARD_DESIGNS[i] && CARD_DESIGNS[i].id === 'solido' && preset1) ? preset1.solid : selectedCardGradient;
-    });
-    const hex = bg.match(/#([0-9a-f]{6})/i);
-    if (hex) {
-      const n   = parseInt(hex[1], 16);
-      const lum = (0.299*(n>>16) + 0.587*((n>>8)&0xff) + 0.114*(n&0xff)) / 255;
-      card.classList.toggle('light-text', lum < 0.5);
-      card.classList.toggle('dark-text',  lum >= 0.5);
-    }
-  }
-  function applyBgColor() {
-    $('card-frame').style.background = selectedBgColor;
-  }
-  function setError(fgId, show) {
-    const fg = $(fgId);
-    if (!fg) return show;
-    show ? fg.classList.add('has-error') : fg.classList.remove('has-error');
-    return show;
-  }
-  async function submitForm() {
-    const nombre    = $('nombre').value.trim();
-    const email     = $('email').value.trim();
-    const instagram = $('instagram').value.trim();
-    const consent1  = $('consent1').checked;
-    const consent2  = $('consent2').checked;
-    let ok = true;
-    if (setError('fg-nombre',    nombre.length < 3))                     ok = false;
-    if (setError('fg-email',     !email || !/\S+@\S+\.\S+/.test(email))) ok = false;
-    if (setError('fg-instagram', instagram.length < 1))                  ok = false;
-    const c1row = $('fg-consent1'); const c2row = $('fg-consent2');
-    if (!consent1) { c1row.classList.add('has-error'); ok = false; } else c1row.classList.remove('has-error');
-    if (!consent2) { c2row.classList.add('has-error'); ok = false; } else c2row.classList.remove('has-error');
-    if (!ok) return;
-    setFloatingBtn({ visible: false });
-    const submitBtn = $('submit-btn');
-    const spinEl    = $('spinner');
-    const textEl    = $('btn-text');
-    submitBtn.disabled = true;
-    spinEl.style.display = 'inline-block';
-    textEl.textContent = 'Generando…';
-    const id           = Math.random().toString(36).substring(2, 10);
-    const nombreCuenta = $('nombre-cuenta').value.trim();
-    const clabe        = $('clabe').value.replace(/\D/g,'');
-    const tarjeta      = $('tarjeta').value.replace(/\D/g,'');
-    const alias        = $('alias').value.trim();
-    const whatsapp     = $('whatsapp').value.trim();
-    const bancoCode    = clabe.substring(0, 3);
-    const bancoData    = BANCOS[bancoCode] || null;
-    const banco        = bancoData ? bancoData.nombre : $('banco').value;
-    store[id] = {
-      id, nombreCuenta, clabe, banco, bancoCode, tarjeta, alias,
-      nombre, email, instagram, whatsapp,
-      cardGradient: selectedCardGradient,
-      cardDesign: selectedDesign,
-      bgColor: selectedBgColor,
-      created_at: new Date().toISOString()
-    };
-    if (GHL_WEBHOOK_URL !== 'TU_WEBHOOK_URL_AQUI') {
-      try {
-        await fetch(GHL_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contact: {
-              firstName: nombre.split(' ')[0],
-              lastName: nombre.split(' ').slice(1).join(' '),
-              email, phone: whatsapp ? '+52'+whatsapp : undefined,
-              customField: { banco, clabe, tarjeta: tarjeta||null, instagram, alias }
-            },
-            source: 'tr4nsfer.me', event: 'nuevo_registro'
-          })
-        });
-      } catch(e) { console.warn('GHL:', e); }
-    }
-    const base = window.location.href.split('?')[0].split('#')[0];
-    $('generated-link').textContent = base + '?id=' + id;
-    submitBtn.disabled = false;
-    spinEl.style.display = 'none';
-    textEl.textContent = 'Generar mi Link';
-    showView('view-success');
-  }
-  function copyLink() {
-    navigator.clipboard.writeText($('generated-link').textContent).then(() => {
-      const b = $('btn-copy-link');
-      b.textContent = '✓ Copiado'; b.classList.add('copied');
-      setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('copied'); }, 2000);
-    });
-  }
-  function copyField(fieldId, btn) {
-    navigator.clipboard.writeText($(fieldId).textContent).then(() => {
-      btn.textContent = '✓'; btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
-    });
-  }
-  function shareWhatsApp() {
-    const link = $('generated-link').textContent;
-    window.open(`https://wa.me/?text=${encodeURIComponent('Aquí están mis datos para SPEI: ' + link)}`);
-  }
-  function loadProfile() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    if (!id || !store[id]) return false;
-    const d = store[id];
-    document.body.style.background = d.bgColor || '#000000';
-    $('prof-avatar').textContent  = (d.nombre || '?').charAt(0).toUpperCase();
-    $('prof-name').textContent    = d.nombre;
-    $('prof-bank').textContent    = d.banco || 'N/A';
-    $('prof-clabe').textContent   = d.clabe;
-    $('prof-titular').textContent = d.nombreCuenta;
-    if (d.bancoCode && BANCOS[d.bancoCode]) {
-      const domain = BANCOS[d.bancoCode].domain;
-      $('prof-bank-icon').src = favicon(domain); $('prof-bank-icon').style.display = 'inline-block';
-      $('row-banco-icon').src = favicon(domain); $('row-banco-icon').style.display = 'inline-block';
-    }
-    if (d.tarjeta) { $('row-tarjeta').style.display = 'flex'; $('prof-tarjeta').textContent = d.tarjeta; }
-    $('prof-instagram').textContent = '@' + d.instagram;
-    if (d.whatsapp) { $('row-whatsapp').style.display = 'flex'; $('prof-whatsapp').textContent = d.whatsapp; }
-    hideMainLayout();
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    $('view-profile').classList.add('active');
-    return true;
-  }
-  buildDesignPicker();
-  buildSwatches();
-  renderDesign($('card-design-layer'), 0);
-  applyCardColor();
-  applyBgColor();
-  if (!loadProfile()) {
-    showMainLayout();
-    setFloatingBtn({ text: 'Continuar →', visible: true });
-  }
-  (function spawnShapes() {
-    const container   = document.getElementById('shapes');
-    const COUNT       = 22;
-    const TEAL_FILL   = 'rgba(0,200,150,0.07)';
-    const TEAL_STROKE = 'rgba(0,200,150,0.20)';
-    const types = [];
-    for (let i = 0; i < COUNT; i++) types.push(i % 2 === 0 ? 'square' : 'triangle');
-    for (let i = types.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [types[i], types[j]] = [types[j], types[i]];
-    }
-    const colW = 100 / COUNT;
-    for (let i = 0; i < COUNT; i++) {
-      const isSquare = types[i] === 'square';
-      const filled   = Math.random() > 0.5;
-      const left     = colW * i + colW * 0.15 + Math.random() * colW * 0.7;
-      const baseSize = 14 + Math.abs(Math.sin(i * 1.3)) * 44;
-      const size     = baseSize + Math.random() * 10;
-      const duration = 12 + (i % 5) * 2.4 + Math.random() * 4;
-      const delay    = -(i * (duration / COUNT)) - Math.random() * 4;
-      const el       = document.createElement('div');
-      el.className   = 'geo-shape ' + (isSquare ? 'geo-square' : 'geo-triangle');
-      if (isSquare && filled) el.classList.add('filled');
-      const baseStyle = `left:${left.toFixed(2)}%;animation-duration:${duration.toFixed(1)}s;animation-delay:${delay.toFixed(1)}s;`;
-      if (isSquare) {
-        el.style.cssText = baseStyle + `width:${size.toFixed(0)}px;height:${size.toFixed(0)}px;border-radius:${Math.random()>0.55?'3px':'0'};`;
-      } else {
-        const s = Math.round(size);
-        const fill   = filled ? TEAL_FILL : 'none';
-        const stroke = filled ? 'none' : TEAL_STROKE;
-        const sw     = filled ? '0' : '3';
-        const ORIENTS = ['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'];
-        const pts = ORIENTS[i % ORIENTS.length];
-        el.style.cssText = baseStyle + `width:${s}px;height:${s}px;`;
-        el.innerHTML = `<svg width="${s}" height="${s}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/></svg>`;
+  <script>
+    (function() {
+      const container = document.getElementById('shapes');
+      const COUNT = 22, TEAL_FILL = 'rgba(0,200,150,0.07)', TEAL_STROKE = 'rgba(0,200,150,0.20)';
+      const types = [];
+      for (let i = 0; i < COUNT; i++) types.push(i % 2 === 0 ? 'square' : 'triangle');
+      for (let i = types.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [types[i], types[j]] = [types[j], types[i]]; }
+      const colW = 100 / COUNT;
+      for (let i = 0; i < COUNT; i++) {
+        const isSquare = types[i] === 'square', filled = Math.random() > 0.5;
+        const left = colW * i + colW * 0.15 + Math.random() * colW * 0.7;
+        const size = 14 + Math.abs(Math.sin(i * 1.3)) * 44 + Math.random() * 10;
+        const duration = 12 + (i % 5) * 2.4 + Math.random() * 4;
+        const delay = -(i * (duration / COUNT)) - Math.random() * 4;
+        const el = document.createElement('div');
+        el.className = 'geo-shape ' + (isSquare ? 'geo-square' : 'geo-triangle');
+        if (isSquare && filled) el.classList.add('filled');
+        const base = `left:${left.toFixed(2)}%;animation-duration:${duration.toFixed(1)}s;animation-delay:${delay.toFixed(1)}s;`;
+        if (isSquare) {
+          el.style.cssText = base + `width:${Math.round(size)}px;height:${Math.round(size)}px;border-radius:${Math.random()>0.55?'3px':'0'};`;
+        } else {
+          const s = Math.round(size);
+          const pts = ['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'][i % 4];
+          el.style.cssText = base + `width:${s}px;height:${s}px;`;
+          el.innerHTML = `<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="${pts}" fill="${filled?TEAL_FILL:'none'}" stroke="${filled?'none':TEAL_STROKE}" stroke-width="${filled?'0':'3'}" stroke-linejoin="round"/></svg>`;
+        }
+        container.appendChild(el);
       }
-      container.appendChild(el);
-    }
-  })();
-</script>
+    })();
+
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.closest('.faq-item'), isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    const navAnchors = document.querySelectorAll('.nav-links a[href^="#"]');
+    const sideDots   = document.querySelectorAll('.side-dot');
+    sideDots.forEach(dot => { dot.addEventListener('click', () => { const t = document.getElementById(dot.dataset.target); if (t) t.scrollIntoView({ behavior: 'smooth' }); }); });
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          navAnchors.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+          sideDots.forEach(d => d.classList.toggle('active', d.dataset.target === id));
+        }
+      });
+    }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
+    document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+  </script>
 </body>
 </html>
