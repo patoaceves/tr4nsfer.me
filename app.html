@@ -453,11 +453,11 @@
               </div>
               <div class="lc-group" id="lc-clabe-group" style="display:none;">
                 <div class="lc-clabe-label">CLABE</div>
-                <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
               <div class="lc-group" id="lc-tarjeta-group" style="display:none;">
                 <div class="lc-section-label">TARJETA</div>
-                <div class="lc-copy-row"><div class="lc-cardnum" id="lc-cardnum"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-cardnum');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                <div class="lc-copy-row"><div class="lc-cardnum" id="lc-cardnum"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-cardnum');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
               <div class="lc-group" id="lc-nombre-group" style="display:none;">
                 <div class="lc-section-label">NOMBRE DE CUENTA</div>
@@ -694,7 +694,7 @@
     if(nombre){ const u=nombre.toUpperCase(); nEl.textContent=u; nEl.style.fontSize=u.length>38?'10px':u.length>26?'12px':''; nEl.style.letterSpacing=u.length>38?'0.02em':u.length>26?'0.03em':''; nGroup.style.display='flex'; } else nGroup.style.display='none';
     $('lc-alias').textContent=alias?alias.toUpperCase():'';
     const cg=$('lc-clabe-group');
-    if(clabe.length>=1){ const p=clabe.padEnd(18,'·'); $('lc-clabe').textContent=p.substring(0,4)+' '+p.substring(4,8)+' '+p.substring(8,13)+' '+p.substring(13,18); cg.style.display='flex'; } else cg.style.display='none';
+    if(clabe.length>=1){ const p=clabe.padEnd(18,'·'); $('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18); cg.style.display='flex'; } else cg.style.display='none';
     const tg=$('lc-tarjeta-group');
     if(tarjeta.length>=1){ const t=tarjeta.padEnd(16,'·'); $('lc-cardnum').textContent=t.substring(0,4)+' '+t.substring(4,8)+' '+t.substring(8,12)+' '+t.substring(12,16); tg.style.display='flex'; } else { $('lc-cardnum').textContent=''; tg.style.display='none'; }
   }
@@ -764,7 +764,7 @@
     showView('view-success');
   }
   function copyLink() { navigator.clipboard.writeText($('generated-link').textContent).then(()=>{ const b=$('btn-copy-link'); b.textContent='✓ Copiado'; b.classList.add('copied'); setTimeout(()=>{b.textContent='Copiar';b.classList.remove('copied');},2000); }); }
-  function copyField(fieldId,btn) { navigator.clipboard.writeText($(fieldId).textContent).then(()=>{ btn.textContent='✓'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); }); }
+  function copyField(fieldId,btn) { const el=$(fieldId); const isNumeric=fieldId==='prof-clabe'||fieldId==='prof-tarjeta'; navigator.clipboard.writeText(isNumeric?el.textContent.replace(/\s/g,''):el.textContent).then(()=>{ btn.textContent='✓'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); }); }
   function shareWhatsApp() { const link=$('generated-link').textContent; window.open(`https://wa.me/?text=${encodeURIComponent('Aquí están mis datos para SPEI: '+link)}`); }
   function loadProfile() {
     const params=new URLSearchParams(window.location.search), id=params.get('id');
