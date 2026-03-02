@@ -138,8 +138,11 @@
     .lc-section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
     .lc-clabe-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
     .lc-clabe { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; opacity: 1; font-family: "Inter",sans-serif; line-height: 1.3; white-space: nowrap; }
+    .lc-copy-row { display: flex; align-items: center; gap: 6px; }
+    .lc-copy-btn { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; opacity: 0.5; transition: opacity 0.2s; flex-shrink: 0; }
+    .lc-copy-btn:hover { opacity: 1; }
     .lc-name { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 1; font-family: "Inter",sans-serif; white-space: nowrap; transition: font-size 0.15s; }
-    .lc-alias { font-size: 12px; opacity: 0.70; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 4px; font-family: "SF Mono","Fira Code",monospace; }
+    .lc-alias { font-size: 10px; opacity: 0.6; letter-spacing: 2.5px; text-transform: uppercase; margin-top: 4px; font-family: "Inter",sans-serif; font-weight: 700; }
     .lc-cardnum { font-size: 14px; font-weight: 600; font-family: "Inter",sans-serif; opacity: 1; letter-spacing: 0.04em; line-height: 1.3; white-space: nowrap; }
     .lc-empty-hint { font-size: 10px; opacity: 0.3; letter-spacing: 0.08em; text-transform: uppercase; font-family: "SF Mono","Fira Code",monospace; }
     .live-card.light-text { color: #ffffff; }
@@ -396,15 +399,15 @@
               </div>
               <div class="lc-group" id="lc-clabe-group" style="display:none;">
                 <div class="lc-clabe-label">CLABE</div>
-                <div class="lc-clabe" id="lc-clabe"></div>
+                <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
               <div class="lc-group" id="lc-tarjeta-group" style="display:none;">
                 <div class="lc-section-label">TARJETA</div>
-                <div class="lc-cardnum" id="lc-cardnum"></div>
+                <div class="lc-copy-row"><div class="lc-cardnum" id="lc-cardnum"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-cardnum');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
               <div class="lc-group" id="lc-nombre-group" style="display:none;">
                 <div class="lc-section-label">NOMBRE DE CUENTA</div>
-                <div class="lc-name" id="lc-nombre-val"></div>
+                <div class="lc-copy-row"><div class="lc-name" id="lc-nombre-val"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-nombre-val');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
             </div>
             <div class="lc-bottom">
