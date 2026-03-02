@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -70,13 +71,16 @@
     }
 
     .logo {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text);
+      display: inline-flex;
+      align-items: center;
       text-decoration: none;
-      letter-spacing: -0.5px;
+      line-height: 1;
     }
-    .logo em { color: var(--accent); font-style: normal; }
+    .logo img {
+      height: 28px;
+      width: auto;
+      display: block;
+    }
 
     nav {
       display: flex;
@@ -843,7 +847,7 @@
 
   <!-- HEADER -->
   <header>
-    <a href="#inicio" class="logo">tr4nsfer<em>.</em>me</a>
+    <a href="#inicio" class="logo"><img src="logo.png" alt="tr4nsfer.me"/></a>
     <nav>
       <div class="nav-links">
         <a href="#inicio">Inicio</a>
@@ -1143,7 +1147,7 @@
   <footer>
     <div class="footer-grid">
       <div>
-        <a href="#inicio" class="logo footer-logo">tr4nsfer<em>.</em>me</a>
+        <a href="#inicio" class="logo footer-logo"><img src="logo.png" alt="tr4nsfer.me"/></a>
         <p class="footer-tagline">Recibe pagos por SPEI con un solo link.</p>
       </div>
       <div class="footer-col">
