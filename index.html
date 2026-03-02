@@ -125,7 +125,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     /* PREVIEW CARD */
     .card-frame { width: 100%; padding: 32px 24px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
-    .live-card { width: 330px; aspect-ratio: 1 / 1.586; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
+    .live-card { width: 330px; aspect-ratio: 1 / 1.11; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
     .card-design-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
     .lc-inner { position: relative; z-index: 1; height: 100%; padding: 14px 12px 16px; display: flex; flex-direction: column; justify-content: space-between; }
     .lc-top { display: flex; align-items: center; justify-content: space-between; }
@@ -821,7 +821,7 @@
       const sw = document.createElement('div');
       sw.className = 'swatch' + (i === 0 ? ' active' : '');
       sw.style.background = p.solid || p.value;
-      if (p.value === '#000000') sw.style.border = '1px solid #333';
+      if (p.value === '#000000') { sw.style.border = 'none'; sw.style.outline = '1.5px solid #555'; sw.style.outlineOffset = '1px'; }
       if (p.label === 'Blanco')  sw.style.border = '1px solid #888';
       sw.title = p.label;
       sw.onclick = () => {
