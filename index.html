@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no"/>
   <title>tr4nsfer.me — Recibe pagos por SPEI con un solo link</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -329,7 +330,7 @@
 
     .cm-bank-name {
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 400;
       color: #fff;
       letter-spacing: 0.5px;
     }
@@ -357,8 +358,11 @@
       font-weight: 600;
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.5px;
-      color: #fff;
+      color: #fff !important;
+      text-decoration: none !important;
+      -webkit-text-decoration: none !important;
     }
+    .cm-field a, .cm-field span a { color: #fff !important; text-decoration: none !important; }
 
     .cm-bottom {
       font-size: 10px;
@@ -756,7 +760,7 @@
       .hero-actions { justify-content: center; }
       .hero-note { text-align: center; }
       .hero-visual { order: -1; justify-content: center; }
-      .card-mock { width: 240px; aspect-ratio: 1 / 1.1; transform: rotate(-2deg); }
+      .card-mock { width: min(270px, 80vw); aspect-ratio: 1 / 1.25; transform: rotate(-2deg); font-size: 11px; }
 
       .section-wrap { padding: 80px 24px; }
 
@@ -773,6 +777,10 @@
       h1 { letter-spacing: -1.5px; }
       .hero-actions { flex-direction: column; align-items: stretch; }
       .btn-lg { text-align: center; }
+      .cm-field span { font-size: 11px; letter-spacing: 0; }
+      .cm-field label { font-size: 7.5px; }
+      .cm-bank-name { font-size: 12px; }
+      .cm-bottom { font-size: 8.5px; letter-spacing: 1.5px; }
     }
 
     /* ─── SIDE NAV DOTS ──────────────────────────── */
@@ -885,11 +893,24 @@
             <div class="cm-middle">
               <div class="cm-field">
                 <label>CLABE</label>
-                <span>0121 8003 5393 9658</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span>0121 8003 5393 9658</span>
+                  <button onclick="(function(){navigator.clipboard.writeText('012180035393958');const i=document.getElementById('cp-clabe');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-clabe" width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                </div>
+              </div>
+              <div class="cm-field">
+                <label>Número de tarjeta</label>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span>4152 3141 0012 5678</span>
+                  <button onclick="(function(){navigator.clipboard.writeText('4152314100125678');const i=document.getElementById('cp-card');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-card" width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                </div>
               </div>
               <div class="cm-field">
                 <label>Nombre de cuenta</label>
-                <span>MAURICIO PONCE TORRES</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span>MAURICIO PONCE TORRES</span>
+                  <button onclick="(function(){navigator.clipboard.writeText('MAURICIO PONCE TORRES');const i=document.getElementById('cp-name');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-name" width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
+                </div>
               </div>
             </div>
             <div class="cm-bottom">Cuenta Fiscal</div>
