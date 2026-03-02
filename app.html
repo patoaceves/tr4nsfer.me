@@ -53,8 +53,8 @@
       padding: 32px 20px 100px;
     }
     .logo-wrap { text-align: center; margin-bottom: 28px; animation: fadeUp 0.4s ease both; width: 100%; }
-    .logo-text { display: inline-flex; align-items: center; gap: 7px; font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
-    .logo-text .t4 { color: var(--teal); }
+    .logo-text { display: inline-flex; align-items: center; justify-content: center; }
+    .logo-text img { height: 32px; width: auto; display: block; }
     .logo-dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; box-shadow: 0 0 8px var(--teal); }
     .view { display: none; width: 100%; }
     .view.active { display: flex; flex-direction: column; align-items: center; }
@@ -259,10 +259,7 @@
 <div class="shapes" id="shapes" aria-hidden="true"></div>
 <div class="page">
   <div class="logo-wrap">
-    <div class="logo-text">
-      <span class="logo-dot"></span>
-      <span>tr<span class="t4">4</span>nsfer.me</span>
-    </div>
+    <div class="logo-text"><img src="logo.png" alt="tr4nsfer.me"/></div>
   </div>
   <div id="main-layout">
     <div class="left-col" id="left-col">
