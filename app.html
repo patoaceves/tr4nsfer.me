@@ -108,10 +108,14 @@
     /* ─── FOOTER ──────────────────────────────────────── */
     .app-footer {
       width: 100%;
-      max-width: 960px;
-      margin-top: 80px;
-      padding: 40px 0 32px;
       border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      position: relative;
+      z-index: 1;
+    }
+    .app-footer-inner {
+      max-width: 960px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -125,6 +129,38 @@
 
     /* adjust page for fixed header */
     .logo-dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; box-shadow: 0 0 8px var(--teal); }
+
+    /* ─── APP HERO TITLE ──────────────────────────────── */
+    .app-hero {
+      width: 100%;
+      text-align: center;
+      padding: 48px 20px 44px;
+      background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,200,150,0.08) 0%, transparent 70%);
+      animation: fadeUp 0.4s ease both;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    .app-hero.hero-exit {
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+    }
+    .app-hero.hero-enter {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .app-hero h1 {
+      font-size: clamp(34px, 4.5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .app-hero p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
     .view { display: none; width: 100%; }
     .view.active { display: flex; flex-direction: column; align-items: center; }
     /* MAIN LAYOUT */
@@ -296,7 +332,10 @@
       #main-layout.step2 .left-col  { order: 2; }
       #main-layout.step2 .right-col { order: 1; }
       #main-layout.step2 .color-editor { display: none; }
-      .page { padding: 20px 14px 100px; overflow-x: hidden; }
+      .page { padding: 80px 14px 100px; overflow-x: hidden; }
+      .app-hero { padding: 32px 16px 28px; }
+      .app-hero h1 { font-size: 30px; letter-spacing: -1.2px; }
+      .app-hero p  { font-size: 14px; }
       .card { padding: 18px 16px; margin-left: auto; margin-right: auto; }
       .card-frame { padding: 16px 14px; }
       .live-card { width: min(300px, 88vw); aspect-ratio: auto; height: 320px; border-radius: 16px; }
@@ -339,6 +378,10 @@
 </header>
 
 <div class="page">
+  <div class="app-hero" id="app-hero">
+    <h1 id="app-hero-title">Empieza aquí</h1>
+    <p id="app-hero-sub">Ingresa tus datos y personaliza tu tarjeta.</p>
+  </div>
   <div id="main-layout">
     <div class="left-col" id="left-col">
       <!-- PANEL 1 -->
@@ -585,7 +628,9 @@
       </div>
     </div>
   </div>
-  <footer class="app-footer">
+</div>
+<footer class="app-footer">
+  <div class="app-footer-inner">
     <a href="index.html"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
     <div style="display:flex;gap:24px;align-items:center;">
       <a href="index.html#pricing">Pricing</a>
@@ -593,8 +638,8 @@
       <a href="index.html#inicio">Términos</a>
     </div>
     <span class="app-footer-copy">tr4nsfer.me © 2026 · Hecho en México 🇲🇽</span>
-  </footer>
-</div>
+  </div>
+</footer>
 <div id="floating-btn-wrap">
   <button id="floating-btn" onclick="floatingBtnClick()">
     <div class="spinner" id="floating-spinner"></div>
@@ -753,6 +798,21 @@
       setTimeout(() => { toEl.style.transition = ''; }, 320);
     }, 280);
   }
+  function transitionHero(title, subtitle) {
+    const hero = $('app-hero');
+    hero.classList.add('hero-exit');
+    setTimeout(() => {
+      $('app-hero-title').textContent = title;
+      $('app-hero-sub').textContent   = subtitle;
+      hero.classList.remove('hero-exit');
+      hero.classList.add('hero-enter');
+      hero.getBoundingClientRect();
+      hero.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+      hero.classList.remove('hero-enter');
+      setTimeout(() => { hero.style.transition = ''; }, 300);
+    }, 290);
+  }
+
   function goToStep2() {
     const nombreCuenta = $('nombre-cuenta').value.trim();
     const clabe        = $('clabe').value.replace(/\D/g,'');
@@ -769,6 +829,7 @@
     $('step2-banco').textContent = bancoData ? bancoData.nombre : 'Banco no identificado';
     $('color-editor').classList.add('fade-out');
     setFloatingBtn({ visible: false });
+    transitionHero('Último paso', 'Completa tu información y crea tu link personal.');
     transitionLeftPanel('panel-step1', 'panel-step2', () => {
       currentStep = 2;
       $('main-layout').classList.add('step2');
@@ -777,6 +838,7 @@
   }
   function backToStep1() {
     $('color-editor').classList.remove('fade-out');
+    transitionHero('Empieza aquí', 'Ingresa tus datos y personaliza tu tarjeta.');
     transitionLeftPanel('panel-step2', 'panel-step1', () => {
       currentStep = 1;
       $('main-layout').classList.remove('step2');
