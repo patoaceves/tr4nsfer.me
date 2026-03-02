@@ -23,7 +23,13 @@
       --r:        14px;
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      height: 100%;
+    }
+    body { height: 100%; }
 
     body {
       font-family: 'Inter', sans-serif;
@@ -33,12 +39,17 @@
       overflow-x: hidden;
     }
 
-    /* BG CANVAS */
-    #bg-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
+    /* ─── BG SHAPES (same as app) ────────────────── */
+    .shapes { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .geo-shape { position: absolute; bottom: -100px; animation: riseShape linear infinite; }
+    .geo-square { border: 1px solid rgba(0,200,150,0.18); }
+    .geo-square.filled { background: rgba(0,200,150,0.06); }
+    .geo-triangle { line-height: 0; }
+    @keyframes riseShape {
+      0%   { transform: translateY(0)   rotate(0deg);   opacity: 0; }
+      8%   { opacity: 1; }
+      92%  { opacity: 1; }
+      100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
     }
 
     /* ─── HEADER ─────────────────────────────────── */
@@ -139,6 +150,11 @@
 
     .section-wrap + .section-wrap,
     section + section { border-top: 1px solid var(--border); }
+    section {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+    footer { scroll-snap-align: start; }
 
     .eyebrow {
       font-size: 11px;
@@ -739,7 +755,8 @@
       .hero-sub { max-width: 100%; }
       .hero-actions { justify-content: center; }
       .hero-note { text-align: center; }
-      .hero-visual { display: none; }
+      .hero-visual { order: -1; justify-content: center; }
+      .card-mock { width: 240px; aspect-ratio: 1 / 1.1; transform: rotate(-2deg); }
 
       .section-wrap { padding: 80px 24px; }
 
@@ -757,10 +774,60 @@
       .hero-actions { flex-direction: column; align-items: stretch; }
       .btn-lg { text-align: center; }
     }
+
+    /* ─── SIDE NAV DOTS ──────────────────────────── */
+    #side-nav {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .side-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.12);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .side-dot:hover { background: rgba(255,255,255,0.5); transform: scale(1.3); }
+    .side-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(0,200,150,0.6); transform: scale(1.2); }
+
+    .side-dot-label {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(15,15,15,0.92);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .side-dot:hover .side-dot-label { opacity: 1; }
+
+    @media (max-width: 860px) { #side-nav { display: none; } }
   </style>
 </head>
 <body>
-  <canvas id="bg-canvas"></canvas>
+  <div class="shapes" id="shapes" aria-hidden="true"></div>
 
   <!-- HEADER -->
   <header>
@@ -774,6 +841,16 @@
       <a href="app.html" class="btn btn-primary" style="padding:8px 18px;font-size:13px;">Crear mi link</a>
     </nav>
   </header>
+
+  <!-- SIDE NAV DOTS -->
+  <nav id="side-nav">
+    <div class="side-dot active" data-target="inicio"><span class="side-dot-label">Inicio</span></div>
+    <div class="side-dot" data-target="como-funciona"><span class="side-dot-label">Cómo funciona</span></div>
+    <div class="side-dot" data-target="seguridad"><span class="side-dot-label">Confianza</span></div>
+    <div class="side-dot" data-target="cta-final"><span class="side-dot-label">Empezar</span></div>
+    <div class="side-dot" data-target="pricing"><span class="side-dot-label">Precios</span></div>
+    <div class="side-dot" data-target="ayuda"><span class="side-dot-label">FAQ</span></div>
+  </nav>
 
   <main>
 
@@ -802,7 +879,7 @@
             </svg>
             <div class="cm-top">tr4nsfer.me</div>
             <div class="cm-bank">
-              <div class="cm-bank-icon">BB</div>
+              <div class="cm-bank-icon"><img src="https://www.google.com/s2/favicons?domain=bbva.mx&sz=32" width="18" height="18" style="border-radius:4px;display:block;" alt="BBVA"/></div>
               <div class="cm-bank-name">BBVA</div>
             </div>
             <div class="cm-middle">
@@ -846,7 +923,7 @@
           <div class="step-card">
             <div class="step-num">4</div>
             <div class="step-title">Compártelo</div>
-            <p class="step-desc">Envía tu link por WhatsApp, Instagram o donde quieras. Quien lo reciba podrá copiar tus datos fácilmente para depositarte.</p>
+            <p class="step-desc">Envía tu link donde quieras. Quien lo reciba copia tus datos en segundos.</p>
           </div>
         </div>
         <div class="center-cta">
@@ -1068,69 +1145,46 @@
   </footer>
 
   <script>
-    // ── Floating background shapes ──────────────────────
-    const canvas = document.getElementById('bg-canvas');
-    const ctx    = canvas.getContext('2d');
-    let W, H, shapes = [];
-
-    function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-    }
-
-    function init() {
-      shapes = [];
-      for (let i = 0; i < 14; i++) {
-        shapes.push({
-          x:       Math.random() * W,
-          y:       Math.random() * H,
-          size:    28 + Math.random() * 72,
-          vx:      (Math.random() - 0.5) * 0.18,
-          vy:      -(0.15 + Math.random() * 0.25),
-          angle:   Math.random() * Math.PI * 2,
-          rot:     (Math.random() - 0.5) * 0.004,
-          type:    Math.random() > 0.5 ? 'rect' : 'tri',
-          opacity: 0.014 + Math.random() * 0.022,
-        });
+    // ── Geo shapes (same as app) ─────────────────────
+    (function() {
+      const container   = document.getElementById('shapes');
+      const COUNT       = 22;
+      const TEAL_FILL   = 'rgba(0,200,150,0.07)';
+      const TEAL_STROKE = 'rgba(0,200,150,0.20)';
+      const types = [];
+      for (let i = 0; i < COUNT; i++) types.push(i % 2 === 0 ? 'square' : 'triangle');
+      for (let i = types.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [types[i], types[j]] = [types[j], types[i]];
       }
-    }
-
-    function draw(s) {
-      ctx.save();
-      ctx.translate(s.x, s.y);
-      ctx.rotate(s.angle);
-      ctx.globalAlpha = s.opacity;
-      ctx.strokeStyle = '#00c896';
-      ctx.lineWidth   = 1;
-      if (s.type === 'rect') {
-        ctx.strokeRect(-s.size / 2, -s.size / 2, s.size, s.size);
-      } else {
-        ctx.beginPath();
-        ctx.moveTo(0, -s.size / 2);
-        ctx.lineTo(s.size / 2, s.size / 2);
-        ctx.lineTo(-s.size / 2, s.size / 2);
-        ctx.closePath();
-        ctx.stroke();
+      const colW = 100 / COUNT;
+      for (let i = 0; i < COUNT; i++) {
+        const isSquare = types[i] === 'square';
+        const filled   = Math.random() > 0.5;
+        const left     = colW * i + colW * 0.15 + Math.random() * colW * 0.7;
+        const baseSize = 14 + Math.abs(Math.sin(i * 1.3)) * 44;
+        const size     = baseSize + Math.random() * 10;
+        const duration = 12 + (i % 5) * 2.4 + Math.random() * 4;
+        const delay    = -(i * (duration / COUNT)) - Math.random() * 4;
+        const el       = document.createElement('div');
+        el.className   = 'geo-shape ' + (isSquare ? 'geo-square' : 'geo-triangle');
+        if (isSquare && filled) el.classList.add('filled');
+        const baseStyle = `left:${left.toFixed(2)}%;animation-duration:${duration.toFixed(1)}s;animation-delay:${delay.toFixed(1)}s;`;
+        if (isSquare) {
+          el.style.cssText = baseStyle + `width:${size.toFixed(0)}px;height:${size.toFixed(0)}px;border-radius:${Math.random()>0.55?'3px':'0'};`;
+        } else {
+          const s = Math.round(size);
+          const fill   = filled ? TEAL_FILL : 'none';
+          const stroke = filled ? 'none' : TEAL_STROKE;
+          const sw     = filled ? '0' : '3';
+          const ORIENTS = ['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'];
+          const pts = ORIENTS[i % ORIENTS.length];
+          el.style.cssText = baseStyle + `width:${s}px;height:${s}px;`;
+          el.innerHTML = `<svg width="${s}" height="${s}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/></svg>`;
+        }
+        container.appendChild(el);
       }
-      ctx.restore();
-    }
-
-    function loop() {
-      ctx.clearRect(0, 0, W, H);
-      shapes.forEach(s => {
-        s.x     += s.vx;
-        s.y     += s.vy;
-        s.angle += s.rot;
-        if (s.y + s.size < 0)  { s.y = H + s.size; s.x = Math.random() * W; }
-        if (s.x + s.size < 0)  s.x = W + s.size;
-        if (s.x - s.size > W)  s.x = -s.size;
-        draw(s);
-      });
-      requestAnimationFrame(loop);
-    }
-
-    window.addEventListener('resize', () => { resize(); init(); });
-    resize(); init(); loop();
+    })();
 
     // ── FAQ accordion ────────────────────────────────
     document.querySelectorAll('.faq-q').forEach(q => {
@@ -1142,19 +1196,28 @@
       });
     });
 
-    // ── Active nav on scroll ─────────────────────────
-    const navAnchors = document.querySelectorAll('.nav-links a[href^="#"]');
+    // ── Active nav + side dots on scroll ────────────
+    const navAnchors  = document.querySelectorAll('.nav-links a[href^="#"]');
+    const sideDots    = document.querySelectorAll('.side-dot');
     const allSections = document.querySelectorAll('section[id]');
+
+    // Side dot click → scroll to section
+    sideDots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const target = document.getElementById(dot.dataset.target);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
 
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
-          navAnchors.forEach(a => {
-            a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
-          });
+          const id = e.target.id;
+          navAnchors.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+          sideDots.forEach(d => d.classList.toggle('active', d.dataset.target === id));
         }
       });
-    }, { rootMargin: '-35% 0px -35% 0px' });
+    }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
 
     allSections.forEach(s => io.observe(s));
   </script>
