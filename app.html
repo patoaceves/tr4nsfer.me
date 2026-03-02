@@ -127,7 +127,7 @@
     .card-frame { width: 100%; padding: 32px 24px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
     .live-card { width: 330px; aspect-ratio: 1 / 1.11; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
     .card-design-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
-    .lc-inner { position: relative; z-index: 1; height: 100%; padding: 14px 12px 16px; display: flex; flex-direction: column; justify-content: space-between; }
+    .lc-inner { position: relative; z-index: 1; height: 100%; padding: 16px 22px 18px; display: flex; flex-direction: column; justify-content: space-between; }
     .lc-top { display: flex; align-items: center; justify-content: space-between; }
     .lc-logo-dot { font-size: 8.5px; font-weight: 700; letter-spacing: -0.01em; opacity: 0.75; }
     .lc-bank { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px; align-self: flex-start; }
@@ -230,7 +230,7 @@
       .card { padding: 18px 16px; margin-left: auto; margin-right: auto; }
       .card-frame { padding: 16px 14px; }
       .live-card { width: min(300px, 88vw); aspect-ratio: auto; height: 320px; border-radius: 16px; }
-      .lc-inner { padding: 16px 16px 18px; display: flex; flex-direction: column; height: 100%; }
+      .lc-inner { padding: 16px 22px 18px; display: flex; flex-direction: column; height: 100%; }
       .lc-middle { flex: 1; justify-content: space-evenly; gap: 0; padding: 4px 0; align-items: flex-start; text-align: left; }
       .lc-group { gap: 2px; }
       .lc-bank { padding: 6px 14px 6px 7px; margin-bottom: 0; }
@@ -723,8 +723,8 @@
     if (nombre) {
       const nombreUp = nombre.toUpperCase();
       nombreEl.textContent = nombreUp;
-      if (nombreUp.length > 120)      { nombreEl.style.fontSize = '10px'; nombreEl.style.letterSpacing = '0.02em'; }
-      else if (nombreUp.length > 100) { nombreEl.style.fontSize = '12px'; nombreEl.style.letterSpacing = '0.03em'; }
+      if (nombreUp.length > 115)      { nombreEl.style.fontSize = '10px'; nombreEl.style.letterSpacing = '0.02em'; }
+      else if (nombreUp.length > 98)  { nombreEl.style.fontSize = '12px'; nombreEl.style.letterSpacing = '0.03em'; }
       else                            { nombreEl.style.fontSize = ''; nombreEl.style.letterSpacing = ''; }
       nombreGroup.style.display = 'flex';
     } else {
