@@ -40,19 +40,14 @@
       overflow-x: hidden;
     }
 
-    /* ══════════════════════════════════
-       GEOMETRIC SHAPES BACKGROUND
-    ══════════════════════════════════ */
-    .bg-wrap { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-    .shapes  { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-
+    .shapes { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .geo-shape { position: absolute; bottom: -100px; animation: riseShape linear infinite; }
     .geo-square { border: 1px solid rgba(0,200,150,0.18); }
     .geo-square.filled { background: rgba(0,200,150,0.06); }
     .geo-triangle { line-height: 0; }
 
     @keyframes riseShape {
-      0%   { transform: translateY(0)      rotate(0deg);   opacity: 0; }
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
       10%  { opacity: 1; }
       88%  { opacity: 0.65; }
       100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
@@ -68,10 +63,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 20px 40px;
+      padding: 32px 20px 100px; /* bottom padding for floating btn */
     }
 
-    /* ── LOGO ── */
     .logo-wrap {
       text-align: center;
       margin-bottom: 28px;
@@ -95,38 +89,86 @@
       box-shadow: 0 0 8px var(--teal);
     }
 
-    /* ── VIEWS ── */
+    /* ══════════════════════════════════
+       VIEWS — success / profile stay separate
+    ══════════════════════════════════ */
     .view { display: none; width: 100%; }
     .view.active { display: flex; flex-direction: column; align-items: center; }
 
     /* ══════════════════════════════════
-       STEP 1 — SPLIT LAYOUT
+       MAIN LAYOUT — persistent split
+       Shown when step1 or step2 is active
     ══════════════════════════════════ */
-    .split-layout {
+    #main-layout {
+      display: none;
+      width: 100%;
+      max-width: 960px;
+      animation: fadeUp 0.4s ease 0.08s both;
+    }
+    #main-layout.active {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 24px;
-      width: 100%;
-      max-width: 960px;
       align-items: start;
-      animation: fadeUp 0.4s ease 0.08s both;
     }
 
-    /* ── CARD (form panel) ── */
+    /* ── Left column: stacks the two panels via relative/absolute */
+    .left-col {
+      position: relative;
+      min-height: 0; /* height driven by visible panel */
+    }
+
+    /* Each left panel */
+    .left-panel {
+      width: 100%;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    /* Exiting: fade + slide left — absolute so it doesn't collapse layout */
+    .left-panel.exit-left {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      opacity: 0;
+      transform: translateX(-18px);
+      pointer-events: none;
+    }
+    /* Hidden (not in flow, no transition) */
+    .left-panel.hidden {
+      display: none;
+    }
+    /* Entering: starts offset right, animates to 0 */
+    .left-panel.enter-right {
+      opacity: 0;
+      transform: translateX(18px);
+    }
+
+    /* ── Right column */
+    .right-col {
+      position: sticky;
+      top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ══════════════════════════════════
+       CARD
+    ══════════════════════════════════ */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 28px 26px 24px;
       box-shadow: 0 0 0 1px rgba(0,200,150,0.03), 0 20px 60px rgba(0,0,0,0.55);
-      backdrop-filter: blur(2px);
     }
     .card-header { margin-bottom: 22px; }
     .n26-bar { width: 22px; height: 2.5px; background: var(--teal); border-radius: 2px; margin-bottom: 14px; box-shadow: 0 0 8px rgba(0,200,150,0.4); }
     .card-header h1 { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: -0.025em; }
     .card-header p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
 
-    /* ── FIELDS ── */
+    /* ══════════════════════════════════
+       FORM ELEMENTS
+    ══════════════════════════════════ */
     .field { margin-bottom: 13px; }
     label {
       display: block;
@@ -142,8 +184,7 @@
 
     input[type="text"],
     input[type="tel"],
-    input[type="email"],
-    select {
+    input[type="email"] {
       width: 100%;
       background: var(--input-bg);
       border: 1px solid var(--border2);
@@ -159,7 +200,7 @@
       outline: none;
       letter-spacing: -0.01em;
     }
-    input:focus, select:focus {
+    input:focus {
       border-color: var(--teal);
       box-shadow: 0 0 0 3px var(--teal-dim);
     }
@@ -184,25 +225,19 @@
     #clabe.complete ~ .clabe-verified { display: block; }
     .banco-wrap.detected .banco-icon { display: block; }
 
-    .select-wrap { position: relative; }
-    .select-wrap::after {
-      content: ''; position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
-      width: 8px; height: 5px; background: var(--muted);
-      clip-path: polygon(0 0, 100% 0, 50% 100%); pointer-events: none;
-    }
-    select option { background: #111; color: #e5e5e5; }
-
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
     .field-error { font-size: 10.5px; color: var(--error); display: none; margin-top: 4px; }
-    .has-error input, .has-error select { border-color: var(--error) !important; box-shadow: 0 0 0 3px rgba(240,64,64,0.08) !important; }
+    .has-error input { border-color: var(--error) !important; box-shadow: 0 0 0 3px rgba(240,64,64,0.08) !important; }
     .has-error .field-error { display: block; }
 
     .input-prefix-wrap { position: relative; }
     .input-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); pointer-events: none; z-index: 1; }
     .input-prefix-wrap input { padding-left: 22px; }
 
-    /* ── BUTTONS ── */
+    /* ══════════════════════════════════
+       BUTTONS
+    ══════════════════════════════════ */
     .btn {
       width: 100%; background: var(--teal); color: #000; border: none;
       border-radius: 9px; padding: 12px 18px; font-size: 13.5px;
@@ -210,7 +245,6 @@
       letter-spacing: -0.01em; transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
       margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .btn-continuar { margin-top: 22px; }
     .btn:hover { background: var(--teal-dark); box-shadow: 0 0 18px rgba(0,200,150,0.22); }
     .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
@@ -227,22 +261,53 @@
     .btn-copy:hover { background: var(--teal-dim); border-color: var(--teal-border); box-shadow: none; }
     .btn-copy.copied { color: var(--muted); }
 
-    /* ── SPINNER ── */
+    /* ══════════════════════════════════
+       FLOATING CTA BUTTON
+    ══════════════════════════════════ */
+    #floating-btn-wrap {
+      position: fixed;
+      bottom: 28px;
+      right: 32px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    #floating-btn-wrap.hidden {
+      opacity: 0;
+      transform: translateY(14px);
+      pointer-events: none;
+    }
+    #floating-btn {
+      width: auto;
+      background: var(--teal);
+      color: #000;
+      border: none;
+      border-radius: 999px;
+      padding: 16px 28px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      box-shadow: 0 4px 28px rgba(0,200,150,0.4), 0 2px 10px rgba(0,0,0,0.55);
+      transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+    }
+    #floating-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 36px rgba(0,200,150,0.5), 0 4px 14px rgba(0,0,0,0.55); }
+    #floating-btn:active { transform: translateY(-1px); }
+    #floating-btn:disabled { opacity: .4; cursor: not-allowed; }
+
     .spinner { width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-top-color: rgba(0,0,0,0.75); border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ══════════════════════════════════
-       CARD FRAME + VERTICAL INFO CARD
+       PREVIEW CARD (right col)
     ══════════════════════════════════ */
-    .preview-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: sticky;
-      top: 32px;
-    }
-
-    /* Frame: the "background" around the info card */
     .card-frame {
       width: 100%;
       padding: 40px 32px;
@@ -256,7 +321,6 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.55);
     }
 
-    /* Vertical info card (portrait orientation) */
     .live-card {
       width: 265px;
       aspect-ratio: 1 / 1.586;
@@ -269,327 +333,139 @@
       cursor: default;
       user-select: none;
     }
-
-    /* Design overlay layer (holds the 5 design templates) */
     .card-design-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      border-radius: inherit;
-      overflow: hidden;
+      position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden;
     }
-
-    /* Content sits above design layer */
     .lc-inner {
-      position: relative;
-      z-index: 1;
-      height: 100%;
+      position: relative; z-index: 1; height: 100%;
       padding: 14px 12px 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      display: flex; flex-direction: column; justify-content: space-between;
     }
-
-    /* Top row: logo + bank */
-    .lc-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .lc-logo-dot {
-      font-size: 8.5px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      opacity: 0.75;
-    }
-    /* Bank pill — sits above CLABE in center */
+    .lc-top { display: flex; align-items: center; justify-content: space-between; }
+    .lc-logo-dot { font-size: 8.5px; font-weight: 700; letter-spacing: -0.01em; opacity: 0.75; }
     .lc-bank {
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      display: flex; align-items: center; gap: 7px;
       background: rgba(255,255,255,0.14);
       border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 24px;
-      padding: 7px 16px 7px 8px;
-      margin-bottom: 4px;
+      border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px;
     }
-    .lc-bank-icon {
-      width: 20px; height: 20px;
-      border-radius: 5px;
-      object-fit: contain;
-      background: rgba(255,255,255,0.15);
-      display: none;
-    }
-    .lc-bank-name {
-      font-size: 12px;
-      font-weight: 600;
-      opacity: 0.92;
-      letter-spacing: 0.01em;
-    }
-
-    /* Center: CLABE + card sections */
+    .lc-bank-icon { width: 20px; height: 20px; border-radius: 5px; object-fit: contain; background: rgba(255,255,255,0.15); display: none; }
+    .lc-bank-name { font-size: 12px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
     .lc-middle {
-      text-align: center;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-evenly;
+      text-align: center; flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
       padding: 6px 0;
-      gap: 0;
     }
-    .lc-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1px;
-    }
-    /* Shared section label: CLABE, TARJETA, NOMBRE DE CUENTA */
-    .lc-section-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      opacity: 0.45;
-    }
-    .lc-clabe-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      opacity: 0.45;
-    }
-    .lc-clabe {
-      font-size: 14px;
-      letter-spacing: 0.05em;
-      opacity: 0.92;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      line-height: 1.3;
-      white-space: nowrap;
-    }
-
-    /* Bottom: alias only */
-    .lc-bottom { }
-    .lc-name {
-      font-size: 14px;
-      font-weight: 400;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      opacity: 0.92;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      white-space: nowrap;
-      transition: font-size 0.15s;
-    }
-    .lc-alias {
-      font-size: 8px;
-      opacity: 0.45;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      margin-top: 3px;
-    }
-    .lc-cardnum {
-      font-size: 14px;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      opacity: 0.92;
-      letter-spacing: 0.05em;
-      line-height: 1.3;
-      white-space: nowrap;
-    }
-
-    /* Light/dark text on card */
+    .lc-group { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .lc-section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.45; }
+    .lc-clabe-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.45; }
+    .lc-clabe { font-size: 14px; letter-spacing: 0.05em; opacity: 0.92; font-family: 'SF Mono','Fira Code',monospace; line-height: 1.3; white-space: nowrap; }
+    .lc-name { font-size: 14px; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase; opacity: 0.92; font-family: 'SF Mono','Fira Code',monospace; white-space: nowrap; transition: font-size 0.15s; }
+    .lc-alias { font-size: 8px; opacity: 0.45; letter-spacing: 0.07em; text-transform: uppercase; margin-top: 3px; }
+    .lc-cardnum { font-size: 14px; font-family: 'SF Mono','Fira Code',monospace; opacity: 0.92; letter-spacing: 0.05em; line-height: 1.3; white-space: nowrap; }
     .live-card.light-text { color: #ffffff; }
     .live-card.dark-text  { color: #1a1a1a; }
 
     /* ══════════════════════════════════
-       COLOR + DESIGN EDITOR
+       COLOR EDITOR
     ══════════════════════════════════ */
     .color-editor {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 18px 18px 16px;
+      transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.35s ease;
+      overflow: hidden;
+      max-height: 400px;
+      transform-origin: top;
     }
-    .color-editor-title {
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: var(--muted);
-      margin-bottom: 16px;
+    .color-editor.fade-out {
+      opacity: 0;
+      transform: translateY(-8px);
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-color: transparent;
+      pointer-events: none;
     }
+    .color-editor-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 16px; }
     .color-section { margin-bottom: 16px; }
     .color-section:last-child { margin-bottom: 0; }
-    .color-section-label {
-      font-size: 10px;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 9px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
+    .color-section-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; }
 
-    /* Design picker: 5 mini vertical card thumbnails */
-    .design-picker {
-      display: flex;
-      gap: 9px;
-      flex-wrap: wrap;
-    }
-    .design-thumb-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      flex-shrink: 0;
-    }
+    .design-picker { display: flex; gap: 9px; flex-wrap: wrap; }
+    .design-thumb-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
     .design-thumb {
-      width: 38px;
-      height: 60px;
-      border-radius: 6px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      overflow: hidden;
-      position: relative;
+      width: 38px; height: 60px; border-radius: 6px; cursor: pointer;
+      border: 2px solid transparent; overflow: hidden; position: relative;
       background: linear-gradient(135deg, #004d38, #00c896);
       transition: transform 0.15s, border-color 0.15s;
     }
     .design-thumb:hover { transform: scale(1.1); }
     .design-thumb.active { border-color: #ffffff; }
-    .design-thumb svg,
-    .design-thumb .dt-aurora {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-    .dt-aurora { border-radius: inherit; }
-    .design-thumb-label {
-      font-size: 7.5px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      text-align: center;
-    }
+    .design-thumb svg, .design-thumb .dt-aurora { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .design-thumb-label { font-size: 7.5px; color: var(--muted); letter-spacing: 0.04em; text-align: center; }
 
-    /* Color swatches */
-    .swatches {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    .swatches { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .swatch {
-      width: 26px; height: 26px;
-      border-radius: 6px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: transform 0.15s, border-color 0.15s;
-      flex-shrink: 0;
+      width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+      border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; flex-shrink: 0;
     }
     .swatch:hover { transform: scale(1.12); }
     .swatch.active { border-color: #ffffff; }
-    .swatch-custom {
-      width: 26px; height: 26px;
-      border-radius: 6px;
-      overflow: hidden;
-      cursor: pointer;
-      border: 1px solid var(--border2);
-      position: relative;
-      flex-shrink: 0;
-    }
-    .swatch-custom input[type="color"] {
-      position: absolute;
-      inset: -4px;
-      width: calc(100% + 8px);
-      height: calc(100% + 8px);
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      background: none;
-      outline: none;
-    }
-    .swatch-custom::after {
-      content: '+';
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: var(--muted);
-      pointer-events: none;
-    }
 
     /* ══════════════════════════════════
-       STEP 2 — PERSONAL INFO
+       STEP 2 SPECIFIC
     ══════════════════════════════════ */
-    .step2-wrap {
-      width: 100%;
-      max-width: 440px;
-      animation: fadeUp 0.35s ease both;
-    }
-    .step2-card-mini {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .step2-card-thumb {
-      width: 36px; height: 57px;
-      border-radius: 6px;
-      flex-shrink: 0;
-      background: linear-gradient(135deg, #004d38, #00c896);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      transition: background 0.3s;
-      overflow: hidden;
-      position: relative;
-    }
-    .step2-card-thumb .dt-layer {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-    .step2-card-thumb svg,
-    .step2-card-thumb .dt-aurora {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-    .step2-card-info { flex: 1; }
-    .step2-card-name { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
-    .step2-card-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
     .step2-back {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11.5px;
-      color: var(--muted);
-      cursor: pointer;
-      background: none;
-      border: none;
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer;
+      background: #1a1a1a; border: 1px solid #2a2a2a;
+      border-radius: 999px;
       font-family: 'Inter', sans-serif;
-      padding: 0;
-      margin-bottom: 16px;
+      padding: 11px 20px; margin-bottom: 16px;
+      transition: background 0.18s, border-color 0.18s, transform 0.1s;
     }
-    .step2-back:hover { color: var(--text-soft); }
+    .step2-back:hover { background: #222; border-color: #333; transform: translateY(-1px); }
+    .step2-back:active { transform: translateY(0); }
 
-    /* Section divider */
-    .section-divider {
-      display: flex; align-items: center; gap: 10px; margin: 18px 0;
+    .step2-badge {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
     }
-    .section-divider-line { flex: 1; height: 1px; background: var(--border2); }
-    .section-divider-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted2); white-space: nowrap; }
+    .step2-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); flex-shrink: 0; }
+    .step2-badge-text { font-size: 12px; color: var(--text-soft); font-weight: 500; }
+    .step2-badge-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
 
-    /* ── SUCCESS VIEW ── */
+    .btn-submit-form {
+      width: 100%; background: var(--teal); color: #000; border: none;
+      border-radius: 999px; padding: 14px 24px; font-size: 14px;
+      font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer;
+      letter-spacing: -0.01em;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      margin-top: 20px;
+      transition: transform 0.1s, box-shadow 0.18s;
+      box-shadow: 0 2px 12px rgba(0,200,150,0.25);
+    }
+    .btn-submit-form:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,200,150,0.35); }
+    .btn-submit-form:active { transform: translateY(0); }
+    .btn-submit-form:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ══════════════════════════════════
+       GHL CONFIG NOTICE
+    ══════════════════════════════════ */
+    .ghl-config { background: rgba(0,200,150,0.04); border: 1px solid var(--teal-border); border-radius: 9px; padding: 10px 12px; font-size: 11px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; display: flex; gap: 7px; }
+    .ghl-config strong { color: var(--teal); }
+    .ghl-config code { background: var(--surface2); color: #777; padding: 1px 4px; border-radius: 3px; font-size: 10px; }
+    .notice-icon { color: var(--teal); flex-shrink: 0; }
+
+    /* ══════════════════════════════════
+       SUCCESS VIEW
+    ══════════════════════════════════ */
     #view-success .card { text-align: center; max-width: 440px; }
     .success-icon {
-      width: 48px; height: 48px;
-      background: var(--teal-dim); border: 1px solid var(--teal-border);
+      width: 48px; height: 48px; background: var(--teal-dim); border: 1px solid var(--teal-border);
       border-radius: 13px; display: flex; align-items: center; justify-content: center;
       margin: 0 auto 16px; color: var(--teal); font-size: 1.2rem; font-weight: 500;
       box-shadow: 0 0 20px rgba(0,200,150,0.12);
@@ -603,14 +479,15 @@
     }
     .link-box span { font-size: 11px; color: var(--teal); font-weight: 400; word-break: break-all; }
 
-    /* ── PROFILE VIEW ── */
+    /* ══════════════════════════════════
+       PROFILE VIEW
+    ══════════════════════════════════ */
     #view-profile .card { text-align: left; max-width: 440px; }
     .profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
     .avatar { width: 42px; height: 42px; background: var(--teal-dim); border: 1px solid var(--teal-border); border-radius: 11px; display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 12px; font-weight: 600; flex-shrink: 0; }
     .profile-name { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; }
     .profile-sub  { color: var(--muted); font-size: 11px; margin-top: 2px; display: flex; align-items: center; gap: 5px; }
     .profile-bank-icon { width: 13px; height: 13px; border-radius: 3px; object-fit: contain; }
-
     .data-section { margin-bottom: 14px; }
     .data-section-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted2); margin-bottom: 7px; }
     .data-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 13px; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; margin-bottom: 5px; gap: 10px; }
@@ -620,32 +497,46 @@
     .data-value.mono { font-family: 'SF Mono','Fira Code','Courier New',monospace; font-size: 12px; letter-spacing: 0.04em; color: var(--text); }
     .data-label-row { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
     .data-bank-icon { width: 13px; height: 13px; border-radius: 3px; object-fit: contain; }
-
     .notice { background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 11px; color: var(--muted); margin-top: 12px; line-height: 1.6; display: flex; gap: 7px; align-items: flex-start; }
-    .notice-icon { color: var(--teal); flex-shrink: 0; }
 
-    .ghl-config { background: rgba(0,200,150,0.04); border: 1px solid var(--teal-border); border-radius: 9px; padding: 10px 12px; font-size: 11px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; display: flex; gap: 7px; }
-    .ghl-config strong { color: var(--teal); }
-    .ghl-config code { background: var(--surface2); color: #777; padding: 1px 4px; border-radius: 3px; font-size: 10px; }
-
-    .footer-note { text-align: center; font-size: 11px; color: var(--muted2); margin-top: 18px; line-height: 1.7; position: relative; z-index: 1; animation: fadeUp 0.4s ease 0.2s both; }
+    .footer-note { text-align: center; font-size: 11px; color: var(--muted2); margin-top: 18px; line-height: 1.7; position: relative; z-index: 1; }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* ══════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════ */
     @media (max-width: 700px) {
-      .split-layout { grid-template-columns: 1fr; }
-      .preview-panel { position: static; }
+      #main-layout.active {
+        grid-template-columns: 1fr;
+      }
+      .right-col {
+        display: flex;
+        position: static; /* no sticky on mobile — prevents overlap */
+      }
+      /* Step 1: preview BELOW form (natural DOM order) */
+      /* Step 2: preview ABOVE form */
+      #main-layout.step2 .left-col  { order: 2; }
+      #main-layout.step2 .right-col { order: 1; }
+      /* Hide color editor on mobile step 2 */
+      #main-layout.step2 .color-editor { display: none; }
       .card-frame { padding: 24px 20px; }
-      .live-card { width: 240px; }
+      .live-card { width: 220px; }
       .card { padding: 22px 16px; }
       .form-row { grid-template-columns: 1fr; }
-      .page { padding: 24px 14px 32px; }
+      .page { padding: 24px 14px 100px; }
+      #floating-btn-wrap {
+        bottom: 20px;
+        right: 16px;
+      }
+      #floating-btn-wrap.hidden {
+        transform: translateY(14px);
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="bg-wrap" aria-hidden="true"></div>
 <div class="shapes" id="shapes" aria-hidden="true"></div>
 
 <div class="page">
@@ -659,13 +550,16 @@
   </div>
 
   <!-- ══════════════════════════════════
-       STEP 1 — datos de cuenta + card editor
+       PERSISTENT SPLIT LAYOUT
+       (shown for step1 and step2)
   ══════════════════════════════════ -->
-  <div id="view-step1" class="view active">
-    <div class="split-layout">
+  <div id="main-layout">
 
-      <!-- LEFT: form -->
-      <div class="split-left">
+    <!-- LEFT COLUMN -->
+    <div class="left-col" id="left-col">
+
+      <!-- PANEL 1: Datos de cuenta -->
+      <div class="left-panel" id="panel-step1">
         <div class="card">
           <div class="card-header">
             <div class="n26-bar"></div>
@@ -678,26 +572,23 @@
             <span><strong>GHL:</strong> reemplaza <code>TU_WEBHOOK_URL_AQUI</code> con tu webhook de GoHighLevel.</span>
           </div>
 
-          <!-- Nombre de cuenta -->
           <div class="field" id="fg-nombre-cuenta">
             <label>Nombre de la cuenta <span class="req">*</span></label>
             <input type="text" id="nombre-cuenta" placeholder="Ej. Pagos Freelance" oninput="updateCard()" />
             <span class="field-error">Ingresa un nombre para esta cuenta.</span>
           </div>
 
-          <!-- CLABE -->
           <div class="field" id="fg-clabe">
             <label>CLABE interbancaria <span class="req">*</span></label>
             <div class="clabe-wrap">
               <input type="tel" id="clabe" placeholder="18 dígitos" maxlength="18" inputmode="numeric" oninput="onClabeInput()" />
-              <svg class="clabe-verified" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="clabe-verified" width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <span class="field-error">La CLABE debe tener exactamente 18 dígitos.</span>
           </div>
 
-          <!-- Banco auto-detectado -->
           <div class="field" id="fg-banco">
             <label>Banco</label>
             <div class="banco-wrap" id="banco-wrap">
@@ -706,167 +597,140 @@
             </div>
           </div>
 
-          <!-- Tarjeta -->
           <div class="field" id="fg-tarjeta">
             <label>Número de tarjeta <span class="opt">— opcional</span></label>
             <input type="tel" id="tarjeta" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" oninput="onTarjetaInput()" />
             <span class="field-error">Debe tener 16 dígitos.</span>
           </div>
 
-          <!-- Alias -->
           <div class="field">
             <label>Alias <span class="opt">— opcional</span></label>
             <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios…" oninput="updateCard()" />
           </div>
+        </div>
+      </div><!-- /panel-step1 -->
 
-          <button class="btn btn-continuar" onclick="goToStep2()">
-            Continuar →
+      <!-- PANEL 2: Info personal -->
+      <div class="left-panel hidden" id="panel-step2">
+
+        <button class="step2-back" onclick="backToStep1()">← Volver</button>
+
+        <div class="step2-badge">
+          <div class="step2-badge-dot"></div>
+          <div>
+            <div class="step2-badge-text" id="step2-nombre-cuenta">—</div>
+            <div class="step2-badge-sub" id="step2-banco">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="n26-bar"></div>
+            <h1>Información personal</h1>
+            <p>Para que quien pague sepa a quién le está enviando.</p>
+          </div>
+
+          <div class="field" id="fg-nombre">
+            <label>Nombre completo <span class="req">*</span></label>
+            <input type="text" id="nombre" placeholder="Ej. María García López" autocomplete="name" />
+            <span class="field-error">Ingresa tu nombre completo.</span>
+          </div>
+
+          <div class="field" id="fg-email">
+            <label>Correo electrónico <span class="req">*</span></label>
+            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" />
+            <span class="field-error">Ingresa un correo válido.</span>
+          </div>
+
+          <div class="form-row">
+            <div class="field" id="fg-instagram">
+              <label>Instagram <span class="req">*</span></label>
+              <div class="input-prefix-wrap">
+                <span class="input-prefix">@</span>
+                <input type="text" id="instagram" placeholder="usuario" />
+              </div>
+              <span class="field-error">Ingresa tu usuario.</span>
+            </div>
+            <div class="field">
+              <label>WhatsApp <span class="opt">— opcional</span></label>
+              <input type="tel" id="whatsapp" placeholder="10 dígitos" maxlength="10" inputmode="numeric" />
+            </div>
+          </div>
+
+          <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="spinner" id="spinner"></div>
+            <span id="btn-text">Generar mi link</span>
           </button>
+
         </div>
-      </div>
 
-      <!-- RIGHT: card preview + editor -->
-      <div class="split-right">
-        <div class="preview-panel">
+      </div><!-- /panel-step2 -->
 
-          <!-- Card frame (background) + vertical info card -->
-          <div class="card-frame" id="card-frame">
-            <div class="live-card light-text" id="live-card">
-              <!-- Design overlay layer (filled by JS) -->
-              <div class="card-design-layer" id="card-design-layer"></div>
+    </div><!-- /left-col -->
 
-              <!-- Card content -->
-              <div class="lc-inner">
-                <div class="lc-top">
-                  <span class="lc-logo-dot">tr4nsfer.me</span>
-                </div>
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
 
-                <div class="lc-middle">
-                  <div class="lc-bank" id="lc-bank" style="display:none;">
-                    <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
-                    <span class="lc-bank-name" id="lc-bank-name">—</span>
-                  </div>
-                  <div class="lc-group">
-                    <div class="lc-clabe-label">CLABE</div>
-                    <div class="lc-clabe" id="lc-clabe">•••• •••• ••••• •••••</div>
-                  </div>
-                  <div class="lc-group" id="lc-tarjeta-group" style="display:none;">
-                    <div class="lc-section-label">TARJETA</div>
-                    <div class="lc-cardnum" id="lc-cardnum"></div>
-                  </div>
-                  <div class="lc-group">
-                    <div class="lc-section-label">NOMBRE DE CUENTA</div>
-                    <div class="lc-name" id="lc-nombre-val">Tu nombre aquí</div>
-                  </div>
-                </div>
-
-                <div class="lc-bottom">
-                  <div class="lc-alias" id="lc-alias"></div>
-                </div>
+      <!-- Card preview -->
+      <div class="card-frame" id="card-frame">
+        <div class="live-card light-text" id="live-card">
+          <div class="card-design-layer" id="card-design-layer"></div>
+          <div class="lc-inner">
+            <div class="lc-top">
+              <span class="lc-logo-dot">tr4nsfer.me</span>
+            </div>
+            <div class="lc-middle">
+              <div class="lc-bank" id="lc-bank" style="display:none;">
+                <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
+                <span class="lc-bank-name" id="lc-bank-name">—</span>
+              </div>
+              <div class="lc-group">
+                <div class="lc-clabe-label">CLABE</div>
+                <div class="lc-clabe" id="lc-clabe">•••• •••• ••••• •••••</div>
+              </div>
+              <div class="lc-group" id="lc-tarjeta-group" style="display:none;">
+                <div class="lc-section-label">TARJETA</div>
+                <div class="lc-cardnum" id="lc-cardnum"></div>
+              </div>
+              <div class="lc-group">
+                <div class="lc-section-label">NOMBRE DE CUENTA</div>
+                <div class="lc-name" id="lc-nombre-val">Tu nombre aquí</div>
               </div>
             </div>
-          </div>
-
-          <!-- Editor -->
-          <div class="color-editor">
-            <div class="color-editor-title">Personaliza tu tarjeta</div>
-
-            <!-- Design picker -->
-            <div class="color-section">
-              <div class="color-section-label">Diseño</div>
-              <div class="design-picker" id="design-picker">
-                <!-- 5 design thumbs injected by JS -->
-              </div>
-            </div>
-
-            <!-- Card color -->
-            <div class="color-section">
-              <div class="color-section-label">Color de tarjeta</div>
-              <div class="swatches" id="card-swatches"></div>
-            </div>
-
-            <!-- Background frame color -->
-            <div class="color-section">
-              <div class="color-section-label">Fondo</div>
-              <div class="swatches" id="bg-swatches"></div>
+            <div class="lc-bottom">
+              <div class="lc-alias" id="lc-alias"></div>
             </div>
           </div>
-
-        </div><!-- /preview-panel -->
-      </div><!-- /split-right -->
-
-    </div><!-- /split-layout -->
-  </div><!-- /view-step1 -->
-
-  <!-- ══════════════════════════════════
-       STEP 2 — información personal
-  ══════════════════════════════════ -->
-  <div id="view-step2" class="view">
-    <div class="step2-wrap">
-
-      <button class="step2-back" onclick="showView('view-step1')">
-        ← Volver
-      </button>
-
-      <!-- Mini card summary -->
-      <div class="step2-card-mini">
-        <div class="step2-card-thumb" id="step2-thumb">
-          <div class="dt-layer" id="step2-thumb-design"></div>
-        </div>
-        <div class="step2-card-info">
-          <div class="step2-card-name" id="step2-nombre-cuenta">—</div>
-          <div class="step2-card-sub" id="step2-banco">—</div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="n26-bar"></div>
-          <h1>Información personal</h1>
-          <p>Para que quien pague sepa a quién le está enviando.</p>
+      <!-- Color editor (fades out on step 2) -->
+      <div class="color-editor" id="color-editor">
+        <div class="color-editor-title">Personaliza tu tarjeta</div>
+        <div class="color-section">
+          <div class="color-section-label">Diseño</div>
+          <div class="design-picker" id="design-picker"></div>
         </div>
-
-        <!-- Nombre -->
-        <div class="field" id="fg-nombre">
-          <label>Nombre completo <span class="req">*</span></label>
-          <input type="text" id="nombre" placeholder="Ej. María García López" autocomplete="name" />
-          <span class="field-error">Ingresa tu nombre completo.</span>
+        <div class="color-section">
+          <div class="color-section-label">Color de tarjeta</div>
+          <div class="swatches" id="card-swatches"></div>
         </div>
-
-        <!-- Email -->
-        <div class="field" id="fg-email">
-          <label>Correo electrónico <span class="req">*</span></label>
-          <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" />
-          <span class="field-error">Ingresa un correo válido.</span>
+        <div class="color-section">
+          <div class="color-section-label">Fondo</div>
+          <div class="swatches" id="bg-swatches"></div>
         </div>
-
-        <!-- Instagram + WhatsApp -->
-        <div class="form-row">
-          <div class="field" id="fg-instagram">
-            <label>Instagram <span class="req">*</span></label>
-            <div class="input-prefix-wrap">
-              <span class="input-prefix">@</span>
-              <input type="text" id="instagram" placeholder="usuario" />
-            </div>
-            <span class="field-error">Ingresa tu usuario.</span>
-          </div>
-          <div class="field">
-            <label>WhatsApp <span class="opt">— opcional</span></label>
-            <input type="tel" id="whatsapp" placeholder="10 dígitos" maxlength="10" inputmode="numeric" />
-          </div>
-        </div>
-
-        <button class="btn" id="submit-btn" onclick="submitForm()">
-          <div class="spinner" id="spinner"></div>
-          <span id="btn-text">Generar mi link</span>
-        </button>
       </div>
 
-    </div>
-  </div>
+    </div><!-- /right-col -->
+
+  </div><!-- /main-layout -->
 
   <!-- ══════════════════════════════════
-       SUCCESS
+       SUCCESS VIEW
   ══════════════════════════════════ -->
   <div id="view-success" class="view">
     <div class="card">
@@ -878,12 +742,12 @@
         <button class="btn btn-copy" id="btn-copy-link" onclick="copyLink()">Copiar</button>
       </div>
       <button class="btn" onclick="shareWhatsApp()">Compartir por WhatsApp</button>
-      <button class="btn btn-outline" onclick="showView('view-step1')">+ Crear otro</button>
+      <button class="btn btn-outline" onclick="resetToStep1()">+ Crear otro</button>
     </div>
   </div>
 
   <!-- ══════════════════════════════════
-       PROFILE PUBLIC
+       PROFILE VIEW
   ══════════════════════════════════ -->
   <div id="view-profile" class="view">
     <div class="card">
@@ -897,7 +761,6 @@
           </div>
         </div>
       </div>
-
       <div class="data-section">
         <div class="data-section-label">Datos para SPEI</div>
         <div class="data-row">
@@ -925,7 +788,6 @@
           <button class="btn btn-copy" onclick="copyField('prof-titular', this)">Copiar</button>
         </div>
       </div>
-
       <div class="data-section">
         <div class="data-section-label">Contacto</div>
         <div class="data-row" id="row-instagram">
@@ -943,7 +805,6 @@
           <button class="btn btn-copy" onclick="copyField('prof-whatsapp', this)">Copiar</button>
         </div>
       </div>
-
       <div class="notice">
         <span class="notice-icon">🔒</span>
         <span>Solo para recibir SPEI. No incluye contraseñas ni acceso a tu cuenta.</span>
@@ -955,11 +816,19 @@
 
 </div><!-- /page -->
 
+<!-- ══════════════════════════════════
+     FLOATING CTA BUTTON
+══════════════════════════════════ -->
+<div id="floating-btn-wrap">
+  <button id="floating-btn" onclick="floatingBtnClick()">
+    <div class="spinner" id="floating-spinner"></div>
+    <span id="floating-btn-text">Continuar →</span>
+  </button>
+</div>
+
 <script>
-  // ── Config
   const GHL_WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
 
-  // ── CLABE bank map
   const BANCOS = {
     '002':{ nombre:'BBVA',             domain:'bbva.mx' },
     '006':{ nombre:'Bancomext',        domain:'bancomext.com' },
@@ -999,116 +868,40 @@
   };
   const favicon = d => `https://www.google.com/s2/favicons?domain=${d}&sz=32`;
 
-  // ═══════════════════════════════════════
-  // 5 CARD DESIGN TEMPLATES
-  // Each renders HTML string for a given container size
-  // ═══════════════════════════════════════
   const CARD_DESIGNS = [
     {
-      id: 'diagonal',
-      label: 'Diagonal',
-      render: () => `
-        <svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <polygon points="0,0 100,0 100,58 0,125" fill="rgba(255,255,255,0.09)"/>
-          <polygon points="62,0 100,0 100,38" fill="rgba(255,255,255,0.07)"/>
-          <polygon points="0,130 100,60 100,159 0,159" fill="rgba(255,255,255,0.05)"/>
-          <line x1="0" y1="125" x2="100" y2="58" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
-        </svg>`,
-      thumbRender: () => `
-        <svg viewBox="0 0 38 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <polygon points="0,0 38,0 38,22 0,47" fill="rgba(255,255,255,0.09)"/>
-          <polygon points="24,0 38,0 38,14" fill="rgba(255,255,255,0.07)"/>
-          <polygon points="0,49 38,23 38,60 0,60" fill="rgba(255,255,255,0.05)"/>
-        </svg>`
+      id: 'diagonal', label: 'Diagonal',
+      render: () => `<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,58 0,125" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,38" fill="rgba(255,255,255,0.07)"/><polygon points="0,130 100,60 100,159 0,159" fill="rgba(255,255,255,0.05)"/><line x1="0" y1="125" x2="100" y2="58" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></svg>`,
+      thumbRender: () => `<svg viewBox="0 0 38 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 38,0 38,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="24,0 38,0 38,14" fill="rgba(255,255,255,0.07)"/><polygon points="0,49 38,23 38,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`
     },
     {
-      id: 'puntos',
-      label: 'Puntos',
-      render: () => `
-        <svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <defs>
-            <radialGradient id="hfade-r" cx="80%" cy="20%" r="90%">
-              <stop offset="0%" stop-color="rgba(255,255,255,0.26)"/>
-              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-            </radialGradient>
-            <pattern id="dots-r" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-              <circle cx="5" cy="5" r="1.3" fill="rgba(255,255,255,1)"/>
-            </pattern>
-            <mask id="dotmask-r">
-              <rect width="100" height="159" fill="url(#hfade-r)"/>
-            </mask>
-          </defs>
-          <rect width="100" height="159" fill="url(#dots-r)" mask="url(#dotmask-r)"/>
-        </svg>`,
-      thumbRender: () => `
-        <svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <defs>
-            <radialGradient id="hft" cx="80%" cy="20%" r="90%">
-              <stop offset="0%" stop-color="rgba(255,255,255,0.26)"/>
-              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-            </radialGradient>
-            <pattern id="dt" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
-              <circle cx="3" cy="3" r="0.9" fill="rgba(255,255,255,1)"/>
-            </pattern>
-            <mask id="dmt"><rect width="38" height="60" fill="url(#hft)"/></mask>
-          </defs>
-          <rect width="38" height="60" fill="url(#dt)" mask="url(#dmt)"/>
-        </svg>`
+      id: 'puntos', label: 'Puntos',
+      render: () => `<svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="hfade-r" cx="80%" cy="20%" r="90%"><stop offset="0%" stop-color="rgba(255,255,255,0.26)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><pattern id="dots-r" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.3" fill="rgba(255,255,255,1)"/></pattern><mask id="dotmask-r"><rect width="100" height="159" fill="url(#hfade-r)"/></mask></defs><rect width="100" height="159" fill="url(#dots-r)" mask="url(#dotmask-r)"/></svg>`,
+      thumbRender: () => `<svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="hft" cx="80%" cy="20%" r="90%"><stop offset="0%" stop-color="rgba(255,255,255,0.26)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><pattern id="dt" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="0.9" fill="rgba(255,255,255,1)"/></pattern><mask id="dmt"><rect width="38" height="60" fill="url(#hft)"/></mask></defs><rect width="38" height="60" fill="url(#dt)" mask="url(#dmt)"/></svg>`
     },
     {
-      id: 'espiral',
-      label: 'Espiral',
-      render: () => `
-        <svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <path d="M0,159 Q50,78 100,58"  fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/>
-          <path d="M0,159 Q60,98 100,82"  fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/>
-          <path d="M0,159 Q64,114 100,104" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/>
-          <path d="M0,159 Q62,128 100,122" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/>
-          <path d="M0,159 Q56,139 100,136" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-          <path d="M0,159 Q50,148 100,148" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
-          <path d="M0,159 Q36,52 100,28"  fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/>
-          <path d="M0,159 Q20,18 78,0"    fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/>
-        </svg>`,
-      thumbRender: () => `
-        <svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <path d="M0,60 Q19,29 38,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/>
-          <path d="M0,60 Q22,37 38,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/>
-          <path d="M0,60 Q24,43 38,40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
-          <path d="M0,60 Q23,49 38,47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-          <path d="M0,60 Q20,54 38,53" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
-          <path d="M0,60 Q14,20 30,0"  fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.6"/>
-        </svg>`
+      id: 'espiral', label: 'Espiral',
+      render: () => `<svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q64,114 100,104" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/><path d="M0,159 Q62,128 100,122" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/><path d="M0,159 Q56,139 100,136" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,159 Q50,148 100,148" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q20,18 78,0" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/></svg>`,
+      thumbRender: () => `<svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q19,29 38,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q22,37 38,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><path d="M0,60 Q24,43 38,40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/><path d="M0,60 Q23,49 38,47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,60 Q20,54 38,53" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,60 Q14,20 30,0" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.6"/></svg>`
     },
     {
-      id: 'minimal',
-      label: 'Minimal',
-      render: () => `
-        <svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <line x1="12" y1="108" x2="88" y2="108" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/>
-          <rect x="12" y="114" width="28" height="1" fill="rgba(255,255,255,0.07)" rx="0.5"/>
-          <rect x="12" y="118" width="18" height="1" fill="rgba(255,255,255,0.05)" rx="0.5"/>
-        </svg>`,
-      thumbRender: () => `
-        <svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
-          <line x1="5" y1="42" x2="33" y2="42" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/>
-          <rect x="5" y="45" width="10" height="0.8" fill="rgba(255,255,255,0.07)" rx="0.4"/>
-          <rect x="5" y="48" width="7" height="0.8" fill="rgba(255,255,255,0.05)" rx="0.4"/>
-        </svg>`
+      id: 'minimal', label: 'Minimal',
+      render: () => `<svg viewBox="0 0 100 159" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><line x1="12" y1="108" x2="88" y2="108" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><rect x="12" y="114" width="28" height="1" fill="rgba(255,255,255,0.07)" rx="0.5"/><rect x="12" y="118" width="18" height="1" fill="rgba(255,255,255,0.05)" rx="0.5"/></svg>`,
+      thumbRender: () => `<svg viewBox="0 0 38 60" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><line x1="5" y1="42" x2="33" y2="42" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><rect x="5" y="45" width="10" height="0.8" fill="rgba(255,255,255,0.07)" rx="0.4"/><rect x="5" y="48" width="7" height="0.8" fill="rgba(255,255,255,0.05)" rx="0.4"/></svg>`
     },
   ];
 
-  let selectedDesign     = 0;
+  let selectedDesign       = 0;
   let selectedCardGradient = 'linear-gradient(135deg,#004d38,#00c896)';
   let selectedBgColor      = '#000000';
+  let currentStep          = 1; // 1 or 2
 
-  // ── Card color presets (4 options)
   const CARD_PRESETS = [
     { label:'Verde',  value:'linear-gradient(135deg,#004d38,#00c896)' },
     { label:'Negro',  value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)' },
     { label:'Rojo',   value:'linear-gradient(135deg,#6b0000,#c0392b)' },
     { label:'Azul',   value:'linear-gradient(135deg,#0f3460,#1a6fb5)' },
   ];
-
   const BG_PRESETS = [
     { label:'Verde',  value:'#022b1c' },
     { label:'Negro',  value:'#000000' },
@@ -1118,216 +911,85 @@
   const store = {};
   const $ = id => document.getElementById(id);
 
-  // ── Views
+  // ══════════════════════════════════
+  // FLOATING BUTTON STATE
+  // ══════════════════════════════════
+  function setFloatingBtn({ text, spinner: showSpinner, disabled, visible }) {
+    const wrap    = $('floating-btn-wrap');
+    const btn     = $('floating-btn');
+    const spinEl  = $('floating-spinner');
+    const textEl  = $('floating-btn-text');
+
+    if (visible === false) {
+      wrap.classList.add('hidden');
+    } else {
+      wrap.classList.remove('hidden');
+    }
+    if (text !== undefined)        textEl.textContent = text;
+    if (showSpinner !== undefined) spinEl.style.display = showSpinner ? 'inline-block' : 'none';
+    if (disabled !== undefined)    btn.disabled = disabled;
+  }
+
+  function floatingBtnClick() {
+    if (currentStep === 1) goToStep2();
+    else if (currentStep === 2) submitForm();
+  }
+
+  // ══════════════════════════════════
+  // NAVIGATION
+  // ══════════════════════════════════
+  function showMainLayout() {
+    $('main-layout').classList.add('active');
+    // Hide other views
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    setFloatingBtn({ visible: true });
+  }
+
+  function hideMainLayout() {
+    $('main-layout').classList.remove('active');
+    setFloatingBtn({ visible: false });
+  }
+
   function showView(id) {
+    hideMainLayout();
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     $(id).classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Apply design template to a container element
-  function renderDesign(containerEl, designIndex) {
-    if (!containerEl) return;
-    containerEl.innerHTML = CARD_DESIGNS[designIndex].render();
-  }
-  function renderDesignThumb(containerEl, designIndex) {
-    if (!containerEl) return;
-    containerEl.innerHTML = CARD_DESIGNS[designIndex].thumbRender();
-  }
+  // Animate LEFT panel: fade out current, fade in next
+  function transitionLeftPanel(fromId, toId, onSwap) {
+    const fromEl = $(fromId);
+    const toEl   = $(toId);
 
-  // ── Live card update
-  function updateCard() {
-    const nombre = $('nombre-cuenta').value.trim() || 'Tu nombre aquí';
-    const alias  = $('alias').value.trim();
-    const clabe  = $('clabe').value.replace(/\D/g,'');
-    const tarjeta= $('tarjeta').value.replace(/\D/g,'');
+    // Start: fade out the old panel
+    fromEl.classList.add('exit-left');
 
-    // Auto-shrink name font if too long
-    const nombreEl = $('lc-nombre-val');
-    const nombreUp = nombre.toUpperCase();
-    nombreEl.textContent = nombreUp;
-    if (nombreUp.length > 18) {
-      nombreEl.style.fontSize = '10px';
-      nombreEl.style.letterSpacing = '0.02em';
-    } else if (nombreUp.length > 14) {
-      nombreEl.style.fontSize = '12px';
-      nombreEl.style.letterSpacing = '0.03em';
-    } else {
-      nombreEl.style.fontSize = '';
-      nombreEl.style.letterSpacing = '';
-    }
-    $('lc-alias').textContent = alias ? alias.toUpperCase() : '';
+    setTimeout(() => {
+      // Swap: hide old, prepare new (off-screen right, invisible)
+      fromEl.classList.add('hidden');
+      fromEl.classList.remove('exit-left');
 
-    // CLABE display — single line: XXXX XXXX XXXXX XXXXX
-    if (clabe.length >= 1) {
-      const padded = clabe.padEnd(18, '•');
-      $('lc-clabe').textContent =
-        padded.substring(0,4) + ' ' + padded.substring(4,8) + ' ' +
-        padded.substring(8,13) + ' ' + padded.substring(13,18);
-    } else {
-      $('lc-clabe').textContent = '•••• •••• ••••• •••••';
-    }
+      toEl.classList.remove('hidden');
+      toEl.classList.add('enter-right');
 
-    // Card number — show group only when filled
-    const tarjetaGroup = $('lc-tarjeta-group');
-    if (tarjeta.length >= 1) {
-      const t = tarjeta.padEnd(16,'•');
-      $('lc-cardnum').textContent =
-        t.substring(0,4)+' '+t.substring(4,8)+' '+t.substring(8,12)+' '+t.substring(12,16);
-      tarjetaGroup.style.display = 'flex';
-    } else {
-      $('lc-cardnum').textContent = '';
-      tarjetaGroup.style.display = 'none';
-    }
+      if (onSwap) onSwap();
+
+      // Force reflow so the transition fires
+      toEl.getBoundingClientRect();
+
+      // Animate in
+      toEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      toEl.classList.remove('enter-right');
+
+      // Clean up inline transition after animation
+      setTimeout(() => {
+        toEl.style.transition = '';
+      }, 320);
+
+    }, 280); // wait for exit animation
   }
 
-  // ── CLABE detection
-  function onClabeInput() {
-    const input = $('clabe');
-    input.value = input.value.replace(/\D/g,'').substring(0, 18);
-    input.classList.toggle('complete', input.value.length === 18);
-    const code = input.value.substring(0, 3);
-    const wrap = $('banco-wrap');
-    const bancoInput = $('banco');
-    const iconEl = $('banco-icon');
-    const lcBank = $('lc-bank');
-    const lcBankIcon = $('lc-bank-icon');
-    const lcBankName = $('lc-bank-name');
-
-    if (code.length === 3 && BANCOS[code]) {
-      const b = BANCOS[code];
-      bancoInput.value = b.nombre;
-      iconEl.src = favicon(b.domain);
-      iconEl.alt = b.nombre;
-      wrap.classList.add('detected');
-      lcBankIcon.src = favicon(b.domain);
-      lcBankIcon.style.display = 'block';
-      lcBankName.textContent = b.nombre;
-      lcBank.style.display = 'flex';
-    } else {
-      bancoInput.value = '';
-      iconEl.src = '';
-      wrap.classList.remove('detected');
-      lcBank.style.display = 'none';
-    }
-    updateCard();
-  }
-
-  // ── Tarjeta format
-  function onTarjetaInput() {
-    const input = $('tarjeta');
-    let v = input.value.replace(/\D/g,'').substring(0, 16);
-    input.value = v.replace(/(.{4})/g,'$1 ').trim();
-    updateCard();
-  }
-
-  // ── Build design picker thumbs
-  function buildDesignPicker() {
-    const picker = $('design-picker');
-    CARD_DESIGNS.forEach((d, i) => {
-      const wrap = document.createElement('div');
-      wrap.className = 'design-thumb-wrap';
-
-      const thumb = document.createElement('div');
-      thumb.className = 'design-thumb' + (i === 0 ? ' active' : '');
-      thumb.style.background = selectedCardGradient;
-      thumb.innerHTML = d.thumbRender();
-      thumb.onclick = () => {
-        selectedDesign = i;
-        document.querySelectorAll('.design-thumb').forEach(t => t.classList.remove('active'));
-        thumb.classList.add('active');
-        renderDesign($('card-design-layer'), i);
-        renderDesignThumb($('step2-thumb-design'), i);
-      };
-
-      const lbl = document.createElement('div');
-      lbl.className = 'design-thumb-label';
-      lbl.textContent = d.label;
-
-      wrap.appendChild(thumb);
-      wrap.appendChild(lbl);
-      picker.appendChild(wrap);
-    });
-  }
-
-  // ── Build color swatches
-  function buildSwatches() {
-    const cardWrap = $('card-swatches');
-    const bgWrap   = $('bg-swatches');
-
-    // Card — 4 colors
-    CARD_PRESETS.forEach((p, i) => {
-      const sw = document.createElement('div');
-      sw.className = 'swatch' + (i === 0 ? ' active' : '');
-      sw.style.background = p.value;
-      if (p.label === 'Blanco') sw.style.border = '1px solid #444';
-      sw.title = p.label;
-      sw.onclick = () => {
-        document.querySelectorAll('#card-swatches .swatch').forEach(s => s.classList.remove('active'));
-        sw.classList.add('active');
-        selectedCardGradient = p.value;
-        applyCardColor();
-      };
-      cardWrap.appendChild(sw);
-    });
-
-    // Background — 4 colors
-    BG_PRESETS.forEach((p, i) => {
-      const sw = document.createElement('div');
-      sw.className = 'swatch' + (i === 1 ? ' active' : ''); // Negro active by default
-      sw.style.background = p.value;
-      if (p.value === '#000000') sw.style.border = '1px solid #333';
-      if (p.label === 'Blanco') sw.style.border = '1px solid #888';
-      sw.title = p.label;
-      sw.onclick = () => {
-        document.querySelectorAll('#bg-swatches .swatch').forEach(s => s.classList.remove('active'));
-        sw.classList.add('active');
-        selectedBgColor = p.value;
-        applyBgColor();
-      };
-      bgWrap.appendChild(sw);
-    });
-  }
-
-
-
-  function applyCardColor() {
-    const card = $('live-card');
-    card.style.background = selectedCardGradient;
-
-    // Update design thumb backgrounds to match selected card color
-    document.querySelectorAll('.design-thumb').forEach(t => {
-      t.style.background = selectedCardGradient;
-    });
-
-    // Step2 thumb
-    const thumb = $('step2-thumb');
-    if (thumb) thumb.style.background = selectedCardGradient;
-
-    // Luminance check
-    const hexMatch = selectedCardGradient.match(/#([0-9a-f]{6})/i);
-    if (hexMatch) {
-      const n = parseInt(hexMatch[1], 16);
-      const lum = (0.299*(n>>16) + 0.587*((n>>8)&0xff) + 0.114*(n&0xff)) / 255;
-      card.classList.toggle('light-text', lum < 0.5);
-      card.classList.toggle('dark-text',  lum >= 0.5);
-    }
-  }
-
-  function applyBgColor() {
-    const frame = $('card-frame');
-    if (frame) frame.style.background = selectedBgColor;
-  }
-
-  // ── Validation helpers
-  function setError(fgId, show) {
-    const fg = $(fgId);
-    if (!fg) return show;
-    show ? fg.classList.add('has-error') : fg.classList.remove('has-error');
-    return show;
-  }
-
-  // ── Go to step 2
   function goToStep2() {
     const nombreCuenta = $('nombre-cuenta').value.trim();
     const clabe        = $('clabe').value.replace(/\D/g,'');
@@ -1343,29 +1005,233 @@
     const bancoData = BANCOS[bancoCode];
     $('step2-nombre-cuenta').textContent = nombreCuenta + ($('alias').value.trim() ? ` · ${$('alias').value.trim()}` : '');
     $('step2-banco').textContent = bancoData ? bancoData.nombre : 'Banco no identificado';
-    $('step2-thumb').style.background = selectedCardGradient;
-    renderDesignThumb($('step2-thumb-design'), selectedDesign);
 
-    showView('view-step2');
+    // Fade out color editor simultaneously
+    $('color-editor').classList.add('fade-out');
+
+    // Hide floating button
+    setFloatingBtn({ visible: false });
+
+    // Transition the left panel
+    transitionLeftPanel('panel-step1', 'panel-step2', () => {
+      currentStep = 2;
+      $('main-layout').classList.add('step2');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 
-  // ── Submit
+  function backToStep1() {
+    // Restore color editor
+    $('color-editor').classList.remove('fade-out');
+
+    transitionLeftPanel('panel-step2', 'panel-step1', () => {
+      currentStep = 1;
+      $('main-layout').classList.remove('step2');
+      setFloatingBtn({ text: 'Continuar →', visible: true });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });  }
+
+  function resetToStep1() {
+    currentStep = 1;
+    $('color-editor').classList.remove('fade-out');
+
+    // Make sure step1 is visible, step2 hidden
+    $('panel-step2').classList.add('hidden');
+    $('panel-step1').classList.remove('hidden');
+    $('panel-step1').classList.remove('exit-left');
+    $('panel-step1').style.opacity = '';
+    $('panel-step1').style.transform = '';
+
+    showMainLayout();
+    setFloatingBtn({ text: 'Continuar →', visible: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ══════════════════════════════════
+  // LIVE CARD UPDATE
+  // ══════════════════════════════════
+  function updateCard() {
+    const nombre  = $('nombre-cuenta').value.trim() || 'Tu nombre aquí';
+    const alias   = $('alias').value.trim();
+    const clabe   = $('clabe').value.replace(/\D/g,'');
+    const tarjeta = $('tarjeta').value.replace(/\D/g,'');
+
+    const nombreEl = $('lc-nombre-val');
+    const nombreUp = nombre.toUpperCase();
+    nombreEl.textContent = nombreUp;
+    if (nombreUp.length > 18)     { nombreEl.style.fontSize = '10px'; nombreEl.style.letterSpacing = '0.02em'; }
+    else if (nombreUp.length > 14) { nombreEl.style.fontSize = '12px'; nombreEl.style.letterSpacing = '0.03em'; }
+    else                           { nombreEl.style.fontSize = ''; nombreEl.style.letterSpacing = ''; }
+
+    $('lc-alias').textContent = alias ? alias.toUpperCase() : '';
+
+    if (clabe.length >= 1) {
+      const p = clabe.padEnd(18,'•');
+      $('lc-clabe').textContent = p.substring(0,4)+' '+p.substring(4,8)+' '+p.substring(8,13)+' '+p.substring(13,18);
+    } else {
+      $('lc-clabe').textContent = '•••• •••• ••••• •••••';
+    }
+
+    const tGroup = $('lc-tarjeta-group');
+    if (tarjeta.length >= 1) {
+      const t = tarjeta.padEnd(16,'•');
+      $('lc-cardnum').textContent = t.substring(0,4)+' '+t.substring(4,8)+' '+t.substring(8,12)+' '+t.substring(12,16);
+      tGroup.style.display = 'flex';
+    } else {
+      $('lc-cardnum').textContent = '';
+      tGroup.style.display = 'none';
+    }
+  }
+
+  function onClabeInput() {
+    const input = $('clabe');
+    input.value = input.value.replace(/\D/g,'').substring(0, 18);
+    input.classList.toggle('complete', input.value.length === 18);
+    const code       = input.value.substring(0, 3);
+    const wrap       = $('banco-wrap');
+    const bancoInput = $('banco');
+    const iconEl     = $('banco-icon');
+    const lcBank     = $('lc-bank');
+
+    if (code.length === 3 && BANCOS[code]) {
+      const b = BANCOS[code];
+      bancoInput.value = b.nombre;
+      iconEl.src = favicon(b.domain); iconEl.alt = b.nombre;
+      wrap.classList.add('detected');
+      $('lc-bank-icon').src = favicon(b.domain);
+      $('lc-bank-icon').style.display = 'block';
+      $('lc-bank-name').textContent = b.nombre;
+      lcBank.style.display = 'flex';
+    } else {
+      bancoInput.value = ''; iconEl.src = '';
+      wrap.classList.remove('detected');
+      lcBank.style.display = 'none';
+    }
+    updateCard();
+  }
+
+  function onTarjetaInput() {
+    const input = $('tarjeta');
+    let v = input.value.replace(/\D/g,'').substring(0, 16);
+    input.value = v.replace(/(.{4})/g,'$1 ').trim();
+    updateCard();
+  }
+
+  // ══════════════════════════════════
+  // DESIGN + COLOR PICKERS
+  // ══════════════════════════════════
+  function renderDesign(containerEl, designIndex) {
+    if (!containerEl) return;
+    containerEl.innerHTML = CARD_DESIGNS[designIndex].render();
+  }
+
+  function buildDesignPicker() {
+    const picker = $('design-picker');
+    CARD_DESIGNS.forEach((d, i) => {
+      const wrap  = document.createElement('div');
+      wrap.className = 'design-thumb-wrap';
+      const thumb = document.createElement('div');
+      thumb.className = 'design-thumb' + (i === 0 ? ' active' : '');
+      thumb.style.background = selectedCardGradient;
+      thumb.innerHTML = d.thumbRender();
+      thumb.onclick = () => {
+        selectedDesign = i;
+        document.querySelectorAll('.design-thumb').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        renderDesign($('card-design-layer'), i);
+      };
+      const lbl = document.createElement('div');
+      lbl.className = 'design-thumb-label';
+      lbl.textContent = d.label;
+      wrap.appendChild(thumb);
+      wrap.appendChild(lbl);
+      picker.appendChild(wrap);
+    });
+  }
+
+  function buildSwatches() {
+    const cardWrap = $('card-swatches');
+    const bgWrap   = $('bg-swatches');
+
+    CARD_PRESETS.forEach((p, i) => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch' + (i === 0 ? ' active' : '');
+      sw.style.background = p.value;
+      if (p.label === 'Blanco') sw.style.border = '1px solid #444';
+      sw.title = p.label;
+      sw.onclick = () => {
+        document.querySelectorAll('#card-swatches .swatch').forEach(s => s.classList.remove('active'));
+        sw.classList.add('active');
+        selectedCardGradient = p.value;
+        applyCardColor();
+      };
+      cardWrap.appendChild(sw);
+    });
+
+    BG_PRESETS.forEach((p, i) => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch' + (i === 1 ? ' active' : '');
+      sw.style.background = p.value;
+      if (p.value === '#000000') sw.style.border = '1px solid #333';
+      if (p.label === 'Blanco')  sw.style.border = '1px solid #888';
+      sw.title = p.label;
+      sw.onclick = () => {
+        document.querySelectorAll('#bg-swatches .swatch').forEach(s => s.classList.remove('active'));
+        sw.classList.add('active');
+        selectedBgColor = p.value;
+        applyBgColor();
+      };
+      bgWrap.appendChild(sw);
+    });
+  }
+
+  function applyCardColor() {
+    const card = $('live-card');
+    card.style.background = selectedCardGradient;
+    document.querySelectorAll('.design-thumb').forEach(t => { t.style.background = selectedCardGradient; });
+    const hex = selectedCardGradient.match(/#([0-9a-f]{6})/i);
+    if (hex) {
+      const n   = parseInt(hex[1], 16);
+      const lum = (0.299*(n>>16) + 0.587*((n>>8)&0xff) + 0.114*(n&0xff)) / 255;
+      card.classList.toggle('light-text', lum < 0.5);
+      card.classList.toggle('dark-text',  lum >= 0.5);
+    }
+  }
+
+  function applyBgColor() {
+    $('card-frame').style.background = selectedBgColor;
+  }
+
+  // ══════════════════════════════════
+  // VALIDATION
+  // ══════════════════════════════════
+  function setError(fgId, show) {
+    const fg = $(fgId);
+    if (!fg) return show;
+    show ? fg.classList.add('has-error') : fg.classList.remove('has-error');
+    return show;
+  }
+
+  // ══════════════════════════════════
+  // SUBMIT
+  // ══════════════════════════════════
   async function submitForm() {
     const nombre    = $('nombre').value.trim();
     const email     = $('email').value.trim();
     const instagram = $('instagram').value.trim();
     let ok = true;
-    if (setError('fg-nombre', nombre.length < 3))                    ok = false;
-    if (setError('fg-email', !email || !/\S+@\S+\.\S+/.test(email))) ok = false;
-    if (setError('fg-instagram', instagram.length < 1))              ok = false;
+    if (setError('fg-nombre',    nombre.length < 3))                    ok = false;
+    if (setError('fg-email',     !email || !/\S+@\S+\.\S+/.test(email))) ok = false;
+    if (setError('fg-instagram', instagram.length < 1))                  ok = false;
     if (!ok) return;
 
-    const btn     = $('submit-btn');
-    const spinner = $('spinner');
-    const btnText = $('btn-text');
-    btn.disabled = true;
-    spinner.style.display = 'inline-block';
-    btnText.textContent = 'Generando…';
+    setFloatingBtn({ visible: false });
+    const submitBtn = $('submit-btn');
+    const spinEl    = $('spinner');
+    const textEl    = $('btn-text');
+    submitBtn.disabled = true;
+    spinEl.style.display = 'inline-block';
+    textEl.textContent = 'Generando…';
 
     const id           = Math.random().toString(36).substring(2, 10);
     const nombreCuenta = $('nombre-cuenta').value.trim();
@@ -1407,13 +1273,15 @@
     const base = window.location.href.split('?')[0].split('#')[0];
     $('generated-link').textContent = base + '?id=' + id;
 
-    btn.disabled = false;
-    spinner.style.display = 'none';
-    btnText.textContent = 'Generar mi link';
+    submitBtn.disabled = false;
+    spinEl.style.display = 'none';
+    textEl.textContent = 'Generar mi link';
     showView('view-success');
   }
 
-  // ── Copy helpers
+  // ══════════════════════════════════
+  // COPY + SHARE
+  // ══════════════════════════════════
   function copyLink() {
     navigator.clipboard.writeText($('generated-link').textContent).then(() => {
       const b = $('btn-copy-link');
@@ -1427,14 +1295,14 @@
       setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
     });
   }
-
-  // ── WhatsApp share
   function shareWhatsApp() {
     const link = $('generated-link').textContent;
     window.open(`https://wa.me/?text=${encodeURIComponent('Aquí están mis datos para SPEI: ' + link)}`);
   }
 
-  // ── Load public profile from URL ?id=
+  // ══════════════════════════════════
+  // PROFILE LOAD
+  // ══════════════════════════════════
   function loadProfile() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -1442,43 +1310,44 @@
     const d = store[id];
 
     document.body.style.background = d.bgColor || '#000000';
-
-    $('prof-avatar').textContent = (d.nombre || '?').charAt(0).toUpperCase();
-    $('prof-name').textContent   = d.nombre;
-    $('prof-bank').textContent   = d.banco || 'N/A';
-    $('prof-clabe').textContent  = d.clabe;
+    $('prof-avatar').textContent  = (d.nombre || '?').charAt(0).toUpperCase();
+    $('prof-name').textContent    = d.nombre;
+    $('prof-bank').textContent    = d.banco || 'N/A';
+    $('prof-clabe').textContent   = d.clabe;
     $('prof-titular').textContent = d.nombreCuenta;
 
     if (d.bancoCode && BANCOS[d.bancoCode]) {
       const domain = BANCOS[d.bancoCode].domain;
-      const icon1 = $('prof-bank-icon');
-      icon1.src = favicon(domain); icon1.style.display = 'inline-block';
-      const icon2 = $('row-banco-icon');
-      icon2.src = favicon(domain); icon2.style.display = 'inline-block';
+      $('prof-bank-icon').src = favicon(domain); $('prof-bank-icon').style.display = 'inline-block';
+      $('row-banco-icon').src = favicon(domain); $('row-banco-icon').style.display = 'inline-block';
     }
-
-    if (d.tarjeta) {
-      $('row-tarjeta').style.display = 'flex';
-      $('prof-tarjeta').textContent = d.tarjeta;
-    }
+    if (d.tarjeta) { $('row-tarjeta').style.display = 'flex'; $('prof-tarjeta').textContent = d.tarjeta; }
     $('prof-instagram').textContent = '@' + d.instagram;
-    if (d.whatsapp) {
-      $('row-whatsapp').style.display = 'flex';
-      $('prof-whatsapp').textContent = d.whatsapp;
-    }
-    showView('view-profile');
+    if (d.whatsapp) { $('row-whatsapp').style.display = 'flex'; $('prof-whatsapp').textContent = d.whatsapp; }
+
+    hideMainLayout();
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    $('view-profile').classList.add('active');
     return true;
   }
 
-  // ── Init
+  // ══════════════════════════════════
+  // INIT
+  // ══════════════════════════════════
   buildDesignPicker();
   buildSwatches();
   renderDesign($('card-design-layer'), 0);
   applyCardColor();
   applyBgColor();
-  if (!loadProfile()) showView('view-step1');
 
-  // ── Floating shapes background
+  if (!loadProfile()) {
+    showMainLayout();
+    setFloatingBtn({ text: 'Continuar →', visible: true });
+  }
+
+  // ══════════════════════════════════
+  // FLOATING SHAPES BACKGROUND
+  // ══════════════════════════════════
   (function spawnShapes() {
     const container   = document.getElementById('shapes');
     const COUNT       = 22;
@@ -1507,11 +1376,11 @@
         el.style.cssText = baseStyle + `width:${size.toFixed(0)}px;height:${size.toFixed(0)}px;border-radius:${Math.random()>0.55?'3px':'0'};`;
       } else {
         const s = Math.round(size);
-        const fill = filled ? TEAL_FILL : 'none';
+        const fill   = filled ? TEAL_FILL : 'none';
         const stroke = filled ? 'none' : TEAL_STROKE;
-        const sw = filled ? '0' : '3';
-        const ORIENTATIONS = ['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'];
-        const pts = ORIENTATIONS[i % ORIENTATIONS.length];
+        const sw     = filled ? '0' : '3';
+        const ORIENTS = ['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'];
+        const pts = ORIENTS[i % ORIENTS.length];
         el.style.cssText = baseStyle + `width:${s}px;height:${s}px;`;
         el.innerHTML = `<svg width="${s}" height="${s}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="${pts}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/></svg>`;
       }
