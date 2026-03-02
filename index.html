@@ -63,7 +63,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 20px 100px; /* bottom padding for floating btn */
+      padding: 32px 20px 100px;
     }
 
     .logo-wrap {
@@ -89,15 +89,11 @@
       box-shadow: 0 0 8px var(--teal);
     }
 
-    /* ══════════════════════════════════
-       VIEWS — success / profile stay separate
-    ══════════════════════════════════ */
     .view { display: none; width: 100%; }
     .view.active { display: flex; flex-direction: column; align-items: center; }
 
     /* ══════════════════════════════════
-       MAIN LAYOUT — persistent split
-       Shown when step1 or step2 is active
+       MAIN LAYOUT
     ══════════════════════════════════ */
     #main-layout {
       display: none;
@@ -112,18 +108,15 @@
       align-items: start;
     }
 
-    /* ── Left column: stacks the two panels via relative/absolute */
     .left-col {
       position: relative;
-      min-height: 0; /* height driven by visible panel */
+      min-height: 0;
     }
 
-    /* Each left panel */
     .left-panel {
       width: 100%;
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
-    /* Exiting: fade + slide left — absolute so it doesn't collapse layout */
     .left-panel.exit-left {
       position: absolute;
       top: 0; left: 0;
@@ -132,17 +125,14 @@
       transform: translateX(-18px);
       pointer-events: none;
     }
-    /* Hidden (not in flow, no transition) */
     .left-panel.hidden {
       display: none;
     }
-    /* Entering: starts offset right, animates to 0 */
     .left-panel.enter-right {
       opacity: 0;
       transform: translateX(18px);
     }
 
-    /* ── Right column */
     .right-col {
       position: sticky;
       top: 32px;
@@ -453,10 +443,7 @@
     .btn-submit-form:active { transform: translateY(0); background: var(--teal) !important; }
     .btn-submit-form:disabled { opacity: .4; cursor: not-allowed; }
 
-    /* ══════════════════════════════════
-       GHL CONFIG NOTICE
-    ══════════════════════════════════ */
-    .ghl-config { display: none; } /* hidden, kept for GHL webhook use */
+    .ghl-config { display: none; }
 
     .security-notice {
       display: flex; align-items: flex-start; gap: 8px;
@@ -581,7 +568,7 @@
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ══════════════════════════════════
-       RESPONSIVE
+       RESPONSIVE — MOBILE FIX
     ══════════════════════════════════ */
     @media (max-width: 700px) {
       #main-layout.active {
@@ -589,26 +576,60 @@
       }
       .right-col {
         display: flex;
-        position: static; /* no sticky on mobile — prevents overlap */
+        position: static;
       }
-      /* Step 1: preview BELOW form (natural DOM order) */
-      /* Step 2: preview ABOVE form */
       #main-layout.step2 .left-col  { order: 2; }
       #main-layout.step2 .right-col { order: 1; }
-      /* Hide color editor on mobile step 2 */
       #main-layout.step2 .color-editor { display: none; }
-      .card-frame { padding: 24px 20px; }
-      .live-card { width: 220px; }
-      .card { padding: 22px 16px; }
+
+      .page { padding: 24px 28px 100px; }
+      .card { padding: 22px 20px; }
+
+      /* Card frame */
+      .card-frame { padding: 28px 16px; }
+
+      /* Live card: altura fija para que space-evenly funcione */
+      .live-card {
+        width: min(340px, 90%);
+        aspect-ratio: auto;
+        height: 320px;
+        border-radius: 18px;
+      }
+
+      /* Inner: llena toda la tarjeta */
+      .lc-inner {
+        padding: 18px 20px 20px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      /* Middle: flex:1 para ocupar todo el espacio entre top y bottom */
+      .lc-middle {
+        flex: 1;
+        justify-content: space-evenly;
+        padding: 0;
+      }
+
+      /* Cada grupo: más espacio entre label y valor */
+      .lc-group {
+        gap: 5px;
+      }
+
+      /* Tipografías mobile más grandes */
+      .lc-bank { padding: 9px 20px 9px 10px; margin-bottom: 0; }
+      .lc-bank-icon { width: 26px; height: 26px; }
+      .lc-bank-name { font-size: 16px; }
+      .lc-clabe-label, .lc-section-label { font-size: 10px; letter-spacing: 0.12em; }
+      .lc-clabe { font-size: 17px; letter-spacing: 0.04em; }
+      .lc-name { font-size: 17px; }
+      .lc-cardnum { font-size: 16px; }
+      .lc-logo-dot { font-size: 11px; }
+      .lc-alias { font-size: 9px; margin-top: 4px; }
+
       .form-row { grid-template-columns: 1fr; }
-      .page { padding: 24px 14px 100px; }
-      #floating-btn-wrap {
-        bottom: 20px;
-        right: 16px;
-      }
-      #floating-btn-wrap.hidden {
-        transform: translateY(14px);
-      }
+      #floating-btn-wrap { bottom: 20px; right: 20px; }
+      #floating-btn-wrap.hidden { transform: translateY(14px); }
     }
   </style>
 </head>
@@ -626,10 +647,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       PERSISTENT SPLIT LAYOUT
-       (shown for step1 and step2)
-  ══════════════════════════════════ -->
+  <!-- PERSISTENT SPLIT LAYOUT -->
   <div id="main-layout">
 
     <!-- LEFT COLUMN -->
@@ -808,7 +826,7 @@
         </div>
       </div>
 
-      <!-- Color editor (fades out on step 2) -->
+      <!-- Color editor -->
       <div class="color-editor" id="color-editor">
         <div class="color-editor-title">Personaliza tu tarjeta</div>
         <div class="color-section">
@@ -829,9 +847,7 @@
 
   </div><!-- /main-layout -->
 
-  <!-- ══════════════════════════════════
-       SUCCESS VIEW
-  ══════════════════════════════════ -->
+  <!-- SUCCESS VIEW -->
   <div id="view-success" class="view">
     <div class="card">
       <div class="success-icon">✓</div>
@@ -846,9 +862,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       PROFILE VIEW
-  ══════════════════════════════════ -->
+  <!-- PROFILE VIEW -->
   <div id="view-profile" class="view">
     <div class="card">
       <div class="profile-header">
@@ -916,9 +930,7 @@
 
 </div><!-- /page -->
 
-<!-- ══════════════════════════════════
-     FLOATING CTA BUTTON
-══════════════════════════════════ -->
+<!-- FLOATING CTA BUTTON -->
 <div id="floating-btn-wrap">
   <button id="floating-btn" onclick="floatingBtnClick()">
     <div class="spinner" id="floating-spinner"></div>
@@ -1050,7 +1062,7 @@
   let selectedDesign       = 0;
   let selectedCardGradient = 'linear-gradient(135deg,#004d38,#00c896)';
   let selectedBgColor      = '#000000';
-  let currentStep          = 1; // 1 or 2
+  let currentStep          = 1;
 
   const CARD_PRESETS = [
     { label:'Verde',  value:'linear-gradient(135deg,#004d38,#00c896)' },
@@ -1067,20 +1079,13 @@
   const store = {};
   const $ = id => document.getElementById(id);
 
-  // ══════════════════════════════════
-  // FLOATING BUTTON STATE
-  // ══════════════════════════════════
   function setFloatingBtn({ text, spinner: showSpinner, disabled, visible }) {
     const wrap    = $('floating-btn-wrap');
     const btn     = $('floating-btn');
     const spinEl  = $('floating-spinner');
     const textEl  = $('floating-btn-text');
-
-    if (visible === false) {
-      wrap.classList.add('hidden');
-    } else {
-      wrap.classList.remove('hidden');
-    }
+    if (visible === false) { wrap.classList.add('hidden'); }
+    else { wrap.classList.remove('hidden'); }
     if (text !== undefined)        textEl.textContent = text;
     if (showSpinner !== undefined) spinEl.style.display = showSpinner ? 'inline-block' : 'none';
     if (disabled !== undefined)    btn.disabled = disabled;
@@ -1091,12 +1096,8 @@
     else if (currentStep === 2) submitForm();
   }
 
-  // ══════════════════════════════════
-  // NAVIGATION
-  // ══════════════════════════════════
   function showMainLayout() {
     $('main-layout').classList.add('active');
-    // Hide other views
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     setFloatingBtn({ visible: true });
   }
@@ -1113,37 +1114,21 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Animate LEFT panel: fade out current, fade in next
   function transitionLeftPanel(fromId, toId, onSwap) {
     const fromEl = $(fromId);
     const toEl   = $(toId);
-
-    // Start: fade out the old panel
     fromEl.classList.add('exit-left');
-
     setTimeout(() => {
-      // Swap: hide old, prepare new (off-screen right, invisible)
       fromEl.classList.add('hidden');
       fromEl.classList.remove('exit-left');
-
       toEl.classList.remove('hidden');
       toEl.classList.add('enter-right');
-
       if (onSwap) onSwap();
-
-      // Force reflow so the transition fires
       toEl.getBoundingClientRect();
-
-      // Animate in
       toEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
       toEl.classList.remove('enter-right');
-
-      // Clean up inline transition after animation
-      setTimeout(() => {
-        toEl.style.transition = '';
-      }, 320);
-
-    }, 280); // wait for exit animation
+      setTimeout(() => { toEl.style.transition = ''; }, 320);
+    }, 280);
   }
 
   function goToStep2() {
@@ -1162,13 +1147,9 @@
     $('step2-nombre-cuenta').textContent = nombreCuenta + ($('alias').value.trim() ? ` · ${$('alias').value.trim()}` : '');
     $('step2-banco').textContent = bancoData ? bancoData.nombre : 'Banco no identificado';
 
-    // Fade out color editor simultaneously
     $('color-editor').classList.add('fade-out');
-
-    // Hide floating button
     setFloatingBtn({ visible: false });
 
-    // Transition the left panel
     transitionLeftPanel('panel-step1', 'panel-step2', () => {
       currentStep = 2;
       $('main-layout').classList.add('step2');
@@ -1177,35 +1158,28 @@
   }
 
   function backToStep1() {
-    // Restore color editor
     $('color-editor').classList.remove('fade-out');
-
     transitionLeftPanel('panel-step2', 'panel-step1', () => {
       currentStep = 1;
       $('main-layout').classList.remove('step2');
       setFloatingBtn({ text: 'Continuar →', visible: true });
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    });  }
+    });
+  }
 
   function resetToStep1() {
     currentStep = 1;
     $('color-editor').classList.remove('fade-out');
-
-    // Make sure step1 is visible, step2 hidden
     $('panel-step2').classList.add('hidden');
     $('panel-step1').classList.remove('hidden');
     $('panel-step1').classList.remove('exit-left');
     $('panel-step1').style.opacity = '';
     $('panel-step1').style.transform = '';
-
     showMainLayout();
     setFloatingBtn({ text: 'Continuar →', visible: true });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ══════════════════════════════════
-  // LIVE CARD UPDATE
-  // ══════════════════════════════════
   function updateCard() {
     const nombre  = $('nombre-cuenta').value.trim();
     const alias   = $('alias').value.trim();
@@ -1215,7 +1189,6 @@
     const hasAny = nombre || clabe || tarjeta;
     $('lc-empty-hint').style.display = hasAny ? 'none' : 'block';
 
-    // Nombre: show only if typed
     const nombreGroup = $('lc-nombre-group');
     const nombreEl    = $('lc-nombre-val');
     if (nombre) {
@@ -1229,10 +1202,8 @@
       nombreGroup.style.display = 'none';
     }
 
-    // Alias
     $('lc-alias').textContent = alias ? alias.toUpperCase() : '';
 
-    // CLABE
     const clabeGroup = $('lc-clabe-group');
     if (clabe.length >= 1) {
       const p = clabe.padEnd(18,'·');
@@ -1242,7 +1213,6 @@
       clabeGroup.style.display = 'none';
     }
 
-    // Tarjeta
     const tGroup = $('lc-tarjeta-group');
     if (tarjeta.length >= 1) {
       const t = tarjeta.padEnd(16,'·');
@@ -1288,9 +1258,6 @@
     updateCard();
   }
 
-  // ══════════════════════════════════
-  // DESIGN + COLOR PICKERS
-  // ══════════════════════════════════
   function renderDesign(containerEl, designIndex) {
     if (!containerEl) return;
     containerEl.innerHTML = CARD_DESIGNS[designIndex].render();
@@ -1373,9 +1340,6 @@
     $('card-frame').style.background = selectedBgColor;
   }
 
-  // ══════════════════════════════════
-  // VALIDATION
-  // ══════════════════════════════════
   function setError(fgId, show) {
     const fg = $(fgId);
     if (!fg) return show;
@@ -1383,9 +1347,6 @@
     return show;
   }
 
-  // ══════════════════════════════════
-  // SUBMIT
-  // ══════════════════════════════════
   async function submitForm() {
     const nombre    = $('nombre').value.trim();
     const email     = $('email').value.trim();
@@ -1396,7 +1357,6 @@
     if (setError('fg-nombre',    nombre.length < 3))                     ok = false;
     if (setError('fg-email',     !email || !/\S+@\S+\.\S+/.test(email))) ok = false;
     if (setError('fg-instagram', instagram.length < 1))                  ok = false;
-    // Checkbox errors use consent-row has-error class
     const c1row = $('fg-consent1'); const c2row = $('fg-consent2');
     if (!consent1) { c1row.classList.add('has-error'); ok = false; } else c1row.classList.remove('has-error');
     if (!consent2) { c2row.classList.add('has-error'); ok = false; } else c2row.classList.remove('has-error');
@@ -1456,9 +1416,6 @@
     showView('view-success');
   }
 
-  // ══════════════════════════════════
-  // COPY + SHARE
-  // ══════════════════════════════════
   function copyLink() {
     navigator.clipboard.writeText($('generated-link').textContent).then(() => {
       const b = $('btn-copy-link');
@@ -1477,9 +1434,6 @@
     window.open(`https://wa.me/?text=${encodeURIComponent('Aquí están mis datos para SPEI: ' + link)}`);
   }
 
-  // ══════════════════════════════════
-  // PROFILE LOAD
-  // ══════════════════════════════════
   function loadProfile() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -1508,9 +1462,6 @@
     return true;
   }
 
-  // ══════════════════════════════════
-  // INIT
-  // ══════════════════════════════════
   buildDesignPicker();
   buildSwatches();
   renderDesign($('card-design-layer'), 0);
@@ -1522,9 +1473,6 @@
     setFloatingBtn({ text: 'Continuar →', visible: true });
   }
 
-  // ══════════════════════════════════
-  // FLOATING SHAPES BACKGROUND
-  // ══════════════════════════════════
   (function spawnShapes() {
     const container   = document.getElementById('shapes');
     const COUNT       = 22;
