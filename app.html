@@ -50,11 +50,80 @@
     .page {
       position: relative; z-index: 1; min-height: 100vh;
       display: flex; flex-direction: column; align-items: center;
-      padding: 32px 20px 100px;
+      padding: 100px 20px 60px;
     }
-    .logo-wrap { text-align: center; margin-bottom: 28px; animation: fadeUp 0.4s ease both; width: 100%; }
-    .logo-text { display: inline-flex; align-items: center; justify-content: center; }
-    .logo-text img { height: 32px; width: auto; display: block; }
+    /* ─── HEADER ──────────────────────────────────────── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      line-height: 1;
+    }
+    .logo img { height: 28px; width: auto; display: block; }
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .header-nav a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: var(--text); }
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--teal);
+      color: #000;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-nav:hover { background: #00daa6; transform: translateY(-1px); }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    .app-footer {
+      width: 100%;
+      max-width: 960px;
+      margin-top: 80px;
+      padding: 40px 0 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .app-footer img { height: 22px; width: auto; opacity: 0.5; }
+    .app-footer-copy { font-size: 12px; color: var(--muted); }
+    .app-footer a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
+    .app-footer a:hover { color: var(--text); }
+
+    /* adjust page for fixed header */
     .logo-dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; box-shadow: 0 0 8px var(--teal); }
     .view { display: none; width: 100%; }
     .view.active { display: flex; flex-direction: column; align-items: center; }
@@ -129,7 +198,8 @@
     .card-design-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
     .lc-inner { position: relative; z-index: 1; height: 100%; padding: 16px 22px 18px; display: flex; flex-direction: column; justify-content: space-between; }
     .lc-top { display: flex; align-items: center; justify-content: space-between; }
-    .lc-logo-dot { font-size: 8.5px; font-weight: 700; letter-spacing: -0.01em; opacity: 0.75; }
+    .lc-logo-dot { display: flex; align-items: center; }
+    .lc-logo-dot img { height: 14px; width: auto; display: block; opacity: 0.75; }
     .lc-bank { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px; align-self: flex-start; }
     .lc-bank-icon { width: 20px; height: 20px; border-radius: 5px; object-fit: contain; background: rgba(255,255,255,0.15); display: none; }
     .lc-bank-name { font-size: 14px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
@@ -156,7 +226,7 @@
     .color-section-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-bottom: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; }
     .design-picker { display: flex; gap: 9px; flex-wrap: wrap; }
     .design-thumb-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
-    .design-thumb { width: 38px; height: 60px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; overflow: hidden; position: relative; background: linear-gradient(135deg, #004d38, #00c896); transition: transform 0.15s, border-color 0.15s; }
+    .design-thumb { width: 54px; height: 60px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; overflow: hidden; position: relative; background: linear-gradient(135deg, #004d38, #00c896); transition: transform 0.15s, border-color 0.15s; }
     .design-thumb:hover { transform: scale(1.1); }
     .design-thumb.active { border-color: #ffffff; }
     .design-thumb svg, .design-thumb .dt-aurora { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -219,7 +289,7 @@
     .footer-note { text-align: center; font-size: 11px; color: var(--muted2); margin-top: 18px; line-height: 1.7; position: relative; z-index: 1; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 700px) {
-      .design-thumb { width: 54px; height: 62px; border-radius: 8px; }
+      .design-thumb { width: 54px; height: 60px; border-radius: 8px; }
       .design-thumb-label { font-size: 8px; }
       #main-layout.active { grid-template-columns: 1fr; margin: 0 auto; width: 100%; max-width: 100%; }
       .right-col { display: flex; position: static; }
@@ -257,10 +327,18 @@
 </head>
 <body>
 <div class="shapes" id="shapes" aria-hidden="true"></div>
-<div class="page">
-  <div class="logo-wrap">
-    <div class="logo-text"><img src="logo-white.png" alt="tr4nsfer.me"/></div>
+
+<header>
+  <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+  <div class="header-nav">
+    <a href="index.html">Inicio</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="index.html#ayuda">Ayuda</a>
+    <a href="app.html" class="btn-nav">Crear mi link</a>
   </div>
+</header>
+
+<div class="page">
   <div id="main-layout">
     <div class="left-col" id="left-col">
       <!-- PANEL 1 -->
@@ -387,7 +465,7 @@
           <div class="card-design-layer" id="card-design-layer"></div>
           <div class="lc-inner">
             <div class="lc-top">
-              <span class="lc-logo-dot">tr4nsfer.me</span>
+              <span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span>
             </div>
             <div class="lc-middle">
               <div class="lc-bank" id="lc-bank" style="display:none;">
@@ -507,7 +585,15 @@
       </div>
     </div>
   </div>
-  <div class="footer-note">tr4nsfer.me &copy; 2026</div>
+  <footer class="app-footer">
+    <a href="index.html"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+    <div style="display:flex;gap:24px;align-items:center;">
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#ayuda">Ayuda</a>
+      <a href="index.html#inicio">Términos</a>
+    </div>
+    <span class="app-footer-copy">tr4nsfer.me © 2026 · Hecho en México 🇲🇽</span>
+  </footer>
 </div>
 <div id="floating-btn-wrap">
   <button id="floating-btn" onclick="floatingBtnClick()">
@@ -587,7 +673,7 @@
     {
       id: 'diagonal', label: 'Diagonal',
       render: () => `<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,58 0,125" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,38" fill="rgba(255,255,255,0.07)"/><polygon points="0,130 100,60 100,159 0,159" fill="rgba(255,255,255,0.05)"/><line x1="0" y1="125" x2="100" y2="58" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 38 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 38,0 38,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="24,0 38,0 38,14" fill="rgba(255,255,255,0.07)"/><polygon points="0,49 38,23 38,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`
+      thumbRender: () => `<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 54,0 54,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="34,0 54,0 54,14" fill="rgba(255,255,255,0.07)"/><polygon points="0,49 54,23 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`
     },
     {
       id: 'aurora', label: 'Aurora',
@@ -597,7 +683,7 @@
     {
       id: 'espiral', label: 'Espiral',
       render: () => `<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q64,114 100,104" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/><path d="M0,159 Q62,128 100,122" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/><path d="M0,159 Q56,139 100,136" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,159 Q50,148 100,148" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q20,18 78,0" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/></svg>`,
-      thumbRender: () => `<svg viewBox="0 0 38 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q19,29 38,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q22,37 38,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><path d="M0,60 Q24,43 38,40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/><path d="M0,60 Q23,49 38,47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,60 Q20,54 38,53" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,60 Q14,20 30,0" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.6"/></svg>`
+      thumbRender: () => `<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q27,29 54,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q31,37 54,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/><path d="M0,60 Q34,43 54,40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/><path d="M0,60 Q33,49 54,47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/><path d="M0,60 Q28,54 54,53" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/><path d="M0,60 Q20,20 43,0" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.6"/></svg>`
     },
     {
       id: 'solido', label: 'Sólido',
