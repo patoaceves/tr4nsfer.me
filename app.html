@@ -127,7 +127,6 @@
     .app-footer a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
     .app-footer a:hover { color: var(--text); }
 
-    /* adjust page for fixed header */
     .logo-dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; box-shadow: 0 0 8px var(--teal); }
 
     /* ─── APP HERO TITLE ──────────────────────────────── */
@@ -635,6 +634,8 @@
     </div>
   </div>
 </div>
+
+<!-- ─── FOOTER CORREGIDO ──────────────────────────────── -->
 <footer class="app-footer">
   <div class="app-footer-inner">
     <a href="index.html"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
@@ -646,8 +647,10 @@
     <div style="display:flex;align-items:center;gap:24px;">
       <span class="app-footer-copy">tr4nsfer.me © 2026</span>
       <span class="app-footer-copy">Hecho en México 🇲🇽</span>
+    </div>
   </div>
 </footer>
+
 <script>
   const GHL_WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
   const BANCOS = {
@@ -815,7 +818,6 @@
       setTimeout(() => { hero.style.transition = ''; }, 300);
     }, 290);
   }
-
   function goToStep2() {
     const nombreCuenta = $('nombre-cuenta').value.trim();
     const clabe        = $('clabe').value.replace(/\D/g,'');
