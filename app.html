@@ -32,7 +32,6 @@
     }
     html, body { min-height: 100%; }
     body { font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; position: relative; }
-
     .shapes { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .geo-shape { position: absolute; bottom: -100px; animation: riseShape linear infinite; }
     .geo-square { border: 1px solid rgba(0,200,150,0.18); }
@@ -44,9 +43,7 @@
       88%  { opacity: 0.65; }
       100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
     }
-
     .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 100px 20px 60px; }
-
     /* HEADER */
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px;
@@ -63,7 +60,6 @@
     .btn-nav { display: inline-flex; align-items: center; justify-content: center; padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; background: var(--teal); color: #000; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
     .btn-nav:hover { background: #00daa6; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,200,150,0.3); }
     @media (max-width: 860px) { header { padding: 0 24px; } .nav-links { display: none; } }
-
     /* FOOTER */
     footer { position: relative; z-index: 1; width: 100%; border-top: 1px solid var(--border); padding: 64px 48px 40px; }
     .footer-inner { max-width: 1100px; margin: 0 auto; margin-bottom: 48px; }
@@ -80,17 +76,14 @@
     .footer-bottom { padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .footer-copy { font-size: 12px; color: var(--dim); }
     @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr; gap: 32px; } footer { padding: 48px 24px 32px; } .footer-bottom { flex-direction: column; gap: 8px; text-align: center; } }
-
     /* APP HERO */
     .app-hero { width: 100%; text-align: center; padding: 48px 20px 44px; background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,200,150,0.08) 0%, transparent 70%); animation: fadeUp 0.4s ease both; transition: opacity 0.28s ease, transform 0.28s ease; }
     .app-hero.hero-exit { opacity: 0; transform: translateY(-8px); pointer-events: none; }
     .app-hero.hero-enter { opacity: 0; transform: translateY(8px); }
     .app-hero h1 { font-size: clamp(34px, 4.5vw, 56px); font-weight: 900; letter-spacing: -2px; line-height: 1.1; color: var(--text); margin-bottom: 14px; }
     .app-hero p  { font-size: 16px; color: var(--muted); line-height: 1.6; }
-
     .view { display: none; width: 100%; }
     .view.active { display: flex; flex-direction: column; align-items: center; }
-
     /* MAIN LAYOUT */
     #main-layout { display: none; width: 100%; max-width: 960px; animation: fadeUp 0.4s ease 0.08s both; }
     #main-layout.active { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
@@ -100,14 +93,12 @@
     .left-panel.hidden { display: none; }
     .left-panel.enter-right { opacity: 0; transform: translateX(18px); }
     .right-col { position: sticky; top: 32px; display: flex; flex-direction: column; gap: 16px; }
-
     /* CARD */
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px 26px 24px; box-shadow: 0 0 0 1px rgba(0,200,150,0.03), 0 20px 60px rgba(0,0,0,0.55); }
     .card-header { margin-bottom: 22px; }
     .n26-bar { width: 22px; height: 2.5px; background: var(--teal); border-radius: 2px; margin-bottom: 14px; box-shadow: 0 0 8px rgba(0,200,150,0.4); }
     .card-header h1 { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: -0.025em; }
     .card-header p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
-
     /* FORM */
     .field { margin-bottom: 13px; }
     label { display: block; font-size: 10.5px; font-weight: 500; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
@@ -134,7 +125,6 @@
     .input-prefix-wrap { position: relative; }
     .input-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); pointer-events: none; z-index: 1; }
     .input-prefix-wrap input { padding-left: 22px; }
-
     /* BUTTONS */
     .btn { width: 100%; background: var(--teal); color: #000; border: none; border-radius: 9px; padding: 12px 18px; font-size: 13.5px; font-weight: 600; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; transition: background 0.18s, transform 0.1s, box-shadow 0.18s; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn:hover { background: var(--teal-dark); box-shadow: 0 0 18px rgba(0,200,150,0.22); }
@@ -145,7 +135,6 @@
     .btn-copy { background: var(--surface2); color: var(--teal); border: 1px solid var(--border2); padding: 7px 12px; font-size: 11px; font-weight: 500; width: auto; margin-top: 0; border-radius: 7px; flex-shrink: 0; letter-spacing: 0; }
     .btn-copy:hover { background: var(--teal-dim); border-color: var(--teal-border); box-shadow: none; }
     .btn-copy.copied { color: var(--muted); }
-
     /* ── FLOATING CTA — glow en hover, sin crop ───────────
        overflow: visible en el wrapper para que el box-shadow
        del botón no quede recortado por ningún edge            */
@@ -188,34 +177,31 @@
     }
     #floating-btn:active { transform: translateY(0px); }
     #floating-btn:disabled { opacity: .4; cursor: not-allowed; }
-
     .spinner { width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-top-color: rgba(0,0,0,0.75); border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     /* PREVIEW CARD */
     .card-frame { width: 100%; padding: 32px 24px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
-    .live-card { width: 330px; aspect-ratio: 1 / 1.11; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
+    .live-card { width: 330px; aspect-ratio: 1 / 1.0; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
     .card-design-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
     .lc-inner { position: relative; z-index: 1; height: 100%; padding: 16px 22px 18px; display: flex; flex-direction: column; justify-content: space-between; }
     .lc-top { display: flex; align-items: center; justify-content: space-between; }
     .lc-logo-dot { display: flex; align-items: center; }
     .lc-logo-dot img { height: 14px; width: auto; display: block; opacity: 0.75; }
     .lc-bank { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22); border-radius: 24px; padding: 7px 16px 7px 8px; margin-bottom: 4px; align-self: flex-start; }
-    .lc-bank-icon { width: 20px; height: 20px; border-radius: 5px; object-fit: contain; background: rgba(255,255,255,0.15); display: none; }
-    .lc-bank-name { font-size: 14px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
+    .lc-bank-icon { width: 22px; height: 22px; border-radius: 5px; object-fit: contain; background: rgba(255,255,255,0.15); display: none; }
+    .lc-bank-name { font-size: 16px; font-weight: 600; opacity: 0.92; letter-spacing: 0.01em; }
     .lc-middle { text-align: left; flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-evenly; padding: 6px 0; }
     .lc-group { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
-    .lc-section-label, .lc-clabe-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
-    .lc-clabe { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; opacity: 1; font-family: "Inter",sans-serif; line-height: 1.3; white-space: nowrap; }
+    .lc-section-label, .lc-clabe-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.55; font-weight: 600; }
+    .lc-clabe { font-size: 18px; font-weight: 600; letter-spacing: 0.04em; opacity: 1; font-family: "Inter",sans-serif; line-height: 1.3; white-space: nowrap; }
     .lc-copy-row { display: flex; align-items: center; gap: 6px; }
     .lc-copy-btn { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; opacity: 0.5; transition: opacity 0.2s; flex-shrink: 0; }
     .lc-copy-btn:hover { opacity: 1; }
-    .lc-name { font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 1; font-family: "Inter",sans-serif; white-space: nowrap; transition: font-size 0.15s; }
-    .lc-alias { font-size: 10px; opacity: 0.6; letter-spacing: 2.5px; text-transform: uppercase; margin-top: 4px; font-family: "Inter",sans-serif; font-weight: 700; }
+    .lc-name { font-size: 17px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 1; font-family: "Inter",sans-serif; white-space: nowrap; transition: font-size 0.15s; }
+    .lc-alias { font-size: 12px; opacity: 0.6; letter-spacing: 2.5px; text-transform: uppercase; margin-top: 4px; font-family: "Inter",sans-serif; font-weight: 700; }
     .lc-cardnum { font-size: 14px; font-weight: 600; font-family: "Inter",sans-serif; opacity: 1; letter-spacing: 0.04em; line-height: 1.3; white-space: nowrap; }
     .live-card.light-text { color: #ffffff; }
     .live-card.dark-text  { color: #1a1a1a; }
-
     /* COLOR EDITOR */
     .color-editor { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 16px; transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.35s ease; overflow: hidden; max-height: 400px; transform-origin: top; }
     .color-editor.fade-out { opacity: 0; transform: translateY(-8px); max-height: 0; padding-top: 0; padding-bottom: 0; border-color: transparent; pointer-events: none; }
@@ -234,7 +220,6 @@
     .swatch { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; flex-shrink: 0; }
     .swatch:hover { transform: scale(1.12); }
     .swatch.active { border-color: #ffffff; }
-
     /* STEP 2 */
     .step2-back { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 999px; font-family: "Inter", sans-serif; padding: 11px 20px; margin-bottom: 16px; transition: background 0.18s, border-color 0.18s, transform 0.1s; }
     .step2-back:hover { background: #222; border-color: #333; transform: translateY(-1px); }
@@ -262,7 +247,6 @@
     .consent-row .field-error { position: absolute; bottom: -16px; left: 28px; margin-top: 0; }
     .consent-row.has-error .consent-check { border-color: var(--error); }
     .consent-row.has-error .field-error { display: block; }
-
     /* SUCCESS */
     #view-success .card { text-align: center; max-width: 440px; }
     .success-icon { width: 48px; height: 48px; background: var(--teal-dim); border: 1px solid var(--teal-border); border-radius: 13px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--teal); font-size: 1.2rem; font-weight: 500; box-shadow: 0 0 20px rgba(0,200,150,0.12); }
@@ -270,7 +254,6 @@
     #view-success p  { color: var(--muted); margin-bottom: 20px; font-size: 12px; line-height: 1.6; }
     .link-box { background: var(--input-bg); border: 1px solid var(--border2); border-radius: 9px; padding: 11px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; text-align: left; }
     .link-box span { font-size: 11px; color: var(--teal); font-weight: 400; word-break: break-all; }
-
     /* PROFILE */
     #view-profile .card { text-align: left; max-width: 440px; }
     .profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
@@ -288,9 +271,7 @@
     .data-label-row { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
     .data-bank-icon { width: 13px; height: 13px; border-radius: 3px; object-fit: contain; }
     .notice { background: var(--input-bg); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 11px; color: var(--muted); margin-top: 12px; line-height: 1.6; display: flex; gap: 7px; align-items: flex-start; }
-
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
     @media (max-width: 700px) {
       #main-layout.active { grid-template-columns: 1fr; margin: 0 auto; width: 100%; max-width: 100%; }
       .right-col { display: flex; position: static; }
@@ -302,7 +283,11 @@
       .app-hero h1 { font-size: 30px; letter-spacing: -1.2px; }
       .card { padding: 18px 16px; margin-left: auto; margin-right: auto; }
       .card-frame { padding: 16px 14px; }
-      .live-card { width: min(300px, 88vw); aspect-ratio: auto; height: 320px; border-radius: 16px; }
+      .live-card { width: min(300px, 88vw); aspect-ratio: 1 / 1.0; height: auto; border-radius: 16px; }
+      .lc-clabe { font-size: 15px; }
+      .lc-name  { font-size: 14px; }
+      .lc-section-label, .lc-clabe-label { font-size: 10px; }
+      .lc-bank-name { font-size: 14px; }
       .form-row { grid-template-columns: 1fr; }
       #floating-btn-wrap { justify-content: stretch; }
       #floating-btn { width: 100%; }
@@ -311,7 +296,6 @@
 </head>
 <body>
 <div class="shapes" id="shapes" aria-hidden="true"></div>
-
 <!-- HEADER -->
 <header>
   <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
@@ -324,16 +308,13 @@
     <a href="app.html" class="btn-nav">Crear mi Link</a>
   </nav>
 </header>
-
 <div class="page">
   <div class="app-hero" id="app-hero">
     <h1 id="app-hero-title">Empieza aquí</h1>
-    <p id="app-hero-sub">Ingresa tus datos y personaliza tu tarjeta.</p>
+    <p id="app-hero-sub">Ingresa tus datos y personaliza tu perfil.</p>
   </div>
-
   <div id="main-layout">
     <div class="left-col" id="left-col">
-
       <!-- PANEL 1 -->
       <div class="left-panel" id="panel-step1">
         <div class="card">
@@ -348,7 +329,7 @@
           </div>
           <div class="field" id="fg-nombre-cuenta">
             <label>Nombre de la cuenta <span class="req">*</span></label>
-            <input type="text" id="nombre-cuenta" placeholder="Ej. Pagos Freelance" oninput="updateCard()" />
+            <input type="text" id="nombre-cuenta" placeholder="Ej. Pagos Freelance" maxlength="32" oninput="updateCard()" />
             <span class="field-error">Ingresa un nombre para esta cuenta.</span>
           </div>
           <div class="field" id="fg-clabe">
@@ -366,18 +347,12 @@
               <img id="banco-icon" class="banco-icon" src="" alt="" />
             </div>
           </div>
-          <div class="field" id="fg-tarjeta">
-            <label>N&#250;mero de tarjeta <span class="opt">&#8212; opcional</span></label>
-            <input type="tel" id="tarjeta" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" oninput="onTarjetaInput()" />
-            <span class="field-error">Debe tener 16 d&#237;gitos.</span>
-          </div>
-          <div class="field">
+<div class="field">
             <label>Alias <span class="opt">&#8212; opcional</span></label>
             <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios&#8230;" oninput="updateCard()" />
           </div>
         </div>
       </div>
-
       <!-- PANEL 2 -->
       <div class="left-panel hidden" id="panel-step2">
         <button class="step2-back" onclick="backToStep1()">&#8592; Volver</button>
@@ -440,7 +415,6 @@
         </div>
       </div>
     </div>
-
     <!-- RIGHT COLUMN -->
     <div class="right-col">
       <div class="card-frame" id="card-frame">
@@ -457,11 +431,7 @@
                 <div class="lc-clabe-label">CLABE</div>
                 <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
-              <div class="lc-group" id="lc-tarjeta-group" style="display:none;">
-                <div class="lc-section-label">TARJETA</div>
-                <div class="lc-copy-row"><div class="lc-cardnum" id="lc-cardnum"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-cardnum');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
-              </div>
-              <div class="lc-group" id="lc-nombre-group" style="display:none;">
+<div class="lc-group" id="lc-nombre-group" style="display:none;">
                 <div class="lc-section-label">NOMBRE DE CUENTA</div>
                 <div class="lc-copy-row"><div class="lc-name" id="lc-nombre-val"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-nombre-val');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
@@ -470,14 +440,12 @@
           </div>
         </div>
       </div>
-
       <div class="color-editor" id="color-editor">
         <div class="color-editor-title">Personaliza tu tarjeta</div>
         <div class="color-section"><div class="color-section-label">Dise&#241;o</div><div class="design-picker" id="design-picker"></div></div>
         <div class="color-section"><div class="color-section-label">Color</div><div class="swatches" id="card-swatches"></div></div>
         <div class="color-section"><div class="color-section-label">Fondo</div><div class="swatches" id="bg-swatches"></div></div>
       </div>
-
       <div id="floating-btn-wrap">
         <button id="floating-btn" onclick="floatingBtnClick()">
           <div class="spinner" id="floating-spinner"></div>
@@ -486,7 +454,6 @@
       </div>
     </div>
   </div>
-
   <!-- SUCCESS -->
   <div id="view-success" class="view">
     <div class="card">
@@ -498,7 +465,6 @@
       <button class="btn btn-outline" onclick="resetToStep1()">+ Crear otro</button>
     </div>
   </div>
-
   <!-- PROFILE -->
   <div id="view-profile" class="view">
     <div class="card">
@@ -512,8 +478,7 @@
       <div class="data-section">
         <div class="data-section-label">Datos para SPEI</div>
         <div class="data-row"><div><div class="data-label-row"><img id="row-banco-icon" class="data-bank-icon" src="" alt="" style="display:none;" /><span class="data-label">CLABE interbancaria</span></div><div class="data-value mono" id="prof-clabe">&#8212;</div></div><button class="btn btn-copy" onclick="copyField('prof-clabe', this)">Copiar</button></div>
-        <div class="data-row" id="row-tarjeta" style="display:none;"><div><div class="data-label">N&#250;mero de tarjeta</div><div class="data-value mono" id="prof-tarjeta">&#8212;</div></div><button class="btn btn-copy" onclick="copyField('prof-tarjeta', this)">Copiar</button></div>
-        <div class="data-row"><div><div class="data-label">Titular</div><div class="data-value" id="prof-titular">&#8212;</div></div><button class="btn btn-copy" onclick="copyField('prof-titular', this)">Copiar</button></div>
+<div class="data-row"><div><div class="data-label">Titular</div><div class="data-value" id="prof-titular">&#8212;</div></div><button class="btn btn-copy" onclick="copyField('prof-titular', this)">Copiar</button></div>
       </div>
       <div class="data-section">
         <div class="data-section-label">Contacto</div>
@@ -524,7 +489,6 @@
     </div>
   </div>
 </div>
-
 <!-- FOOTER -->
 <footer>
   <div class="footer-inner">
@@ -556,7 +520,6 @@
     <span class="footer-copy">Hecho en México 🇲🇽</span>
   </div>
 </footer>
-
 <script>
   const GHL_WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
   const BANCOS = {
@@ -642,7 +605,6 @@
   const BG_PRESETS = [ { label:'Negro', value:'#000000' }, { label:'Blanco', value:'#f0f0f0' } ];
   const store = {};
   const $ = id => document.getElementById(id);
-
   function setFloatingBtn({ text, spinner: showSpinner, disabled, visible }) {
     const wrap=document.getElementById('floating-btn-wrap'), btn=$('floating-btn'), spinEl=$('floating-spinner'), textEl=$('floating-btn-text');
     if (visible===false) wrap.classList.add('hidden'); else wrap.classList.remove('hidden');
@@ -664,12 +626,11 @@
     setTimeout(()=>{ $('app-hero-title').textContent=title; $('app-hero-sub').textContent=subtitle; hero.classList.remove('hero-exit'); hero.classList.add('hero-enter'); hero.getBoundingClientRect(); hero.style.transition='opacity 0.28s ease, transform 0.28s ease'; hero.classList.remove('hero-enter'); setTimeout(()=>{hero.style.transition='';},300); },290);
   }
   function goToStep2() {
-    const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,''), tarjeta=$('tarjeta').value.replace(/\D/g,'');
+    const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
     let ok=true;
     if(setError('fg-nombre-cuenta',nombreCuenta.length<2)) ok=false;
     if(setError('fg-clabe',clabe.length!==18)) ok=false;
-    if(tarjeta.length>0&&setError('fg-tarjeta',tarjeta.length!==16)) ok=false; else setError('fg-tarjeta',false);
-    if(!ok) return;
+if(!ok) return;
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode];
     $('step2-nombre-cuenta').textContent=nombreCuenta+($('alias').value.trim()?` · ${$('alias').value.trim()}`:'');
     $('step2-banco').textContent=bancoData?bancoData.nombre:'Banco no identificado';
@@ -680,7 +641,7 @@
   }
   function backToStep1() {
     $('color-editor').classList.remove('fade-out');
-    transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu tarjeta.');
+    transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
     transitionLeftPanel('panel-step2','panel-step1',()=>{ currentStep=1; $('main-layout').classList.remove('step2'); setFloatingBtn({text:'Continuar →',visible:true}); window.scrollTo({top:0,behavior:'smooth'}); });
   }
   function resetToStep1() {
@@ -691,14 +652,12 @@
   }
   function updateCard() {
     const nombre=$('nombre-cuenta').value.trim(), alias=$('alias').value.trim();
-    const clabe=$('clabe').value.replace(/\D/g,''), tarjeta=$('tarjeta').value.replace(/\D/g,'');
+    const clabe=$('clabe').value.replace(/\D/g,'');
     const nGroup=$('lc-nombre-group'), nEl=$('lc-nombre-val');
-    if(nombre){ const u=nombre.toUpperCase(); nEl.textContent=u; nEl.style.fontSize=u.length>38?'10px':u.length>26?'12px':''; nEl.style.letterSpacing=u.length>38?'0.02em':u.length>26?'0.03em':''; nGroup.style.display='flex'; } else nGroup.style.display='none';
+    if(nombre){ const u=nombre.toUpperCase(); nEl.textContent=u; nEl.style.fontSize=u.length>38?'11px':u.length>26?'14px':''; nEl.style.letterSpacing=u.length>38?'0.02em':u.length>26?'0.03em':''; nGroup.style.display='flex'; } else nGroup.style.display='none';
     $('lc-alias').textContent=alias?alias.toUpperCase():'';
     const cg=$('lc-clabe-group');
     if(clabe.length>=1){ const p=clabe.padEnd(18,'·'); $('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18); cg.style.display='flex'; } else cg.style.display='none';
-    const tg=$('lc-tarjeta-group');
-    if(tarjeta.length>=1){ const t=tarjeta.padEnd(16,'·'); $('lc-cardnum').textContent=t.substring(0,4)+' '+t.substring(4,8)+' '+t.substring(8,12)+' '+t.substring(12,16); tg.style.display='flex'; } else { $('lc-cardnum').textContent=''; tg.style.display='none'; }
   }
   function onClabeInput() {
     const input=$('clabe'); input.value=input.value.replace(/\D/g,'').substring(0,18);
@@ -708,8 +667,7 @@
     else { bancoInput.value=''; iconEl.src=''; wrap.classList.remove('detected'); lcBank.style.display='none'; }
     updateCard();
   }
-  function onTarjetaInput() { const input=$('tarjeta'); let v=input.value.replace(/\D/g,'').substring(0,16); input.value=v.replace(/(.{4})/g,'$1 ').trim(); updateCard(); }
-  function renderDesign(containerEl,designIndex) { if(!containerEl)return; containerEl.innerHTML=CARD_DESIGNS[designIndex].render(); }
+function renderDesign(containerEl,designIndex) { if(!containerEl)return; containerEl.innerHTML=CARD_DESIGNS[designIndex].render(); }
   function buildDesignPicker() {
     const picker=$('design-picker');
     CARD_DESIGNS.forEach((d,i)=>{
@@ -755,18 +713,18 @@
     submitBtn.disabled=true; spinEl.style.display='inline-block'; textEl.textContent='Generando…';
     const id=Math.random().toString(36).substring(2,10);
     const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
-    const tarjeta=$('tarjeta').value.replace(/\D/g,''), alias=$('alias').value.trim(), whatsapp=$('whatsapp').value.trim();
+    const alias=$('alias').value.trim(), whatsapp=$('whatsapp').value.trim();
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode]||null;
     const banco=bancoData?bancoData.nombre:$('banco').value;
-    store[id]={id,nombreCuenta,clabe,banco,bancoCode,tarjeta,alias,nombre,email,instagram,whatsapp,cardGradient:selectedCardGradient,cardDesign:selectedDesign,bgColor:selectedBgColor,created_at:new Date().toISOString()};
-    if(GHL_WEBHOOK_URL!=='TU_WEBHOOK_URL_AQUI'){try{await fetch(GHL_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:{firstName:nombre.split(' ')[0],lastName:nombre.split(' ').slice(1).join(' '),email,phone:whatsapp?'+52'+whatsapp:undefined,customField:{banco,clabe,tarjeta:tarjeta||null,instagram,alias}},source:'tr4nsfer.me',event:'nuevo_registro'})});}catch(e){console.warn('GHL:',e);}}
+    store[id]={id,nombreCuenta,clabe,banco,bancoCode,alias,nombre,email,instagram,whatsapp,cardGradient:selectedCardGradient,cardDesign:selectedDesign,bgColor:selectedBgColor,created_at:new Date().toISOString()};
+    if(GHL_WEBHOOK_URL!=='TU_WEBHOOK_URL_AQUI'){try{await fetch(GHL_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:{firstName:nombre.split(' ')[0],lastName:nombre.split(' ').slice(1).join(' '),email,phone:whatsapp?'+52'+whatsapp:undefined,customField:{banco,clabe,instagram,alias}},source:'tr4nsfer.me',event:'nuevo_registro'})});}catch(e){console.warn('GHL:',e);}}
     const base=window.location.href.split('?')[0].split('#')[0];
     $('generated-link').textContent=base+'?id='+id;
     submitBtn.disabled=false; spinEl.style.display='none'; textEl.textContent='Generar mi Link';
     showView('view-success');
   }
   function copyLink() { navigator.clipboard.writeText($('generated-link').textContent).then(()=>{ const b=$('btn-copy-link'); b.textContent='✓ Copiado'; b.classList.add('copied'); setTimeout(()=>{b.textContent='Copiar';b.classList.remove('copied');},2000); }); }
-  function copyField(fieldId,btn) { const el=$(fieldId); const isNumeric=fieldId==='prof-clabe'||fieldId==='prof-tarjeta'; navigator.clipboard.writeText(isNumeric?el.textContent.replace(/\s/g,''):el.textContent).then(()=>{ btn.textContent='✓'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); }); }
+  function copyField(fieldId,btn) { const el=$(fieldId); const isNumeric=fieldId==='prof-clabe'; navigator.clipboard.writeText(isNumeric?el.textContent.replace(/\s/g,''):el.textContent).then(()=>{ btn.textContent='✓'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); }); }
   function shareWhatsApp() { const link=$('generated-link').textContent; window.open(`https://wa.me/?text=${encodeURIComponent('Aquí están mis datos para SPEI: '+link)}`); }
   function loadProfile() {
     const params=new URLSearchParams(window.location.search), id=params.get('id');
@@ -777,16 +735,13 @@
     $('prof-name').textContent=d.nombre; $('prof-bank').textContent=d.banco||'N/A';
     $('prof-clabe').textContent=d.clabe; $('prof-titular').textContent=d.nombreCuenta;
     if(d.bancoCode&&BANCOS[d.bancoCode]){const domain=BANCOS[d.bancoCode].domain;$('prof-bank-icon').src=favicon(domain);$('prof-bank-icon').style.display='inline-block';$('row-banco-icon').src=favicon(domain);$('row-banco-icon').style.display='inline-block';}
-    if(d.tarjeta){$('row-tarjeta').style.display='flex';$('prof-tarjeta').textContent=d.tarjeta;}
     $('prof-instagram').textContent='@'+d.instagram;
     if(d.whatsapp){$('row-whatsapp').style.display='flex';$('prof-whatsapp').textContent=d.whatsapp;}
     hideMainLayout(); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $('view-profile').classList.add('active');
     return true;
   }
-
   buildDesignPicker(); buildSwatches(); renderDesign($('card-design-layer'),0); applyCardColor(); applyBgColor();
   if(!loadProfile()){ showMainLayout(); setFloatingBtn({text:'Continuar →',visible:true}); }
-
   (function spawnShapes(){
     const container=document.getElementById('shapes'), COUNT=22, TEAL_FILL='rgba(0,200,150,0.07)', TEAL_STROKE='rgba(0,200,150,0.20)';
     const types=[];
