@@ -99,7 +99,7 @@
     .cm-bank-name { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
     .cm-middle { display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 1; text-align: left; }
     .cm-field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 4px; text-align: left; }
-    .cm-field span { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; color: #fff !important; text-decoration: none !important; -webkit-text-decoration: none !important; line-height: 1.3; }
+    .cm-field span { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; color: #fff !important; text-decoration: none !important; -webkit-text-decoration: none !important; line-height: 1.3; white-space: nowrap; }
     .cm-field a, .cm-field span a { color: #fff !important; text-decoration: none !important; }
     .cm-bottom { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); position: relative; z-index: 1; text-align: left; }
     /* CÓMO FUNCIONA */
@@ -255,7 +255,10 @@
       .hero-actions { justify-content: center; }
       .hero-note { text-align: center; }
       .hero-visual { order: -1; justify-content: center; }
-      .card-mock { width: min(270px, 80vw); aspect-ratio: 1 / 1.0; transform: rotate(-2deg); font-size: 11px; }
+      .card-mock { width: min(300px, 88vw); aspect-ratio: 1 / 1.0; transform: rotate(-2deg); }
+      .cm-field span { font-size: 16px; letter-spacing: 0; white-space: nowrap; }
+      .cm-bank-name { font-size: 15px; }
+      .cm-field label { font-size: 11px; }
       .section-wrap { padding: 80px 24px; }
       .steps { grid-template-columns: 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
@@ -268,8 +271,6 @@
       h1 { letter-spacing: -1.5px; }
       .hero-actions { flex-direction: column; align-items: stretch; }
       .btn-lg { text-align: center; }
-      .cm-field span { font-size: 15px; letter-spacing: 0; }
-      .cm-bank-name { font-size: 14px; }
     }
     /* SIDE NAV DOTS */
     #side-nav { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 12px; align-items: center; }
