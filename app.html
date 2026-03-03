@@ -520,8 +520,12 @@
     <span class="footer-copy">Hecho en México 🇲🇽</span>
   </div>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const GHL_WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
+  const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
+  const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+  const _sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
   const BANCOS = {
     '133':{ nombre:'ACTINVER',          domain:'actinver.com' },
     '062':{ nombre:'AFIRME',            domain:'afirme.com' },
@@ -604,6 +608,7 @@
   ];
   const BG_PRESETS = [ { label:'Negro', value:'#000000' }, { label:'Blanco', value:'#f0f0f0' } ];
   const store = {};
+  function generateSlug(){const L='abcdefghijklmnopqrstuvwxyz',N='0123456789',p=[0,1,2,3,4,5],lp=[];while(lp.length<3){const i=Math.floor(Math.random()*p.length);lp.push(p.splice(i,1)[0]);}return[0,1,2,3,4,5].map(i=>lp.includes(i)?L[Math.floor(Math.random()*26)]:N[Math.floor(Math.random()*10)]).join('');}
   const $ = id => document.getElementById(id);
   function setFloatingBtn({ text, spinner: showSpinner, disabled, visible }) {
     const wrap=document.getElementById('floating-btn-wrap'), btn=$('floating-btn'), spinEl=$('floating-spinner'), textEl=$('floating-btn-text');
@@ -711,15 +716,23 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     setFloatingBtn({visible:false});
     const submitBtn=$('submit-btn'),spinEl=$('spinner'),textEl=$('btn-text');
     submitBtn.disabled=true; spinEl.style.display='inline-block'; textEl.textContent='Generando…';
-    const id=Math.random().toString(36).substring(2,10);
     const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
     const alias=$('alias').value.trim(), whatsapp=$('whatsapp').value.trim();
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode]||null;
     const banco=bancoData?bancoData.nombre:$('banco').value;
-    store[id]={id,nombreCuenta,clabe,banco,bancoCode,alias,nombre,email,instagram,whatsapp,cardGradient:selectedCardGradient,cardDesign:selectedDesign,bgColor:selectedBgColor,created_at:new Date().toISOString()};
+    const bancoDomain=bancoData?bancoData.domain:null;
+    let slug, attempts=0;
+    while(attempts<5){
+      slug=generateSlug();
+      const {error}=await _sb.from('links').insert({slug,clabe,nombre_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,instagram:instagram||null,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor});
+      if(!error) break;
+      if(error.code==='23505'){attempts++;continue;}
+      console.error('Supabase:',error);
+      textEl.textContent='Error. Intenta de nuevo.';
+      submitBtn.disabled=false; spinEl.style.display='none'; setFloatingBtn({visible:true}); return;
+    }
     if(GHL_WEBHOOK_URL!=='TU_WEBHOOK_URL_AQUI'){try{await fetch(GHL_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:{firstName:nombre.split(' ')[0],lastName:nombre.split(' ').slice(1).join(' '),email,phone:whatsapp?'+52'+whatsapp:undefined,customField:{banco,clabe,instagram,alias}},source:'tr4nsfer.me',event:'nuevo_registro'})});}catch(e){console.warn('GHL:',e);}}
-    const base=window.location.href.split('?')[0].split('#')[0];
-    $('generated-link').textContent=base+'?id='+id;
+    $('generated-link').textContent=window.location.origin+'/'+slug;
     submitBtn.disabled=false; spinEl.style.display='none'; textEl.textContent='Generar mi Link';
     showView('view-success');
   }
