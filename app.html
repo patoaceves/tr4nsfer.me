@@ -284,10 +284,10 @@
       .card { padding: 18px 16px; margin-left: auto; margin-right: auto; }
       .card-frame { padding: 16px 14px; }
       .live-card { width: min(300px, 88vw); aspect-ratio: 1 / 1.0; height: auto; border-radius: 16px; }
-      .lc-clabe { font-size: 15px; }
-      .lc-name  { font-size: 14px; }
-      .lc-section-label, .lc-clabe-label { font-size: 10px; }
-      .lc-bank-name { font-size: 14px; }
+      .lc-clabe { font-size: 17px; }
+      .lc-name  { font-size: 16px; }
+      .lc-section-label, .lc-clabe-label { font-size: 11px; }
+      .lc-bank-name { font-size: 15px; }
       .form-row { grid-template-columns: 1fr; }
       #floating-btn-wrap { justify-content: stretch; }
       #floating-btn { width: 100%; }
@@ -654,7 +654,7 @@ if(!ok) return;
     const nombre=$('nombre-cuenta').value.trim(), alias=$('alias').value.trim();
     const clabe=$('clabe').value.replace(/\D/g,'');
     const nGroup=$('lc-nombre-group'), nEl=$('lc-nombre-val');
-    if(nombre){ const u=nombre.toUpperCase(); nEl.textContent=u; nEl.style.fontSize=u.length>38?'11px':u.length>26?'14px':''; nEl.style.letterSpacing=u.length>38?'0.02em':u.length>26?'0.03em':''; nGroup.style.display='flex'; } else nGroup.style.display='none';
+    if(nombre){ const u=nombre.toUpperCase(); nEl.textContent=u; nEl.style.fontSize=u.length>25?'14px':''; nEl.style.letterSpacing=u.length>38?'0.02em':u.length>26?'0.03em':''; nGroup.style.display='flex'; } else nGroup.style.display='none';
     $('lc-alias').textContent=alias?alias.toUpperCase():'';
     const cg=$('lc-clabe-group');
     if(clabe.length>=1){ const p=clabe.padEnd(18,'·'); $('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18); cg.style.display='flex'; } else cg.style.display='none';
