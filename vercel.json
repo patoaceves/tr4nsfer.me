@@ -5,6 +5,7 @@
   ],
   "routes": [
     { "src": "/app", "dest": "/app.html" },
+    { "src": "/([a-z0-9]{6})", "dest": "/card.html?id=$1" },
     { "src": "/", "dest": "/index.html" }
   ]
 }
