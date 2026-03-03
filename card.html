@@ -261,7 +261,7 @@
 
   async function init(){
     const params=new URLSearchParams(window.location.search);
-    const slug=params.get('id');
+    const slug=params.get('id') || window.location.pathname.replace(/\//g,'').split('?')[0];
     if(!slug){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
     const {data,error}=await _sb.from('links').select('*').eq('slug',slug).single();
     if(error||!data){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
