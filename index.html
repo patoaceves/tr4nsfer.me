@@ -290,9 +290,61 @@
     .side-dot-label { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); background: rgba(15,15,15,0.92); border: 1px solid var(--border); color: var(--text); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; letter-spacing: 0.3px; }
     .side-dot:hover .side-dot-label { opacity: 1; }
     @media (max-width: 860px) { #side-nav { display: none; } }
+    /* ── PAGE LOADER ──────────────────────────────────────────── */
+    #page-loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.35s ease, visibility 0.35s;
+    }
+    #page-loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    /* base values so CSS reset works when animation is removed */
+    .pl-svg        { width:88px; height:88px; filter:drop-shadow(0 0 22px rgba(0,200,150,0.38)); opacity:0; animation:plCycle 2.1s linear 1 both; }
+    .pl-stroke-horiz { stroke-dasharray:737;  stroke-dashoffset:737;  animation:plHoriz 2.1s linear 1 both; }
+    .pl-stroke-diag  { stroke-dasharray:1762; stroke-dashoffset:1762; animation:plDiag  2.1s linear 1 both; }
+    .pl-stroke-vert  { stroke-dasharray:750;  stroke-dashoffset:750;  animation:plVert  2.1s linear 1 both; }
+    .pl-dot          { transform-box:fill-box; transform-origin:center; transform:scale(0); opacity:0; animation:plDot 2.1s linear 1 both; }
+    /* Duración: 2.1s = 1.3s dibujo + 0.8s hold isotipo completo */
+    @keyframes plCycle { 0%{opacity:0} 5%{opacity:1} 89%{opacity:1} 100%{opacity:0} }
+    @keyframes plHoriz  { 0%,5%  {stroke-dashoffset:737;  animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 15%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
+    @keyframes plDiag   { 0%,15% {stroke-dashoffset:1762; animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 32%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
+    @keyframes plVert   { 0%,32% {stroke-dashoffset:750;  animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 42%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
+    @keyframes plDot    { 0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)} 51%{transform:scale(1);opacity:1} 100%{transform:scale(1);opacity:1} }
+    /* ─────────────────────────────────────────────────────────── */
   </style>
 </head>
 <body>
+  <!-- PAGE LOADER -->
+  <div id="page-loader">
+    <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-label="tr4nsfer.me">
+      <!-- 1st painted = bottom layer -->
+      <!-- horizontal (teal) — base, derecha→izquierda -->
+      <path stroke-linecap="round"
+            transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)"
+            fill="none"
+            d="M 183.500755 183.499427 L 920.407068 183.499426"
+            stroke="#00c896" stroke-width="367"
+            class="pl-stroke-horiz"/>
+      <!-- vertical (deep teal) — detrás del diagonal, arriba→abajo -->
+      <path stroke-linecap="round"
+            transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)"
+            fill="none"
+            d="M 932.597393 183.498426 L 183.49837 183.498426"
+            stroke="#007256" stroke-width="367"
+            class="pl-stroke-vert"/>
+      <!-- diagonal (teal) — encima del vertical, abajo→arriba -->
+      <path stroke-linecap="round"
+            transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)"
+            fill="none"
+            d="M 183.498659 183.502296 L 1945.432126 183.502296"
+            stroke="#00c896" stroke-width="367"
+            class="pl-stroke-diag"/>
+      <!-- dot (teal) — siempre al frente -->
+      <g transform="translate(1068,1061)">
+        <circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/>
+      </g>
+    </svg>
+  </div>
   <div class="shapes" id="shapes" aria-hidden="true"></div>
   <header>
     <a href="#inicio" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
@@ -621,6 +673,41 @@
       });
     }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
     document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+  </script>
+  <script>
+    /* Page loader — JS-controlled loop with deliberate pauses */
+    (function() {
+      var loader = document.getElementById('page-loader');
+      if (!loader) return;
+      var dismissed  = false;
+      var pageLoaded = (document.readyState === 'complete');
+      if (!pageLoaded) window.addEventListener('load', function() { pageLoaded = true; });
+      setTimeout(function() { pageLoaded = true; }, 8000); /* absolute fallback */
+
+      function resetCycle() {
+        /* remove animations so CSS base values restore, then force reflow, then re-apply */
+        var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
+        els.forEach(function(el) { el.style.animation = 'none'; });
+        loader.offsetHeight; /* reflow */
+        els.forEach(function(el) { el.style.animation = ''; });
+      }
+
+      /* plCycle ends last — one event listener handles every iteration */
+      loader.querySelector('.pl-svg').addEventListener('animationend', function(e) {
+        if (e.animationName !== 'plCycle' || dismissed) return;
+        var pause = pageLoaded ? 1000 : 80; /* hold ya está en la animación CSS */
+        setTimeout(function() {
+          if (dismissed) return;
+          if (pageLoaded) {
+            dismissed = true;
+            loader.classList.add('hide');
+            setTimeout(function() { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 380);
+          } else {
+            resetCycle(); /* restart — animationend will fire again after next cycle */
+          }
+        }, pause);
+      });
+    })();
   </script>
 </body>
 </html>
