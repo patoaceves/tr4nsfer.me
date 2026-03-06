@@ -177,8 +177,7 @@
     }
     #floating-btn:active { transform: translateY(0px); }
     #floating-btn:disabled { opacity: .4; cursor: not-allowed; }
-    .spinner { width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-top-color: rgba(0,0,0,0.75); border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: none; } /* replaced by page loader */
     /* PREVIEW CARD */
     .card-frame { width: 100%; padding: 32px 24px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
     .live-card { width: 330px; aspect-ratio: 1 / 1.2; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
@@ -292,9 +291,40 @@
       #floating-btn-wrap { justify-content: stretch; }
       #floating-btn { width: 100%; }
     }
+    /* ── PAGE LOADER ──────────────────────────────────────────── */
+    #page-loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: none; align-items: center; justify-content: center;
+      transition: opacity 0.35s ease, visibility 0.35s;
+    }
+    #page-loader.active { display: flex; }
+    #page-loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .pl-svg          { width:88px; height:88px; filter:drop-shadow(0 0 22px rgba(0,200,150,0.38)); opacity:0; animation:plCycle 2.1s linear 1 both; }
+    .pl-stroke-horiz { stroke-dasharray:737;  stroke-dashoffset:737;  animation:plHoriz 2.1s linear 1 both; }
+    .pl-stroke-diag  { stroke-dasharray:1762; stroke-dashoffset:1762; animation:plDiag  2.1s linear 1 both; }
+    .pl-stroke-vert  { stroke-dasharray:750;  stroke-dashoffset:750;  animation:plVert  2.1s linear 1 both; }
+    .pl-dot          { transform-box:fill-box; transform-origin:center; transform:scale(0); opacity:0; animation:plDot 2.1s linear 1 both; }
+    /* Duración: 2.1s = 1.3s dibujo + 0.8s hold isotipo completo */
+    @keyframes plCycle { 0%{opacity:0} 5%{opacity:1} 89%{opacity:1} 100%{opacity:0} }
+    @keyframes plHoriz  { 0%,5%  {stroke-dashoffset:737;  animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 15%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
+    @keyframes plDiag   { 0%,15% {stroke-dashoffset:1762; animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 32%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
+    @keyframes plVert   { 0%,32% {stroke-dashoffset:750;  animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 42%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
+    @keyframes plDot    { 0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)} 51%{transform:scale(1);opacity:1} 100%{transform:scale(1);opacity:1} }
+    /* ─────────────────────────────────────────────────────────── */
   </style>
 </head>
 <body>
+<div id="page-loader">
+  <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
+    <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
+    <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
+    <g transform="translate(1068,1061)">
+      <circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/>
+    </g>
+  </svg>
+</div>
 <div class="shapes" id="shapes" aria-hidden="true"></div>
 <!-- HEADER -->
 <header>
@@ -718,20 +748,25 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     if(!consent2){c2.classList.add('has-error');ok=false;}else c2.classList.remove('has-error');
     if(!ok)return;
     setFloatingBtn({visible:false});
-    const submitBtn=$('submit-btn'),spinEl=$('spinner'),textEl=$('btn-text');
-    submitBtn.disabled=true; spinEl.style.display='inline-block'; textEl.textContent='Generando…';
+    const submitBtn=$('submit-btn'),textEl=$('btn-text');
+    submitBtn.disabled=true; textEl.textContent='Generando…';
+    showPageLoader(); /* start loader + loop */
     const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
     const alias=$('alias').value.trim(), whatsapp=$('whatsapp').value.trim();
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode]||null;
     const banco=bancoData?bancoData.nombre:$('banco').value;
     const bancoDomain=bancoData?bancoData.domain:null;
     const fnResp=await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/create-link',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,instagram:instagram||null,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor})});
-    if(!fnResp.ok){console.error('Edge fn error:',await fnResp.text());textEl.textContent='Error. Intenta de nuevo.';submitBtn.disabled=false;spinEl.style.display='none';setFloatingBtn({visible:true});return;}
+    if(!fnResp.ok){
+      console.error('Edge fn error:',await fnResp.text());
+      hidePageLoader(function(){ textEl.textContent='Error. Intenta de nuevo.'; submitBtn.disabled=false; setFloatingBtn({visible:true}); });
+      return;
+    }
     const {slug}=await fnResp.json();
     if(GHL_WEBHOOK_URL!=='TU_WEBHOOK_URL_AQUI'){try{await fetch(GHL_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:{firstName:nombre.split(' ')[0],lastName:nombre.split(' ').slice(1).join(' '),email,phone:whatsapp?'+52'+whatsapp:undefined,customField:{banco,clabe,instagram,alias}},source:'tr4nsfer.me',event:'nuevo_registro'})});}catch(e){console.warn('GHL:',e);}}
     $('generated-link').textContent=window.location.origin+'/'+slug;
-    submitBtn.disabled=false; spinEl.style.display='none'; textEl.textContent='Generar mi Link';
-    showView('view-success');
+    submitBtn.disabled=false; textEl.textContent='Generar mi Link';
+    hidePageLoader(function(){ showView('view-success'); }); /* wait for cycle end + 1s, then show */
   }
   function copyLink() { navigator.clipboard.writeText($('generated-link').textContent).then(()=>{ const b=$('btn-copy-link'); b.textContent='✓ Copiado'; b.classList.add('copied'); setTimeout(()=>{b.textContent='Copiar';b.classList.remove('copied');},2000); }); }
   function copyField(fieldId,btn) { const el=$(fieldId); const isNumeric=fieldId==='prof-clabe'; navigator.clipboard.writeText(isNumeric?el.textContent.replace(/\s/g,''):el.textContent).then(()=>{ btn.textContent='✓'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); }); }
@@ -772,6 +807,51 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
       container.appendChild(el);
     }
   })();
+
+  /* ── Page loader controller ────────────────────────────────── */
+  (function() {
+    var loader = document.getElementById('page-loader');
+    if (!loader) return;
+    var _done = false, _dismissed = false, _onDone = null;
+
+    function resetCycle() {
+      var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
+      els.forEach(function(el) { el.style.animation = 'none'; });
+      loader.offsetHeight;
+      els.forEach(function(el) { el.style.animation = ''; });
+    }
+
+    loader.querySelector('.pl-svg').addEventListener('animationend', function(e) {
+      if (e.animationName !== 'plCycle' || _dismissed) return;
+      var pause = _done ? 1000 : 80; /* hold ya está en la animación CSS */
+      setTimeout(function() {
+        if (_dismissed) return;
+        if (_done) {
+          _dismissed = true;
+          loader.classList.add('hide');
+          setTimeout(function() {
+            loader.classList.remove('active', 'hide');
+            _done = false; _dismissed = false;
+            if (_onDone) { var cb = _onDone; _onDone = null; cb(); }
+          }, 380);
+        } else {
+          resetCycle();
+        }
+      }, pause);
+    });
+
+    window.showPageLoader = function() {
+      _done = false; _dismissed = false; _onDone = null;
+      loader.classList.remove('hide');
+      loader.classList.add('active');
+      resetCycle();
+    };
+    window.hidePageLoader = function(callback) {
+      _onDone = callback || null;
+      _done = true; /* will dismiss gracefully on next cycle end */
+    };
+  })();
+  /* ─────────────────────────────────────────────────────────── */
 </script>
 </body>
 </html>
