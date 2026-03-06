@@ -25,11 +25,11 @@
 
     /* ── CARD ── */
     .card-wrap{width:100%;max-width:340px;}
-    .live-card{width:100%;aspect-ratio:1/1.0;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.1);cursor:default;}
+    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.1);cursor:default;}
     .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
-    .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:22px;}
+    .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:24px 24px 22px;}
     .lc-top img{height:14px;width:auto;display:block;opacity:0.8;}
-    .lc-middle{display:flex;flex-direction:column;gap:14px;}
+    .lc-middle{display:flex;flex-direction:column;gap:20px;}
     .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);border-radius:24px;padding:7px 16px 7px 8px;align-self:flex-start;}
     .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,0.15);display:none;}
     .lc-bank-name{font-size:16px;font-weight:600;opacity:0.92;letter-spacing:0.01em;}
@@ -104,16 +104,16 @@
               <div class="lc-copy-row">
                 <div class="lc-clabe" id="lc-clabe"></div>
                 <button class="lc-copy-btn" id="card-copy-clabe" title="Copiar CLABE">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
                 </button>
               </div>
             </div>
             <div class="lc-group">
-              <div class="lc-section-label">NOMBRE DE CUENTA</div>
+              <div class="lc-section-label">TITULAR DE LA CUENTA</div>
               <div class="lc-copy-row">
                 <div class="lc-name" id="lc-name"></div>
                 <button class="lc-copy-btn" id="card-copy-nombre" title="Copiar nombre">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
                 </button>
               </div>
             </div>
@@ -136,7 +136,7 @@
       </div>
       <div class="action-row">
         <div>
-          <div class="action-label">Nombre de cuenta</div>
+          <div class="action-label">Titular de la cuenta</div>
           <div class="action-value" id="act-nombre"></div>
         </div>
         <button class="btn-copy" id="btn-copy-nombre" onclick="copyText('act-nombre','btn-copy-nombre')">Copiar</button>
@@ -233,7 +233,7 @@
     };
 
     // Nombre
-    const nom=d.nombre_cuenta||'';
+    const nom=d.titular_cuenta||'';
     $('lc-name').textContent=nom;
     if(nom.length>25) $('lc-name').style.fontSize='14px';
     $('act-nombre').textContent=nom;
@@ -263,8 +263,10 @@
     const params=new URLSearchParams(window.location.search);
     const slug=params.get('id') || window.location.pathname.replace(/\//g,'').split('?')[0];
     if(!slug){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
-    const {data,error}=await _sb.from('links').select('*').eq('slug',slug).single();
-    if(error||!data){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
+    const resp=await fetch(`https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/get-link?slug=${slug}`,{headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}});
+    if(!resp.ok){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
+    const data=await resp.json();
+    if(!data||data.error){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
     renderProfile(data);
   }
 
