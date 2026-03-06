@@ -89,15 +89,15 @@
     .hero-actions { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .hero-note { font-size: 12px; color: var(--dim); letter-spacing: 0.2px; }
     .hero-visual { display: flex; align-items: center; justify-content: center; perspective: 900px; }
-    .card-mock { width: 340px; aspect-ratio: 1 / 1.2; border-radius: 20px; background: linear-gradient(135deg, #004d38 0%, #00c896 100%); position: relative; overflow: hidden; box-shadow: 0 40px 90px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: space-between; padding: 28px 26px; transform: rotate(-4deg) rotateX(4deg); transition: transform 0.4s ease; cursor: default; }
+    .card-mock { width: 340px; aspect-ratio: 1 / 1.2; border-radius: 20px; background: linear-gradient(135deg, #004d38 0%, #00c896 100%); position: relative; overflow: hidden; box-shadow: 0 40px 90px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: space-between; padding: 20px 22px 24px; transform: rotate(-4deg) rotateX(4deg); transition: transform 0.4s ease; cursor: default; }
     .card-mock:hover { transform: rotate(-1deg) rotateX(2deg) scale(1.02); }
     .cm-diag { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
     .cm-top { position: relative; z-index: 1; }
     .cm-top img { height: 14px; width: auto; display: block; opacity: 0.8; }
-    .cm-bank { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.13); backdrop-filter: blur(8px); border-radius: 100px; padding: 8px 16px; width: fit-content; align-self: center; position: relative; z-index: 1; }
+    .cm-bank { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.13); backdrop-filter: blur(8px); border-radius: 100px; padding: 8px 16px; width: fit-content; align-self: flex-start; }
     .cm-bank-icon { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; }
     .cm-bank-name { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
-    .cm-middle { display: flex; flex-direction: column; gap: 22px; position: relative; z-index: 1; text-align: left; }
+    .cm-middle { display: flex; flex-direction: column; flex: 1; justify-content: space-evenly; padding: 14px 0; position: relative; z-index: 1; text-align: left; }
     .cm-field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 4px; text-align: left; }
     .cm-field span { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.03em; color: #fff !important; text-decoration: none !important; -webkit-text-decoration: none !important; line-height: 1.3; white-space: nowrap; }
     .cm-field a, .cm-field span a { color: #fff !important; text-decoration: none !important; }
@@ -255,7 +255,7 @@
       .hero-actions { justify-content: center; }
       .hero-note { text-align: center; }
       .hero-visual { order: -1; justify-content: center; }
-      .card-mock { width: min(300px, 88vw); aspect-ratio: 1 / 1.2; transform: rotate(-2deg); }
+      .card-mock { width: min(300px, 88vw); aspect-ratio: 1 / 1.2; transform: rotate(-2deg); padding: 20px 20px 22px; }
       .cm-field span { font-size: 16px; letter-spacing: 0; white-space: nowrap; }
       .cm-bank-name { font-size: 15px; }
       .cm-field label { font-size: 11px; }
@@ -324,16 +324,16 @@
               <polygon points="0,159 100,159 100,105 0,148" fill="rgba(0,0,0,0.13)"/>
             </svg>
             <div class="cm-top"><img src="logo-white.png" alt="tr4nsfer.me"/></div>
-            <div class="cm-bank">
-              <div class="cm-bank-icon"><img src="bank-icon.png" width="22" height="22" style="border-radius:50%;display:block;object-fit:cover;" alt="Banco"/></div>
-              <div class="cm-bank-name">Tu Banco</div>
-            </div>
             <div class="cm-middle">
+              <div class="cm-bank">
+                <div class="cm-bank-icon"><img src="bank-icon.png" width="22" height="22" style="border-radius:50%;display:block;object-fit:cover;" alt="Banco"/></div>
+                <div class="cm-bank-name">Tu Banco</div>
+              </div>
               <div class="cm-field">
                 <label>CLABE</label>
                 <div style="display:flex;align-items:center;gap:6px;"><span>012 180 03539396582 2</span><button onclick="(function(){navigator.clipboard.writeText('012180035393965822');const i=document.getElementById('cp-clabe');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-clabe" width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
-<div class="cm-field">
+              <div class="cm-field">
                 <label>Titular de la cuenta</label>
                 <div style="display:flex;align-items:center;gap:6px;"><span>MAURICIO PONCE TORRES</span><button onclick="(function(){navigator.clipboard.writeText('MAURICIO PONCE TORRES');const i=document.getElementById('cp-name');i.style.opacity='0.3';setTimeout(()=>i.style.opacity='0.6',500);})();" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;opacity:0.6;transition:opacity 0.2s;flex-shrink:0;" title="Copiar"><svg id="cp-name" width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
               </div>
