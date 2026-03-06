@@ -110,6 +110,15 @@
     .step-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
     .step-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
     .center-cta { display: flex; justify-content: center; }
+    /* ENCRIPTADO */
+    .enc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 48px; }
+    .enc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 28px 24px; display: flex; flex-direction: column; gap: 14px; transition: border-color 0.25s, transform 0.25s; }
+    .enc-card:hover { border-color: rgba(0,200,150,0.28); transform: translateY(-3px); }
+    .enc-icon { width: 42px; height: 42px; border-radius: 11px; background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .enc-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px; }
+    .enc-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .enc-badge { display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 100px; background: rgba(0,200,150,0.07); border: 1px solid rgba(0,200,150,0.18); font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.3px; }
+    .enc-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
     /* TRUST */
     .trust-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .trust-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 36px 32px; }
@@ -261,6 +270,7 @@
       .cm-field label { font-size: 11px; }
       .section-wrap { padding: 80px 24px; }
       .steps { grid-template-columns: 1fr; }
+      .enc-grid { grid-template-columns: 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
       .pricing-grid { grid-template-columns: 1fr; max-width: 100%; }
       .footer-grid { grid-template-columns: 1fr; gap: 32px; }
@@ -299,6 +309,7 @@
     <div class="side-dot active" data-target="inicio"><span class="side-dot-label">Inicio</span></div>
     <div class="side-dot" data-target="como-funciona"><span class="side-dot-label">Cómo funciona</span></div>
     <div class="side-dot" data-target="seguridad"><span class="side-dot-label">Confianza</span></div>
+    <div class="side-dot" data-target="encriptado"><span class="side-dot-label">Encriptado</span></div>
     <div class="side-dot" data-target="cta-final"><span class="side-dot-label">Empezar</span></div>
     <div class="side-dot" data-target="pricing"><span class="side-dot-label">Precios</span></div>
     <div class="side-dot" data-target="ayuda"><span class="side-dot-label">FAQ</span></div>
@@ -384,6 +395,75 @@
             </ul>
             <p class="trust-note">Te recomendamos compartir tu link únicamente con personas de confianza.</p>
           </div>
+        </div>
+      </div>
+    </section>
+    <!-- ENCRIPTADO -->
+    <section id="encriptado">
+      <div class="section-wrap">
+        <div class="eyebrow">Privacidad & Seguridad</div>
+        <h2>Cómo almacenamos tus datos</h2>
+        <p class="section-sub">Tus datos viajan cifrados de principio a fin. Nunca los guardamos en texto plano.</p>
+        <div class="enc-grid">
+          <div class="enc-card">
+            <div class="enc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="enc-title">Encriptado AES-256-GCM</div>
+              <p class="enc-desc">El estándar de cifrado más robusto disponible. El mismo utilizado por bancos, gobiernos y apps de mensajería segura. Tus datos se cifran antes de salir de tu dispositivo.</p>
+            </div>
+          </div>
+          <div class="enc-card">
+            <div class="enc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="#00c896" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#00c896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="enc-title">Llave secreta en el servidor</div>
+              <p class="enc-desc">La clave de cifrado nunca llega a tu navegador. Vive exclusivamente en nuestros servidores seguros. Sin ella, los datos almacenados son ilegibles para cualquier persona.</p>
+            </div>
+          </div>
+          <div class="enc-card">
+            <div class="enc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#00c896" stroke-width="2"/><path d="M12 7v5l3 3" stroke="#00c896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="enc-title">Descifrado solo bajo demanda</div>
+              <p class="enc-desc">Tus datos se descifran únicamente en el momento en que alguien accede a tu link, dentro de nuestros servidores. El resultado viaja por HTTPS, siempre cifrado en tránsito.</p>
+            </div>
+          </div>
+          <div class="enc-card">
+            <div class="enc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v4H4zM4 12h16v4H4z" stroke="#00c896" stroke-width="2" stroke-linejoin="round"/><path d="M4 8v4M4 16v4M20 8v4M20 16v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="enc-title">Sin texto plano en base de datos</div>
+              <p class="enc-desc">Tu CLABE, nombre y datos de contacto se guardan cifrados en la base de datos. Incluso si alguien accediera a ella sin autorización, no podría leer ningún dato.</p>
+            </div>
+          </div>
+          <div class="enc-card">
+            <div class="enc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3C7 3 3 7 3 12s4 9 9 9 9-4 9-9-4-9-9-9z" stroke="#00c896" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="enc-title">Solo datos de depósito</div>
+              <p class="enc-desc">Guardamos únicamente lo necesario para recibir pagos: CLABE, nombre del titular y, opcionalmente, datos de contacto. Nunca contraseñas, tokens ni credenciales bancarias.</p>
+            </div>
+          </div>
+          <div class="enc-card">
+            <div class="enc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#00c896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12c0 4.97-4.03 9-9 9S3 16.97 3 12 7.03 3 12 3s9 4.03 9 9z" stroke="#00c896" stroke-width="2"/></svg>
+            </div>
+            <div>
+              <div class="enc-title">HTTPS en todo momento</div>
+              <p class="enc-desc">Toda comunicación entre tu dispositivo y nuestros servidores viaja cifrada con TLS. Imposible interceptar datos en tránsito. Tu conexión es siempre segura y verificada.</p>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span class="enc-badge"><span class="enc-badge-dot"></span>AES-256-GCM activo en todos los perfiles</span>
+          <span class="enc-badge"><span class="enc-badge-dot"></span>TLS 1.3 en tránsito</span>
+          <span class="enc-badge"><span class="enc-badge-dot"></span>Llave nunca expuesta al cliente</span>
         </div>
       </div>
     </section>
