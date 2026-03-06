@@ -18,10 +18,24 @@
 
     /* ── LOADING / ERROR ── */
     .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
-    .spinner-ring{width:36px;height:36px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg);}}
     .state-title{font-size:15px;font-weight:600;color:var(--muted);}
     .state-sub{font-size:13px;color:rgba(255,255,255,0.3);}
+    /* ── PAGE LOADER ──────────────────────────────────────────── */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s;}
+    #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
+    .pl-svg         {width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,0.38));opacity:0;animation:plCycle 2.1s linear 1 both;}
+    .pl-stroke-horiz{stroke-dasharray:737; stroke-dashoffset:737; animation:plHoriz 2.1s linear 1 both;}
+    .pl-stroke-diag {stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag  2.1s linear 1 both;}
+    .pl-stroke-vert {stroke-dasharray:750; stroke-dashoffset:750; animation:plVert  2.1s linear 1 both;}
+    .pl-dot         {transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear 1 both;}
+    /* Duración: 2.1s = 1.3s dibujo + 0.8s hold isotipo completo + 0s fade */
+    /* Keyframes reescalados: factor 1.3/2.1 ≈ 0.619 para mantener velocidad de dibujo */
+    @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
+    @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDiag {0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plVert {0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDot  {0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
+    /* ─────────────────────────────────────────────────────────── */
 
     /* ── CARD ── */
     .card-wrap{width:100%;max-width:340px;}
@@ -73,10 +87,14 @@
 </head>
 <body>
 
-  <!-- LOADING -->
-  <div id="state-loading" class="state">
-    <div class="spinner-ring"></div>
-    <div class="state-title">Cargando perfil…</div>
+  <!-- PAGE LOADER -->
+  <div id="page-loader">
+    <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
+      <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
+      <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
+      <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
+    </svg>
   </div>
 
   <!-- ERROR -->
@@ -254,19 +272,57 @@
     if(d.whatsapp){_waNumber=d.whatsapp;$('btn-wa').style.display='flex';}
 
     // Show profile
-    $('state-loading').style.display='none';
+    hideLoader();
     const prof=$('state-profile');
     prof.style.display='flex';
   }
 
+  /* ── Page loader controller ────────────────────────────────── */
+  var _plDone = false, _plDismissed = false, _plCallback = null;
+  (function() {
+    var loader = $('page-loader');
+    if (!loader) return;
+
+    function resetCycle() {
+      var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
+      els.forEach(function(el) { el.style.animation = 'none'; });
+      loader.offsetHeight;
+      els.forEach(function(el) { el.style.animation = ''; });
+    }
+
+    loader.querySelector('.pl-svg').addEventListener('animationend', function(e) {
+      if (e.animationName !== 'plCycle' || _plDismissed) return;
+      var pause = _plDone ? 1000 : 80; /* hold ya está en la animación CSS */
+      setTimeout(function() {
+        if (_plDismissed) return;
+        if (_plDone) {
+          _plDismissed = true;
+          loader.classList.add('hide');
+          setTimeout(function() {
+            if (loader.parentNode) loader.parentNode.removeChild(loader);
+            if (_plCallback) { var cb = _plCallback; _plCallback = null; cb(); }
+          }, 380);
+        } else {
+          resetCycle();
+        }
+      }, pause);
+    });
+  })();
+
+  function hideLoader(callback) {
+    _plCallback = callback || null;
+    _plDone = true; /* graceful dismiss on next cycle end */
+  }
+  /* ─────────────────────────────────────────────────────────── */
+
   async function init(){
     const params=new URLSearchParams(window.location.search);
     const slug=params.get('id') || window.location.pathname.replace(/\//g,'').split('?')[0];
-    if(!slug){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
+    if(!slug){hideLoader(function(){$('state-error').style.display='flex';});return;}
     const resp=await fetch(`https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/get-link?slug=${slug}`,{headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}});
-    if(!resp.ok){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
+    if(!resp.ok){hideLoader(function(){$('state-error').style.display='flex';});return;}
     const data=await resp.json();
-    if(!data||data.error){$('state-loading').style.display='none';$('state-error').style.display='flex';return;}
+    if(!data||data.error){hideLoader(function(){$('state-error').style.display='flex';});return;}
     renderProfile(data);
   }
 
