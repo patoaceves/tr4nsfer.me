@@ -274,7 +274,7 @@
     .show-toggle input:checked ~ .show-toggle-track .show-toggle-thumb { transform: translateX(16px); }
     .show-toggle-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.2px; transition: color 0.18s; }
     .show-toggle:has(input:checked) .show-toggle-label { color: var(--teal); }
-    .field-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .field-label-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
     .field-label-row label { margin-bottom: 0; }
     /* SUCCESS */
     #view-success .card { text-align: center; max-width: 440px; }
@@ -398,7 +398,7 @@
           <div class="field" id="fg-clabe">
             <label>CLABE interbancaria <span class="req">*</span></label>
             <div class="clabe-wrap">
-              <input type="tel" id="clabe" placeholder="18 d&#237;gitos" maxlength="18" inputmode="numeric" oninput="onClabeInput()" />
+              <input type="tel" id="clabe" placeholder="18 d&#237;gitos" maxlength="22" inputmode="numeric" oninput="onClabeInput()" onpaste="setTimeout(onClabeInput,0)" />
               <svg class="clabe-verified" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
             <span class="field-error">La CLABE debe tener exactamente 18 d&#237;gitos.</span>
@@ -774,8 +774,11 @@ if(!ok) return;
     if(clabe.length>=1){ const p=clabe.padEnd(18,'·'); $('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18); cg.style.display='flex'; } else cg.style.display='none';
   }
   function onClabeInput() {
-    const input=$('clabe'); input.value=input.value.replace(/[\D\s]/g,'').substring(0,18);
-    input.classList.toggle('complete',input.value.length===18);
+    const input=$('clabe');
+    input.value=input.value.replace(/[\D\s]/g,'').substring(0,18);
+    const len=input.value.length;
+    input.classList.toggle('complete',len===18);
+    if(len===18) $('fg-clabe').classList.remove('has-error');
     const code=input.value.substring(0,3), wrap=$('banco-wrap'), bancoInput=$('banco'), iconEl=$('banco-icon'), lcBank=$('lc-bank');
     if(code.length===3&&BANCOS[code]){ const b=BANCOS[code]; bancoInput.value=b.nombre; iconEl.src=favicon(b.domain); iconEl.alt=b.nombre; wrap.classList.add('detected'); $('lc-bank-icon').src=favicon(b.domain); $('lc-bank-icon').style.display='block'; $('lc-bank-name').textContent=b.nombre; lcBank.style.display='flex'; }
     else { bancoInput.value=''; iconEl.src=''; wrap.classList.remove('detected'); lcBank.style.display='none'; }
@@ -920,6 +923,7 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     setFloatingBtn({visible:false});
     const submitBtn=$('submit-btn'),textEl=$('btn-text');
     submitBtn.disabled=true; textEl.textContent='Generando…';
+    hideMainLayout(); /* hide form immediately — no flash on loader exit */
     showPageLoader(); /* start loader + loop */
     const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
     const alias=$('alias').value.trim();
@@ -940,7 +944,7 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     $('generated-link')&&($('generated-link').textContent=window.location.origin+'/'+slug);
     var se=$('success-email'); if(se) se.textContent=email;
     submitBtn.disabled=false; textEl.textContent='Generar mi Link';
-    hidePageLoader(function(){ transitionHero('¡Todo listo!',''); showView('view-success'); });
+    hidePageLoader(function(){ transitionHero('¡Todo listo!',''); var sv=$('view-success'); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); sv.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); });
   }
   function copyLink() { navigator.clipboard.writeText($('generated-link').textContent).then(()=>{ const b=$('btn-copy-link'); b.textContent='✓ Copiado'; b.classList.add('copied'); setTimeout(()=>{b.textContent='Copiar';b.classList.remove('copied');},2000); }); }
   function copyField(fieldId,btn) { const el=$(fieldId); const isNumeric=fieldId==='prof-clabe'; navigator.clipboard.writeText(isNumeric?el.textContent.replace(/\s/g,''):el.textContent).then(()=>{ btn.textContent='✓'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); }); }
