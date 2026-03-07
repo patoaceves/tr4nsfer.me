@@ -311,6 +311,7 @@
       .right-col { display: flex; position: static; }
       #main-layout.step2 .left-col  { order: 1; }
       #main-layout.step2 .right-col { order: 2; }
+      #main-layout.step2 > .step2-footer { order: 3; }
       #main-layout.step2 .color-editor { display: none; }
       .page { padding: 80px 14px 100px; }
       .app-hero { padding: 32px 16px 28px; }
@@ -329,6 +330,7 @@
     }
     /* ── STEP2 FOOTER ──────────────────────────────────────────── */
     .step2-footer { display: none; margin-top: 30px; }
+    @media (max-width: 700px) { .step2-footer { margin-top: 8px; } }
     #main-layout.step2 .step2-footer { display: block; }
     #main-layout.step2 { row-gap: 24px; }
     #main-layout.step2 .right-col { margin-top: 0; }
