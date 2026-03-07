@@ -63,7 +63,7 @@
     /* BUTTONS */
     .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 22px; border-radius: 100px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; text-decoration: none; transition: all 0.2s; border: none; white-space: nowrap; }
     .btn-primary { background: var(--accent); color: #000; }
-    .btn-primary:hover { background: #00daa6; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,200,150,0.3); }
+    .btn-primary:hover { background: #00daa6; transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,200,150,0.25), 0 8px 24px rgba(0,200,150,0.5), 0 16px 48px rgba(0,200,150,0.25); }
     .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
     .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
     .btn-lg { padding: 15px 34px; font-size: 16px; }
@@ -128,7 +128,9 @@
     .trust-check { width: 18px; height: 18px; min-width: 18px; border-radius: 50%; background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.25); margin-top: 1px; display: flex; align-items: center; justify-content: center; }
     .trust-note { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--dim); line-height: 1.7; }
     /* CTA FINAL */
-    #cta-final { text-align: center; background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,200,150,0.13) 0%, transparent 70%); }
+    #cta-final { text-align: center; position: relative; overflow: hidden; background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,200,150,0.22) 0%, rgba(0,200,150,0.06) 45%, transparent 72%); }
+    #cta-final::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 40% 35% at 50% 50%, rgba(0,200,150,0.18) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+    #cta-final .section-wrap { position: relative; z-index: 1; }
     #cta-final h2 { font-size: clamp(34px, 4.5vw, 56px); font-weight: 800; letter-spacing: -2px; line-height: 1.1; margin-bottom: 36px; }
     /* ─── PRICING ─────────────────────────────────────── */
     .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 780px; }
@@ -299,11 +301,11 @@
     }
     #page-loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
     /* base values so CSS reset works when animation is removed */
-    .pl-svg        { width:88px; height:88px; filter:drop-shadow(0 0 22px rgba(0,200,150,0.38)); opacity:0; animation:plCycle 2.1s linear 1 both; }
-    .pl-stroke-horiz { stroke-dasharray:737;  stroke-dashoffset:737;  animation:plHoriz 2.1s linear 1 both; }
-    .pl-stroke-diag  { stroke-dasharray:1762; stroke-dashoffset:1762; animation:plDiag  2.1s linear 1 both; }
-    .pl-stroke-vert  { stroke-dasharray:750;  stroke-dashoffset:750;  animation:plVert  2.1s linear 1 both; }
-    .pl-dot          { transform-box:fill-box; transform-origin:center; transform:scale(0); opacity:0; animation:plDot 2.1s linear 1 both; }
+    .pl-svg        { width:88px; height:88px; filter:drop-shadow(0 0 22px rgba(0,200,150,0.38)); opacity:0; animation:plCycle 2.1s linear infinite; }
+    .pl-stroke-horiz { stroke-dasharray:737;  stroke-dashoffset:737;  animation:plHoriz 2.1s linear infinite; }
+    .pl-stroke-diag  { stroke-dasharray:1762; stroke-dashoffset:1762; animation:plDiag  2.1s linear infinite; }
+    .pl-stroke-vert  { stroke-dasharray:750;  stroke-dashoffset:750;  animation:plVert  2.1s linear infinite; }
+    .pl-dot          { transform-box:fill-box; transform-origin:center; transform:scale(0); opacity:0; animation:plDot 2.1s linear infinite; }
     /* Duración: 2.1s = 1.3s dibujo + 0.8s hold isotipo completo */
     @keyframes plCycle { 0%{opacity:0} 5%{opacity:1} 89%{opacity:1} 100%{opacity:0} }
     @keyframes plHoriz  { 0%,5%  {stroke-dashoffset:737;  animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 15%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
@@ -453,7 +455,7 @@
     <!-- ENCRIPTADO -->
     <section id="encriptado">
       <div class="section-wrap">
-        <div class="eyebrow">Privacidad & Seguridad</div>
+        <div class="eyebrow">Privacidad Y Seguridad</div>
         <h2>Cómo almacenamos tus datos</h2>
         <p class="section-sub">Tus datos viajan cifrados de principio a fin. Nunca los guardamos en texto plano.</p>
         <div class="enc-grid">
@@ -463,7 +465,7 @@
             </div>
             <div>
               <div class="enc-title">Encriptado AES-256-GCM</div>
-              <p class="enc-desc">El estándar de cifrado más robusto disponible. El mismo utilizado por bancos, gobiernos y apps de mensajería segura. Tus datos se cifran antes de salir de tu dispositivo.</p>
+              <p class="enc-desc">El mismo estándar que usan bancos, gobiernos y apps de mensajería segura a nivel mundial.</p>
             </div>
           </div>
           <div class="enc-card">
@@ -472,7 +474,7 @@
             </div>
             <div>
               <div class="enc-title">Llave secreta en el servidor</div>
-              <p class="enc-desc">La clave de cifrado nunca llega a tu navegador. Vive exclusivamente en nuestros servidores seguros. Sin ella, los datos almacenados son ilegibles para cualquier persona.</p>
+              <p class="enc-desc">La clave de cifrado vive exclusivamente en nuestros servidores — nunca toca tu navegador.</p>
             </div>
           </div>
           <div class="enc-card">
@@ -481,7 +483,7 @@
             </div>
             <div>
               <div class="enc-title">Descifrado solo bajo demanda</div>
-              <p class="enc-desc">Tus datos se descifran únicamente en el momento en que alguien accede a tu link, dentro de nuestros servidores. El resultado viaja por HTTPS, siempre cifrado en tránsito.</p>
+              <p class="enc-desc">Tus datos se descifran solo cuando alguien visita tu link, dentro de nuestros servidores, nunca antes.</p>
             </div>
           </div>
           <div class="enc-card">
@@ -490,7 +492,7 @@
             </div>
             <div>
               <div class="enc-title">Sin texto plano en base de datos</div>
-              <p class="enc-desc">Tu CLABE, nombre y datos de contacto se guardan cifrados en la base de datos. Incluso si alguien accediera a ella sin autorización, no podría leer ningún dato.</p>
+              <p class="enc-desc">Incluso con acceso físico a la base de datos, nadie puede leer tus datos sin la llave.</p>
             </div>
           </div>
           <div class="enc-card">
@@ -499,7 +501,7 @@
             </div>
             <div>
               <div class="enc-title">Solo datos de depósito</div>
-              <p class="enc-desc">Guardamos únicamente lo necesario para recibir pagos: CLABE, nombre del titular y, opcionalmente, datos de contacto. Nunca contraseñas, tokens ni credenciales bancarias.</p>
+              <p class="enc-desc">Solo CLABE, nombre del titular y contacto opcional — nunca contraseñas, tokens ni credenciales.</p>
             </div>
           </div>
           <div class="enc-card">
@@ -508,7 +510,7 @@
             </div>
             <div>
               <div class="enc-title">HTTPS en todo momento</div>
-              <p class="enc-desc">Toda comunicación entre tu dispositivo y nuestros servidores viaja cifrada con TLS. Imposible interceptar datos en tránsito. Tu conexión es siempre segura y verificada.</p>
+              <p class="enc-desc">Toda comunicación viaja cifrada con TLS 1.3 — imposible interceptar datos en tránsito.</p>
             </div>
           </div>
         </div>
@@ -684,28 +686,15 @@
       if (!pageLoaded) window.addEventListener('load', function() { pageLoaded = true; });
       setTimeout(function() { pageLoaded = true; }, 8000); /* absolute fallback */
 
-      function resetCycle() {
-        /* remove animations so CSS base values restore, then force reflow, then re-apply */
-        var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
-        els.forEach(function(el) { el.style.animation = 'none'; });
-        loader.offsetHeight; /* reflow */
-        els.forEach(function(el) { el.style.animation = ''; });
-      }
-
-      /* plCycle ends last — one event listener handles every iteration */
-      loader.querySelector('.pl-svg').addEventListener('animationend', function(e) {
+      /* infinite loop — animationiteration dispara en cada ciclo completo */
+      loader.querySelector('.pl-svg').addEventListener('animationiteration', function(e) {
         if (e.animationName !== 'plCycle' || dismissed) return;
-        var pause = pageLoaded ? 1000 : 80; /* hold ya está en la animación CSS */
-        setTimeout(function() {
-          if (dismissed) return;
-          if (pageLoaded) {
-            dismissed = true;
-            loader.classList.add('hide');
-            setTimeout(function() { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 380);
-          } else {
-            resetCycle(); /* restart — animationend will fire again after next cycle */
-          }
-        }, pause);
+        if (pageLoaded) {
+          dismissed = true;
+          loader.classList.add('hide');
+          setTimeout(function() { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 380);
+        }
+        /* si no está listo, el loop CSS continúa solo — no se necesita resetCycle */
       });
     })();
   </script>
