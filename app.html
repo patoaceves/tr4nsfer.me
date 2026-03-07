@@ -58,7 +58,7 @@
     nav a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
     nav a:hover { color: var(--text); }
     .btn-nav { display: inline-flex; align-items: center; justify-content: center; padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; background: var(--teal); color: #000; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
-    .btn-nav:hover { background: #00daa6; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,200,150,0.3); }
+    .btn-nav:hover { background: #00daa6; transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,200,150,0.25), 0 8px 24px rgba(0,200,150,0.5), 0 16px 48px rgba(0,200,150,0.25); }
     @media (max-width: 860px) { header { padding: 0 24px; } .nav-links { display: none; } }
     /* FOOTER */
     footer { position: relative; z-index: 1; width: 100%; border-top: 1px solid var(--border); padding: 64px 48px 40px; }
@@ -127,7 +127,7 @@
     .input-prefix-wrap input { padding-left: 22px; }
     /* BUTTONS */
     .btn { width: 100%; background: var(--teal); color: #000; border: none; border-radius: 9px; padding: 12px 18px; font-size: 13.5px; font-weight: 600; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; transition: background 0.18s, transform 0.1s, box-shadow 0.18s; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn:hover { background: var(--teal-dark); box-shadow: 0 0 18px rgba(0,200,150,0.22); }
+    .btn:hover { background: #00daa6; transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,200,150,0.25), 0 8px 24px rgba(0,200,150,0.5), 0 16px 48px rgba(0,200,150,0.25); }
     .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
     .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--muted); font-size: 12.5px; padding: 11px 18px; margin-top: 8px; }
@@ -228,7 +228,7 @@
     .step2-badge-text { font-size: 12px; color: var(--text-soft); font-weight: 500; }
     .step2-badge-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
     .btn-submit-form { width: 100%; background: var(--teal); color: #000; border: none; border-radius: 999px; padding: 14px 24px; font-size: 14px; font-weight: 700; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 20px; transition: transform 0.1s, box-shadow 0.18s; box-shadow: 0 2px 12px rgba(0,200,150,0.25); }
-    .btn-submit-form:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,200,150,0.35); background: var(--teal) !important; }
+    .btn-submit-form:hover { background: #00daa6 !important; transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,200,150,0.25), 0 8px 24px rgba(0,200,150,0.5), 0 16px 48px rgba(0,200,150,0.25); }
     .btn-submit-form:active { transform: translateY(0); background: var(--teal) !important; }
     .btn-submit-form:disabled { opacity: .4; cursor: not-allowed; }
     .security-notice { display: flex; align-items: flex-start; gap: 8px; background: rgba(0,200,150,0.05); border: 1px solid rgba(0,200,150,0.18); border-radius: 10px; padding: 11px 13px; font-size: 11.5px; color: rgba(255,255,255,0.55); line-height: 1.55; margin-bottom: 18px; flex-shrink: 0; }
@@ -246,6 +246,21 @@
     .consent-row .field-error { position: absolute; bottom: -16px; left: 28px; margin-top: 0; }
     .consent-row.has-error .consent-check { border-color: var(--error); }
     .consent-row.has-error .field-error { display: block; }
+    /* ── Contact preview (debajo del card) ── */
+    .contact-preview { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 12px; }
+    .cp-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; font-family: "Inter",sans-serif; cursor: default; pointer-events: none; opacity: 0.9; transition: opacity 0.2s; }
+    .cp-wa  { background: #25d366; color: #fff; }
+    .cp-email { background: var(--surface2); color: var(--text-soft); border: 1px solid rgba(255,255,255,0.08); }
+    .cp-email svg { color: var(--teal); }
+    /* ── Show-in-link toggle ── */
+    .show-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; margin-top: 7px; }
+    .show-toggle input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .show-toggle-track { width: 30px; height: 17px; border-radius: 9px; background: var(--muted2); border: 1px solid rgba(255,255,255,0.1); position: relative; transition: background 0.18s, border-color 0.18s; flex-shrink: 0; }
+    .show-toggle-thumb { width: 11px; height: 11px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform 0.18s; }
+    .show-toggle input:checked ~ .show-toggle-track { background: var(--teal); border-color: var(--teal); }
+    .show-toggle input:checked ~ .show-toggle-track .show-toggle-thumb { transform: translateX(13px); }
+    .show-toggle-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.2px; transition: color 0.18s; }
+    .show-toggle:has(input:checked) .show-toggle-label { color: var(--teal); }
     /* SUCCESS */
     #view-success .card { text-align: center; max-width: 440px; }
     .success-icon { width: 48px; height: 48px; background: var(--teal-dim); border: 1px solid var(--teal-border); border-radius: 13px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--teal); font-size: 1.2rem; font-weight: 500; box-shadow: 0 0 20px rgba(0,200,150,0.12); }
@@ -300,11 +315,11 @@
     }
     #page-loader.active { display: flex; }
     #page-loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-    .pl-svg          { width:88px; height:88px; filter:drop-shadow(0 0 22px rgba(0,200,150,0.38)); opacity:0; animation:plCycle 2.1s linear 1 both; }
-    .pl-stroke-horiz { stroke-dasharray:737;  stroke-dashoffset:737;  animation:plHoriz 2.1s linear 1 both; }
-    .pl-stroke-diag  { stroke-dasharray:1762; stroke-dashoffset:1762; animation:plDiag  2.1s linear 1 both; }
-    .pl-stroke-vert  { stroke-dasharray:750;  stroke-dashoffset:750;  animation:plVert  2.1s linear 1 both; }
-    .pl-dot          { transform-box:fill-box; transform-origin:center; transform:scale(0); opacity:0; animation:plDot 2.1s linear 1 both; }
+    .pl-svg          { width:88px; height:88px; filter:drop-shadow(0 0 22px rgba(0,200,150,0.38)); opacity:0; animation:plCycle 2.1s linear infinite; }
+    .pl-stroke-horiz { stroke-dasharray:737;  stroke-dashoffset:737;  animation:plHoriz 2.1s linear infinite; }
+    .pl-stroke-diag  { stroke-dasharray:1762; stroke-dashoffset:1762; animation:plDiag  2.1s linear infinite; }
+    .pl-stroke-vert  { stroke-dasharray:750;  stroke-dashoffset:750;  animation:plVert  2.1s linear infinite; }
+    .pl-dot          { transform-box:fill-box; transform-origin:center; transform:scale(0); opacity:0; animation:plDot 2.1s linear infinite; }
     /* Duración: 2.1s = 1.3s dibujo + 0.8s hold isotipo completo */
     @keyframes plCycle { 0%{opacity:0} 5%{opacity:1} 89%{opacity:1} 100%{opacity:0} }
     @keyframes plHoriz  { 0%,5%  {stroke-dashoffset:737;  animation-timing-function:cubic-bezier(0.4,0,0.2,1)} 15%{stroke-dashoffset:0}  100%{stroke-dashoffset:0}  }
@@ -406,22 +421,22 @@
           </div>
           <div class="field" id="fg-email">
             <label>Correo electr&#243;nico <span class="req">*</span></label>
-            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" />
+            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview()" />
             <span class="field-error">Ingresa un correo v&#225;lido.</span>
+            <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
+              <input type="checkbox" id="show_email" checked />
+              <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+              <span class="show-toggle-label">Mostrar en mi link</span>
+            </label>
           </div>
-          <div class="form-row">
-            <div class="field" id="fg-instagram">
-              <label>Instagram <span class="req">*</span></label>
-              <div class="input-prefix-wrap">
-                <span class="input-prefix">@</span>
-                <input type="text" id="instagram" placeholder="usuario" />
-              </div>
-              <span class="field-error">Ingresa tu usuario.</span>
-            </div>
-            <div class="field">
-              <label>WhatsApp <span class="opt">&#8212; opcional</span></label>
-              <input type="tel" id="whatsapp" placeholder="10 d&#237;gitos" maxlength="10" inputmode="numeric" />
-            </div>
+          <div class="field">
+            <label>WhatsApp <span class="opt">&#8212; opcional</span></label>
+            <input type="tel" id="whatsapp" placeholder="10 d&#237;gitos" maxlength="10" inputmode="numeric" oninput="updateContactPreview()" />
+            <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
+              <input type="checkbox" id="show_whatsapp" checked />
+              <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+              <span class="show-toggle-label">Mostrar en mi link</span>
+            </label>
           </div>
           <div class="consent-block">
             <label class="consent-row" id="fg-consent1">
@@ -474,6 +489,17 @@
           </div>
         </div>
       </div>
+      <!-- Preview de botones de contacto (reactivo a toggles) -->
+      <div class="contact-preview" id="contact-preview" style="display:none;">
+        <div class="cp-btn cp-wa" id="cp-wa" style="display:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.84.494 3.564 1.354 5.054L2 22l5.1-1.335A9.956 9.956 0 0011.998 22c5.522 0 10-4.477 10-10S17.52 2 11.998 2z"/></svg>
+          <span id="cp-wa-text">WhatsApp</span>
+        </div>
+        <div class="cp-btn cp-email" id="cp-email" style="display:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="cp-email-text">Correo</span>
+        </div>
+      </div>
       <div class="color-editor" id="color-editor">
         <div class="color-editor-title">Personaliza tu tarjeta</div>
         <div class="color-section"><div class="color-section-label">Dise&#241;o</div><div class="design-picker" id="design-picker"></div></div>
@@ -516,7 +542,6 @@
       </div>
       <div class="data-section">
         <div class="data-section-label">Contacto</div>
-        <div class="data-row" id="row-instagram"><div><div class="data-label">Instagram</div><div class="data-value" id="prof-instagram">&#8212;</div></div><button class="btn btn-copy" onclick="copyField('prof-instagram', this)">Copiar</button></div>
         <div class="data-row" id="row-whatsapp" style="display:none;"><div><div class="data-label">WhatsApp</div><div class="data-value" id="prof-whatsapp">&#8212;</div></div><button class="btn btn-copy" onclick="copyField('prof-whatsapp', this)">Copiar</button></div>
       </div>
       <div class="notice"><span>&#128274;</span><span>Solo para recibir SPEI. No incluye contrase&#241;as ni acceso a tu cuenta.</span></div>
@@ -735,14 +760,26 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     if(hex){ const n=parseInt(hex[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255; card.classList.toggle('light-text',lum<0.5); card.classList.toggle('dark-text',lum>=0.5); }
   }
   function applyBgColor() { $('card-frame').style.background=selectedBgColor; }
+
+  function updateContactPreview() {
+    var showWa=$('show_whatsapp')&&$('show_whatsapp').checked&&$('whatsapp')&&$('whatsapp').value.trim().length>0;
+    var showEm=$('show_email')&&$('show_email').checked&&$('email')&&$('email').value.trim().length>0;
+    var cpWa=$('cp-wa'), cpEm=$('cp-email'), cp=$('contact-preview');
+    if(!cpWa||!cpEm||!cp) return;
+    cpWa.style.display=showWa?'flex':'none';
+    if(showWa){ var n=$('whatsapp').value.trim(); $('cp-wa-text').textContent=n?'+52 '+n:'WhatsApp'; }
+    cpEm.style.display=showEm?'flex':'none';
+    if(showEm){ var e=$('email').value.trim(); $('cp-email-text').textContent=e||'Correo electrónico'; }
+    cp.style.display=(showWa||showEm)?'flex':'none';
+  }
+
   function setError(fgId,show) { const fg=$(fgId); if(!fg)return show; show?fg.classList.add('has-error'):fg.classList.remove('has-error'); return show; }
   async function submitForm() {
-    const nombre=$('nombre').value.trim(), email=$('email').value.trim(), instagram=$('instagram').value.trim();
+    const nombre=$('nombre').value.trim(), email=$('email').value.trim();
     const consent1=$('consent1').checked, consent2=$('consent2').checked;
     let ok=true;
     if(setError('fg-nombre',nombre.length<3)) ok=false;
     if(setError('fg-email',!email||!/\S+@\S+\.\S+/.test(email))) ok=false;
-    if(setError('fg-instagram',instagram.length<1)) ok=false;
     const c1=$('fg-consent1'),c2=$('fg-consent2');
     if(!consent1){c1.classList.add('has-error');ok=false;}else c1.classList.remove('has-error');
     if(!consent2){c2.classList.add('has-error');ok=false;}else c2.classList.remove('has-error');
@@ -756,14 +793,14 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode]||null;
     const banco=bancoData?bancoData.nombre:$('banco').value;
     const bancoDomain=bancoData?bancoData.domain:null;
-    const fnResp=await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/create-link',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,instagram:instagram||null,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor})});
+    const fnResp=await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/create-link',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,instagram:instagram||null,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked)})});
     if(!fnResp.ok){
       console.error('Edge fn error:',await fnResp.text());
       hidePageLoader(function(){ textEl.textContent='Error. Intenta de nuevo.'; submitBtn.disabled=false; setFloatingBtn({visible:true}); });
       return;
     }
     const {slug}=await fnResp.json();
-    if(GHL_WEBHOOK_URL!=='TU_WEBHOOK_URL_AQUI'){try{await fetch(GHL_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:{firstName:nombre.split(' ')[0],lastName:nombre.split(' ').slice(1).join(' '),email,phone:whatsapp?'+52'+whatsapp:undefined,customField:{banco,clabe,instagram,alias}},source:'tr4nsfer.me',event:'nuevo_registro'})});}catch(e){console.warn('GHL:',e);}}
+    if(GHL_WEBHOOK_URL!=='TU_WEBHOOK_URL_AQUI'){try{await fetch(GHL_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:{firstName:nombre.split(' ')[0],lastName:nombre.split(' ').slice(1).join(' '),email,phone:whatsapp?'+52'+whatsapp:undefined,customField:{banco,clabe,alias}},source:'tr4nsfer.me',event:'nuevo_registro'})});}catch(e){console.warn('GHL:',e);}}
     $('generated-link').textContent=window.location.origin+'/'+slug;
     submitBtn.disabled=false; textEl.textContent='Generar mi Link';
     hidePageLoader(function(){ showView('view-success'); }); /* wait for cycle end + 1s, then show */
@@ -780,7 +817,6 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     $('prof-name').textContent=d.nombre; $('prof-bank').textContent=d.banco||'N/A';
     $('prof-clabe').textContent=d.clabe; $('prof-titular').textContent=d.nombreCuenta;
     if(d.bancoCode&&BANCOS[d.bancoCode]){const domain=BANCOS[d.bancoCode].domain;$('prof-bank-icon').src=favicon(domain);$('prof-bank-icon').style.display='inline-block';$('row-banco-icon').src=favicon(domain);$('row-banco-icon').style.display='inline-block';}
-    $('prof-instagram').textContent='@'+d.instagram;
     if(d.whatsapp){$('row-whatsapp').style.display='flex';$('prof-whatsapp').textContent=d.whatsapp;}
     hideMainLayout(); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $('view-profile').classList.add('active');
     return true;
@@ -814,37 +850,34 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     if (!loader) return;
     var _done = false, _dismissed = false, _onDone = null;
 
-    function resetCycle() {
+    function restartAnim() {
+      /* fuerza un reinicio limpio del ciclo (usado al mostrar el loader) */
       var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
       els.forEach(function(el) { el.style.animation = 'none'; });
       loader.offsetHeight;
       els.forEach(function(el) { el.style.animation = ''; });
     }
 
-    loader.querySelector('.pl-svg').addEventListener('animationend', function(e) {
+    /* infinite loop — animationiteration dispara al completar cada ciclo */
+    loader.querySelector('.pl-svg').addEventListener('animationiteration', function(e) {
       if (e.animationName !== 'plCycle' || _dismissed) return;
-      var pause = _done ? 1000 : 80; /* hold ya está en la animación CSS */
-      setTimeout(function() {
-        if (_dismissed) return;
-        if (_done) {
-          _dismissed = true;
-          loader.classList.add('hide');
-          setTimeout(function() {
-            loader.classList.remove('active', 'hide');
-            _done = false; _dismissed = false;
-            if (_onDone) { var cb = _onDone; _onDone = null; cb(); }
-          }, 380);
-        } else {
-          resetCycle();
-        }
-      }, pause);
+      if (_done) {
+        _dismissed = true;
+        loader.classList.add('hide');
+        setTimeout(function() {
+          loader.classList.remove('active', 'hide');
+          _done = false; _dismissed = false;
+          if (_onDone) { var cb = _onDone; _onDone = null; cb(); }
+        }, 380);
+      }
+      /* si no está listo, el loop CSS continúa solo */
     });
 
     window.showPageLoader = function() {
       _done = false; _dismissed = false; _onDone = null;
       loader.classList.remove('hide');
       loader.classList.add('active');
-      resetCycle();
+      restartAnim();
     };
     window.hidePageLoader = function(callback) {
       _onDone = callback || null;
