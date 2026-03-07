@@ -14,7 +14,8 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     :root{--teal:#00c896;--bg:#000;--surface:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.1);--muted:rgba(255,255,255,0.45);--text:#fff;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 16px 40px;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 40px;}
+    @media(max-width:600px){body{justify-content:flex-start;}}
 
     /* ── LOADING / ERROR ── */
     .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
@@ -68,11 +69,14 @@
     .btn-copy.copied{color:var(--muted);}
 
     /* ── BRANDING ── */
-    .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;}
     .branding-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);}
     .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:0.55;transition:opacity .2s;}
     .branding a:hover{opacity:1;}
     .branding img{height:12px;width:auto;}
+    .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s;}
+    .branding-cta:hover{color:rgba(0,200,150,0.8);}
+    .branding-cta svg{opacity:0.6;}
 
     /* ── MOBILE ── */
     @media(max-width:400px){
@@ -160,9 +164,13 @@
 
     <!-- BRANDING -->
     <div class="branding">
-      <div class="branding-label">Creado con</div>
+      <div class="branding-label">Powered by</div>
       <a href="/" target="_blank">
         <img src="logo-white.png" alt="tr4nsfer.me" />
+      </a>
+      <a href="/app" target="_blank" class="branding-cta">
+        Crea el tuyo
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </div>
 
