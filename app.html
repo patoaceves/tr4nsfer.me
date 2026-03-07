@@ -179,8 +179,9 @@
     #floating-btn:disabled { opacity: .4; cursor: not-allowed; }
     .spinner { display: none; } /* replaced by page loader */
     /* PREVIEW CARD */
-    .card-frame { width: 100%; padding: 32px 24px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
-    .live-card { width: 330px; aspect-ratio: 1 / 1.2; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
+    .card-frame { width: 100%; padding: 52px 28px 48px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
+    .card-frame-stack { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .live-card { width: 330px; aspect-ratio: 1 / 1.2; border-radius: 14px; position: relative; z-index: 1; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
     .card-design-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit; overflow: hidden; }
     .lc-inner { position: relative; z-index: 1; height: 100%; padding: 20px 22px 24px; display: flex; flex-direction: column; justify-content: space-between; }
     .lc-top { display: flex; align-items: center; justify-content: space-between; }
@@ -246,12 +247,20 @@
     .consent-row .field-error { position: absolute; bottom: -16px; left: 28px; margin-top: 0; }
     .consent-row.has-error .consent-check { border-color: var(--error); }
     .consent-row.has-error .field-error { display: block; }
-    /* ── Contact preview (debajo del card) ── */
-    .contact-preview { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 12px; }
-    .cp-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; font-family: "Inter",sans-serif; cursor: default; pointer-events: none; opacity: 0.9; transition: opacity 0.2s; }
-    .cp-wa  { background: #25d366; color: #fff; }
-    .cp-email { background: var(--surface2); color: var(--text-soft); border: 1px solid rgba(255,255,255,0.08); }
-    .cp-email svg { color: var(--teal); }
+    /* ── Contact preview (dentro del card-frame — mismo ancho que la tarjeta) ── */
+    .contact-preview { display: flex; flex-direction: column; gap: 10px; width: 330px; padding: 0; position: relative; z-index: 2; }
+    /* Dark theme (default — fondo negro/oscuro) */
+    .cp-row { display: flex; align-items: center; justify-content: space-between; background: var(--cp-row-bg, rgba(0,200,150,0.12)); border: 1px solid var(--cp-row-border, rgba(0,200,150,0.25)); border-radius: 14px; padding: 14px 16px; transition: border-color 0.3s, background 0.3s; }
+    .cp-row-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .cp-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+    .cp-value { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.92); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .cp-copy { background: rgba(255,255,255,0.08); color: var(--cp-accent, var(--teal)); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; padding: 7px 12px; font-size: 11px; font-weight: 600; font-family: "Inter",sans-serif; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.25s; }
+    .cp-copy:hover { background: var(--teal-dim); border-color: var(--teal-border); }
+    .cp-copy.copied { color: var(--muted); }
+    /* Light theme — cuando se selecciona fondo blanco/claro */
+    .card-frame.bg-light .cp-label { color: rgba(0,0,0,0.45); }
+    .card-frame.bg-light .cp-value { color: rgba(0,0,0,0.88); }
+    .card-frame.bg-light .cp-copy { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.14); }
     /* ── Show-in-link toggle ── */
     .show-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; margin-top: 7px; }
     .show-toggle input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
@@ -296,8 +305,9 @@
       .app-hero { padding: 32px 16px 28px; }
       .app-hero h1 { font-size: 30px; letter-spacing: -1.2px; }
       .card { padding: 18px 16px; margin-left: auto; margin-right: auto; }
-      .card-frame { padding: 16px 14px; }
+      .card-frame { padding: 28px 16px 24px; }
       .live-card { width: min(300px, 88vw); aspect-ratio: 1 / 1.2; height: auto; border-radius: 16px; }
+      .contact-preview { width: min(300px, 88vw); }
       .lc-clabe { font-size: 17px; }
       .lc-name  { font-size: 16px; }
       .lc-section-label, .lc-clabe-label { font-size: 11px; }
@@ -421,7 +431,7 @@
           </div>
           <div class="field" id="fg-email">
             <label>Correo electr&#243;nico <span class="req">*</span></label>
-            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview()" />
+            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview();onEmailInput()" onblur="onEmailBlur()" />
             <span class="field-error">Ingresa un correo v&#225;lido.</span>
             <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
               <input type="checkbox" id="show_email" checked />
@@ -431,7 +441,7 @@
           </div>
           <div class="field">
             <label>WhatsApp <span class="opt">&#8212; opcional</span></label>
-            <input type="tel" id="whatsapp" placeholder="10 d&#237;gitos" maxlength="10" inputmode="numeric" oninput="updateContactPreview()" />
+            <input type="tel" id="whatsapp" placeholder="10 d&#237;gitos" maxlength="13" inputmode="numeric" oninput="onWaInput()" />
             <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
               <input type="checkbox" id="show_whatsapp" checked />
               <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
@@ -467,37 +477,45 @@
     <!-- RIGHT COLUMN -->
     <div class="right-col">
       <div class="card-frame" id="card-frame">
-        <div class="live-card light-text" id="live-card">
-          <div class="card-design-layer" id="card-design-layer"></div>
-          <div class="lc-inner">
-            <div class="lc-top"><span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span></div>
-            <div class="lc-middle">
-              <div class="lc-bank" id="lc-bank" style="display:none;">
-                <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
-                <span class="lc-bank-name" id="lc-bank-name">&#8212;</span>
+        <div class="card-frame-stack">
+          <div class="live-card light-text" id="live-card">
+            <div class="card-design-layer" id="card-design-layer"></div>
+            <div class="lc-inner">
+              <div class="lc-top"><span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span></div>
+              <div class="lc-middle">
+                <div class="lc-bank" id="lc-bank" style="display:none;">
+                  <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
+                  <span class="lc-bank-name" id="lc-bank-name">&#8212;</span>
+                </div>
+                <div class="lc-group" id="lc-clabe-group" style="display:none;">
+                  <div class="lc-clabe-label">CLABE</div>
+                  <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                </div>
+                <div class="lc-group" id="lc-nombre-group" style="display:none;">
+                  <div class="lc-section-label">TITULAR DE LA CUENTA</div>
+                  <div class="lc-copy-row"><div class="lc-name" id="lc-nombre-val"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-nombre-val');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                </div>
               </div>
-              <div class="lc-group" id="lc-clabe-group" style="display:none;">
-                <div class="lc-clabe-label">CLABE</div>
-                <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
-              </div>
-<div class="lc-group" id="lc-nombre-group" style="display:none;">
-                <div class="lc-section-label">TITULAR DE LA CUENTA</div>
-                <div class="lc-copy-row"><div class="lc-name" id="lc-nombre-val"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-nombre-val');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
-              </div>
+              <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
             </div>
-            <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
           </div>
-        </div>
-      </div>
-      <!-- Preview de botones de contacto (reactivo a toggles) -->
-      <div class="contact-preview" id="contact-preview" style="display:none;">
-        <div class="cp-btn cp-wa" id="cp-wa" style="display:none;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.84.494 3.564 1.354 5.054L2 22l5.1-1.335A9.956 9.956 0 0011.998 22c5.522 0 10-4.477 10-10S17.52 2 11.998 2z"/></svg>
-          <span id="cp-wa-text">WhatsApp</span>
-        </div>
-        <div class="cp-btn cp-email" id="cp-email" style="display:none;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <span id="cp-email-text">Correo</span>
+          <!-- Preview de contacto (reactivo a toggles — dentro del card-frame) -->
+          <div class="contact-preview" id="contact-preview" style="display:none;">
+            <div class="cp-row" id="cp-wa" style="display:none;">
+              <div class="cp-row-left">
+                <div class="cp-label">WhatsApp</div>
+                <div class="cp-value" id="cp-wa-text">—</div>
+              </div>
+              <button class="cp-copy" onclick="cpCopy('cp-wa-text',this)">Copiar</button>
+            </div>
+            <div class="cp-row" id="cp-email" style="display:none;">
+              <div class="cp-row-left">
+                <div class="cp-label">Correo electrónico</div>
+                <div class="cp-value" id="cp-email-text">—</div>
+              </div>
+              <button class="cp-copy" onclick="cpCopy('cp-email-text',this)">Copiar</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="color-editor" id="color-editor">
@@ -758,19 +776,93 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     document.querySelectorAll('.design-thumb').forEach((t,i)=>{ t.style.background=(CARD_DESIGNS[i]&&CARD_DESIGNS[i].id==='solido'&&preset)?preset.solid:selectedCardGradient; });
     const hex=bg.match(/#([0-9a-f]{6})/i);
     if(hex){ const n=parseInt(hex[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255; card.classList.toggle('light-text',lum<0.5); card.classList.toggle('dark-text',lum>=0.5); }
+    // cp-row bg = card solid color with opacity
+    const SOLID_MAP = {
+      'linear-gradient(135deg,#004d38,#00c896)': '0,200,150',   // Verde
+      'linear-gradient(135deg,#0d0d0d,#1f1f1f)': '200,200,200', // Negro → gris claro
+      'linear-gradient(135deg,#7a2050,#e8719a)': '232,113,154', // Rosa
+      'linear-gradient(135deg,#0f3460,#1a6fb5)': '26,111,181',  // Azul
+    };
+    const ACCENT_MAP = {
+      'linear-gradient(135deg,#004d38,#00c896)': '#00c896',
+      'linear-gradient(135deg,#0d0d0d,#1f1f1f)': '#aaaaaa',
+      'linear-gradient(135deg,#7a2050,#e8719a)': '#e8719a',
+      'linear-gradient(135deg,#0f3460,#1a6fb5)': '#00c896',
+    };
+    var rgb = SOLID_MAP[selectedCardGradient] || '0,200,150';
+    var accent = ACCENT_MAP[selectedCardGradient] || '#00c896';
+    var frame=$('card-frame');
+    frame.style.setProperty('--cp-row-bg', 'rgba('+rgb+',0.14)');
+    frame.style.setProperty('--cp-row-border', 'rgba('+rgb+',0.30)');
+    frame.style.setProperty('--cp-accent', accent);
   }
-  function applyBgColor() { $('card-frame').style.background=selectedBgColor; }
+  function applyBgColor() {
+    var frame=$('card-frame');
+    frame.style.background=selectedBgColor;
+    var hex=selectedBgColor.replace('#','');
+    var r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
+    var lum=(0.299*r+0.587*g+0.114*b)/255;
+    frame.classList.toggle('bg-light',lum>=0.5);
+  }
 
+  /* ── WhatsApp LADA formatter ──────────────────────────────── */
+  const LADAS_2D = new Set(['55','56','81','33','99']); // CDMX, CDMX, MTY, GDL, Mérida (alt)
+  function fmtWA(digits) {
+    if (digits.length === 0) return '';
+    const l2 = digits.substring(0,2);
+    if (LADAS_2D.has(l2)) {
+      // XX XXXX XXXX
+      return [digits.substring(0,2), digits.substring(2,6), digits.substring(6,10)].filter(p=>p).join(' ');
+    } else {
+      // XXX XXX XXXX
+      return [digits.substring(0,3), digits.substring(3,6), digits.substring(6,10)].filter(p=>p).join(' ');
+    }
+  }
+  function onWaInput() {
+    var inp=$('whatsapp');
+    var raw=inp.value.replace(/\D/g,'').substring(0,10);
+    var fmt=fmtWA(raw);
+    // Store raw digits as data attribute for submit
+    inp.dataset.raw=raw;
+    inp.value=fmt;
+    // Move cursor to end
+    var len=fmt.length; inp.setSelectionRange(len,len);
+    updateContactPreview();
+  }
+  function onEmailInput() {
+    var fg=$('fg-email'), val=$('email').value.trim();
+    if (val.length===0) { fg.classList.remove('has-error'); return; }
+    // Only show error after they've typed something meaningful
+    var valid=/\S+@\S+\.\S+/.test(val);
+    valid ? fg.classList.remove('has-error') : fg.classList.add('has-error');
+  }
+  function onEmailBlur() {
+    var fg=$('fg-email'), val=$('email').value.trim();
+    if (!val) return;
+    !/\S+@\S+\.\S+/.test(val) ? fg.classList.add('has-error') : fg.classList.remove('has-error');
+  }
+  /* ─────────────────────────────────────────────────────────── */
   function updateContactPreview() {
-    var showWa=$('show_whatsapp')&&$('show_whatsapp').checked&&$('whatsapp')&&$('whatsapp').value.trim().length>0;
-    var showEm=$('show_email')&&$('show_email').checked&&$('email')&&$('email').value.trim().length>0;
+    var waInp=$('whatsapp');
+    var waRaw=waInp?(waInp.dataset.raw||waInp.value.replace(/\D/g,'')):'';
+    var emVal=$('email')?$('email').value.trim():'';
+    var showWa=$('show_whatsapp')&&$('show_whatsapp').checked&&waRaw.length>0;
+    var showEm=$('show_email')&&$('show_email').checked&&emVal.length>0;
     var cpWa=$('cp-wa'), cpEm=$('cp-email'), cp=$('contact-preview');
     if(!cpWa||!cpEm||!cp) return;
-    cpWa.style.display=showWa?'flex':'none';
-    if(showWa){ var n=$('whatsapp').value.trim(); $('cp-wa-text').textContent=n?'+52 '+n:'WhatsApp'; }
-    cpEm.style.display=showEm?'flex':'none';
-    if(showEm){ var e=$('email').value.trim(); $('cp-email-text').textContent=e||'Correo electrónico'; }
+    if(showWa){ $('cp-wa-text').textContent='+52 '+fmtWA(waRaw); cpWa.style.display='flex'; }
+    else { cpWa.style.display='none'; }
+    if(showEm){ $('cp-email-text').textContent=emVal; cpEm.style.display='flex'; }
+    else { cpEm.style.display='none'; }
     cp.style.display=(showWa||showEm)?'flex':'none';
+  }
+  function cpCopy(id,btn){
+    var val=$(''+id)?$(''+id).textContent.trim():'';
+    if(!val||val==='—') return;
+    navigator.clipboard.writeText(val).then(function(){
+      btn.textContent='✓ Copiado'; btn.classList.add('copied');
+      setTimeout(function(){ btn.textContent='Copiar'; btn.classList.remove('copied'); },1800);
+    });
   }
 
   function setError(fgId,show) { const fg=$(fgId); if(!fg)return show; show?fg.classList.add('has-error'):fg.classList.remove('has-error'); return show; }
@@ -789,11 +881,11 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     submitBtn.disabled=true; textEl.textContent='Generando…';
     showPageLoader(); /* start loader + loop */
     const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
-    const alias=$('alias').value.trim(), whatsapp=$('whatsapp').value.trim();
+    const alias=$('alias').value.trim(), whatsapp=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode]||null;
     const banco=bancoData?bancoData.nombre:$('banco').value;
     const bancoDomain=bancoData?bancoData.domain:null;
-    const fnResp=await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/create-link',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,instagram:instagram||null,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked)})});
+    const fnResp=await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/create-link',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked)})});
     if(!fnResp.ok){
       console.error('Edge fn error:',await fnResp.text());
       hidePageLoader(function(){ textEl.textContent='Error. Intenta de nuevo.'; submitBtn.disabled=false; setFloatingBtn({visible:true}); });
