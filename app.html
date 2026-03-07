@@ -311,7 +311,6 @@
       .right-col { display: flex; position: static; }
       #main-layout.step2 .left-col  { order: 1; }
       #main-layout.step2 .right-col { order: 2; }
-      #main-layout.step2 .step2-footer { order: 3; margin-top: 12px; }
       #main-layout.step2 .color-editor { display: none; }
       .page { padding: 80px 14px 100px; }
       .app-hero { padding: 32px 16px 28px; }
@@ -329,11 +328,12 @@
       #floating-btn { width: 100%; }
     }
     /* ── STEP2 FOOTER ──────────────────────────────────────────── */
-    #main-layout.step2 { row-gap: 0; }
+    .step2-footer { display: none; margin-top: 30px; }
+    #main-layout.step2 .step2-footer { display: block; }
+    #main-layout.step2 { row-gap: 24px; }
     #main-layout.step2 .right-col { margin-top: 0; }
     #main-layout.step2 .left-col { padding-bottom: 0; }
-    .step2-footer { display: none; grid-column: 1; margin-top: 16px; }
-    #main-layout.step2 .step2-footer { display: block; }
+    #main-layout.step2 #panel-step2 .card { padding-bottom: 12px; }
     
     #page-loader {
       position: fixed; inset: 0; z-index: 9999;
@@ -486,6 +486,32 @@
           </div>
         </div>
       </div>
+      <!-- STEP2 FOOTER inside left-col: sits right below form on desktop -->
+      <div class="step2-footer" id="step2-footer">
+        <div class="consent-block">
+          <label class="consent-row" id="fg-consent1">
+            <input type="checkbox" id="consent1" onchange="if(this.checked) $('fg-consent1').classList.remove('has-error')" />
+            <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="consent-text">Entiendo que al generar mi perfil, mis datos de dep&#243;sito ser&#225;n visibles para cualquier persona que acceda al link.</span>
+            <span class="field-error">Debes aceptar para continuar.</span>
+          </label>
+          <label class="consent-row" id="fg-consent2">
+            <input type="checkbox" id="consent2" onchange="if(this.checked) $('fg-consent2').classList.remove('has-error')" />
+            <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="consent-text">He le&#237;do y acepto los <a href="#" class="consent-link">T&#233;rminos y Condiciones</a> y la <a href="#" class="consent-link">Pol&#237;tica de Privacidad</a>. Entiendo que tr4nsfer.me nunca almacena contrase&#241;as ni credenciales bancarias.</span>
+            <span class="field-error">Debes aceptar para continuar.</span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:16px;padding:10px 14px;border-radius:10px;background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.16);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);font-weight:600;">AES-256-GCM</strong> antes de guardarse. La llave de cifrado nunca sale de nuestros servidores.</span>
+        </div>
+        <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="spinner" id="spinner"></div>
+          <span id="btn-text">Generar mi Link</span>
+        </button>
+      </div>
     </div>
     <!-- RIGHT COLUMN -->
     <div class="right-col">
@@ -543,32 +569,6 @@
           <span id="floating-btn-text">Continuar &#8594;</span>
         </button>
       </div>
-    </div>
-    <!-- STEP2 FOOTER: consent + submit — grid-col:1 desktop, order:3 mobile -->
-    <div class="step2-footer" id="step2-footer">
-      <div class="consent-block">
-        <label class="consent-row" id="fg-consent1">
-          <input type="checkbox" id="consent1" onchange="if(this.checked) $('fg-consent1').classList.remove('has-error')" />
-          <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="consent-text">Entiendo que al generar mi perfil, mis datos de dep&#243;sito ser&#225;n visibles para cualquier persona que acceda al link.</span>
-          <span class="field-error">Debes aceptar para continuar.</span>
-        </label>
-        <label class="consent-row" id="fg-consent2">
-          <input type="checkbox" id="consent2" onchange="if(this.checked) $('fg-consent2').classList.remove('has-error')" />
-          <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="consent-text">He le&#237;do y acepto los <a href="#" class="consent-link">T&#233;rminos y Condiciones</a> y la <a href="#" class="consent-link">Pol&#237;tica de Privacidad</a>. Entiendo que tr4nsfer.me nunca almacena contrase&#241;as ni credenciales bancarias.</span>
-          <span class="field-error">Debes aceptar para continuar.</span>
-        </label>
-      </div>
-      <div style="display:flex;align-items:center;gap:7px;margin-top:16px;padding:10px 14px;border-radius:10px;background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.16);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
-        <span style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);font-weight:600;">AES-256-GCM</strong> antes de guardarse. La llave de cifrado nunca sale de nuestros servidores.</span>
-      </div>
-      <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div class="spinner" id="spinner"></div>
-        <span id="btn-text">Generar mi Link</span>
-      </button>
     </div>
   </div>
   <!-- SUCCESS -->
@@ -765,12 +765,12 @@ if(!ok) return;
     $('color-editor').classList.add('fade-out');
     setFloatingBtn({visible:false});
     transitionHero('Último paso','Completa tu información y crea tu link personal.');
-    transitionLeftPanel('panel-step1','panel-step2',()=>{ currentStep=2; $('main-layout').classList.add('step2'); window.scrollTo({top:0,behavior:'smooth'}); });
+    transitionLeftPanel('panel-step1','panel-step2',()=>{ currentStep=2; $('main-layout').classList.add('step2'); if(window.innerWidth<=700){var f=$('step2-footer'),ml=$('main-layout');if(f&&ml)ml.appendChild(f);} window.scrollTo({top:0,behavior:'smooth'}); });
   }
   function backToStep1() {
     $('color-editor').classList.remove('fade-out');
     transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
-    transitionLeftPanel('panel-step2','panel-step1',()=>{ currentStep=1; $('main-layout').classList.remove('step2'); setFloatingBtn({text:'Continuar →',visible:true}); window.scrollTo({top:0,behavior:'smooth'}); });
+    transitionLeftPanel('panel-step2','panel-step1',()=>{ currentStep=1; $('main-layout').classList.remove('step2'); if(window.innerWidth<=700){var f=$('step2-footer'),lc=$('left-col');if(f&&lc)lc.appendChild(f);} setFloatingBtn({text:'Continuar →',visible:true}); window.scrollTo({top:0,behavior:'smooth'}); });
   }
   function resetToStep1() {
     currentStep=1; $('color-editor').classList.remove('fade-out');
