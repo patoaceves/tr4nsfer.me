@@ -534,13 +534,22 @@
   </div>
   <!-- SUCCESS -->
   <div id="view-success" class="view">
-    <div class="card">
-      <div class="success-icon">&#10003;</div>
-      <h2>Tu link est&#225; listo</h2>
-      <p>Comparte este link y cualquiera podr&#225; ver tus datos para hacerte el SPEI.</p>
-      <div class="link-box"><span id="generated-link">&#8212;</span><button class="btn btn-copy" id="btn-copy-link" onclick="copyLink()">Copiar</button></div>
-      <button class="btn" onclick="shareWhatsApp()">Compartir por WhatsApp</button>
-      <button class="btn btn-outline" onclick="resetToStep1()">+ Crear otro</button>
+    <div class="card" style="text-align:center;max-width:420px;">
+      <!-- animated checkmark -->
+      <div class="success-icon" style="width:56px;height:56px;border-radius:16px;margin:0 auto 20px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2 style="font-size:1.15rem;margin-bottom:8px;font-weight:700;letter-spacing:-0.03em;">¡Tu link está listo!</h2>
+      <p style="color:var(--muted);font-size:13px;line-height:1.65;margin-bottom:24px;">
+        Lo enviamos a <strong id="success-email" style="color:var(--text-soft);font-weight:600;"></strong><br/>
+        Revisa tu bandeja de entrada — y si no aparece, checa spam o promociones.
+      </p>
+      <!-- email hint box -->
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left;margin-bottom:24px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="2" y="4" width="20" height="16" rx="2" stroke="#00c896" stroke-width="1.8"/><path d="M2 7l10 7 10-7" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span style="font-size:11.5px;color:rgba(255,255,255,0.5);line-height:1.6;">El correo incluye tu link personalizado y tus datos bancarios listos para compartir.</span>
+      </div>
+      <button class="btn btn-outline" onclick="resetToStep1()" style="margin-top:0;">+ Crear otro link</button>
     </div>
   </div>
   <!-- PROFILE -->
@@ -893,9 +902,10 @@ function renderDesign(containerEl,designIndex) { if(!containerEl)return; contain
     }
     const {slug}=await fnResp.json();
     if(GHL_WEBHOOK_URL!=='TU_WEBHOOK_URL_AQUI'){try{await fetch(GHL_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contact:{firstName:nombre.split(' ')[0],lastName:nombre.split(' ').slice(1).join(' '),email,phone:whatsapp?'+52'+whatsapp:undefined,customField:{banco,clabe,alias}},source:'tr4nsfer.me',event:'nuevo_registro'})});}catch(e){console.warn('GHL:',e);}}
-    $('generated-link').textContent=window.location.origin+'/'+slug;
+    $('generated-link')&&($('generated-link').textContent=window.location.origin+'/'+slug);
+    var se=$('success-email'); if(se) se.textContent=email;
     submitBtn.disabled=false; textEl.textContent='Generar mi Link';
-    hidePageLoader(function(){ showView('view-success'); }); /* wait for cycle end + 1s, then show */
+    hidePageLoader(function(){ showView('view-success'); });
   }
   function copyLink() { navigator.clipboard.writeText($('generated-link').textContent).then(()=>{ const b=$('btn-copy-link'); b.textContent='✓ Copiado'; b.classList.add('copied'); setTimeout(()=>{b.textContent='Copiar';b.classList.remove('copied');},2000); }); }
   function copyField(fieldId,btn) { const el=$(fieldId); const isNumeric=fieldId==='prof-clabe'; navigator.clipboard.writeText(isNumeric?el.textContent.replace(/\s/g,''):el.textContent).then(()=>{ btn.textContent='✓'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); }); }
