@@ -14,7 +14,7 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     :root{--teal:#00c896;--bg:#000;--surface:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.1);--muted:rgba(255,255,255,0.45);--text:#fff;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px 40px;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 16px 40px;}
 
     /* ── LOADING / ERROR ── */
     .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
@@ -58,7 +58,7 @@
     .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
 
     /* ── ACTIONS ── */
-    .actions{width:100%;max-width:340px;margin-top:20px;display:flex;flex-direction:column;gap:10px;position:relative;z-index:2;}
+    .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
     .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,0.12));border:1px solid var(--card-row-border,rgba(0,200,150,0.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
     .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
     .action-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0;}
@@ -68,7 +68,7 @@
     .btn-copy.copied{color:var(--muted);}
 
     /* ── BRANDING ── */
-    .branding{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:6px;}
     .branding-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);}
     .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:0.55;transition:opacity .2s;}
     .branding a:hover{opacity:1;}
