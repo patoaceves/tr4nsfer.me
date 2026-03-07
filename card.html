@@ -23,11 +23,11 @@
     /* ── PAGE LOADER ──────────────────────────────────────────── */
     #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s;}
     #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
-    .pl-svg         {width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,0.38));opacity:0;animation:plCycle 2.1s linear 1 both;}
-    .pl-stroke-horiz{stroke-dasharray:737; stroke-dashoffset:737; animation:plHoriz 2.1s linear 1 both;}
-    .pl-stroke-diag {stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag  2.1s linear 1 both;}
-    .pl-stroke-vert {stroke-dasharray:750; stroke-dashoffset:750; animation:plVert  2.1s linear 1 both;}
-    .pl-dot         {transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear 1 both;}
+    .pl-svg         {width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,0.38));opacity:0;animation:plCycle 2.1s linear infinite;}
+    .pl-stroke-horiz{stroke-dasharray:737; stroke-dashoffset:737; animation:plHoriz 2.1s linear infinite;}
+    .pl-stroke-diag {stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag  2.1s linear infinite;}
+    .pl-stroke-vert {stroke-dasharray:750; stroke-dashoffset:750; animation:plVert  2.1s linear infinite;}
+    .pl-dot         {transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear infinite;}
     /* Duración: 2.1s = 1.3s dibujo + 0.8s hold isotipo completo + 0s fade */
     /* Keyframes reescalados: factor 1.3/2.1 ≈ 0.619 para mantener velocidad de dibujo */
     @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
@@ -66,9 +66,12 @@
     .btn-copy{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#fff;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;letter-spacing:0.04em;}
     .btn-copy:hover{background:rgba(255,255,255,0.14);}
     .btn-copy.copied{background:var(--teal);color:#000;border-color:var(--teal);}
-    .btn-wa{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:#25d366;color:#fff;border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity .15s;letter-spacing:-0.01em;}
-    .btn-wa:hover{opacity:.88;}
+    .btn-wa{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:#25d366;color:#fff;border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity .18s,transform .12s,box-shadow .2s;letter-spacing:-0.01em;}
+    .btn-wa:hover{opacity:.92;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(37,211,102,0.3),0 8px 24px rgba(37,211,102,0.45),0 16px 48px rgba(37,211,102,0.2);}
     .btn-wa svg{flex-shrink:0;}
+    .btn-email{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:15px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .18s,transform .12s,box-shadow .2s,border-color .18s;letter-spacing:-0.01em;text-decoration:none;}
+    .btn-email svg{flex-shrink:0;color:var(--teal);}
+    .btn-email:hover{background:rgba(0,200,150,0.07);border-color:rgba(0,200,150,0.35);transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,0.15),0 8px 24px rgba(0,200,150,0.2);}
 
     /* ── BRANDING ── */
     .branding{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:6px;}
@@ -145,30 +148,14 @@
 
     <!-- ACTION ROWS -->
     <div class="actions">
-      <div class="action-row">
-        <div>
-          <div class="action-label">CLABE interbancaria</div>
-          <div class="action-value mono" id="act-clabe"></div>
-        </div>
-        <button class="btn-copy" id="btn-copy-clabe" onclick="copyText('act-clabe','btn-copy-clabe')">Copiar</button>
-      </div>
-      <div class="action-row">
-        <div>
-          <div class="action-label">Titular de la cuenta</div>
-          <div class="action-value" id="act-nombre"></div>
-        </div>
-        <button class="btn-copy" id="btn-copy-nombre" onclick="copyText('act-nombre','btn-copy-nombre')">Copiar</button>
-      </div>
-      <div class="action-row" id="row-banco" style="display:none;">
-        <div>
-          <div class="action-label">Banco</div>
-          <div class="action-value" id="act-banco"></div>
-        </div>
-      </div>
       <button class="btn-wa" id="btn-wa" style="display:none;" onclick="openWhatsApp()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.84.494 3.564 1.354 5.054L2 22l5.1-1.335A9.956 9.956 0 0011.998 22c5.522 0 10-4.477 10-10S17.52 2 11.998 2zm0 18.18a8.18 8.18 0 01-4.18-1.148l-.3-.178-3.027.793.808-2.952-.196-.31A8.18 8.18 0 1111.998 20.18z"/></svg>
         Enviar datos por WhatsApp
       </button>
+      <a class="btn-email" id="btn-email" style="display:none;" href="#">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Enviar por correo
+      </a>
     </div>
 
     <!-- BRANDING -->
@@ -265,11 +252,15 @@
     // Alias
     if(d.alias){$('lc-alias').textContent=d.alias;}
 
-    // Banco row
-    if(d.banco){$('act-banco').textContent=d.banco;$('row-banco').style.display='flex';}
+    // WhatsApp — respeta flag show_whatsapp (default true si no existe)
+    if(d.whatsapp && d.show_whatsapp !== false){_waNumber=d.whatsapp;$('btn-wa').style.display='flex';}
 
-    // WhatsApp
-    if(d.whatsapp){_waNumber=d.whatsapp;$('btn-wa').style.display='flex';}
+    // Email — respeta flag show_email (default true si no existe)
+    if(d.email && d.show_email !== false){
+      var eb=$('btn-email');
+      eb.href='mailto:'+d.email;
+      eb.style.display='flex';
+    }
 
     // Show profile
     hideLoader();
@@ -283,29 +274,18 @@
     var loader = $('page-loader');
     if (!loader) return;
 
-    function resetCycle() {
-      var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
-      els.forEach(function(el) { el.style.animation = 'none'; });
-      loader.offsetHeight;
-      els.forEach(function(el) { el.style.animation = ''; });
-    }
-
-    loader.querySelector('.pl-svg').addEventListener('animationend', function(e) {
+    /* infinite loop — animationiteration dispara al completar cada ciclo */
+    loader.querySelector('.pl-svg').addEventListener('animationiteration', function(e) {
       if (e.animationName !== 'plCycle' || _plDismissed) return;
-      var pause = _plDone ? 1000 : 80; /* hold ya está en la animación CSS */
-      setTimeout(function() {
-        if (_plDismissed) return;
-        if (_plDone) {
-          _plDismissed = true;
-          loader.classList.add('hide');
-          setTimeout(function() {
-            if (loader.parentNode) loader.parentNode.removeChild(loader);
-            if (_plCallback) { var cb = _plCallback; _plCallback = null; cb(); }
-          }, 380);
-        } else {
-          resetCycle();
-        }
-      }, pause);
+      if (_plDone) {
+        _plDismissed = true;
+        loader.classList.add('hide');
+        setTimeout(function() {
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
+          if (_plCallback) { var cb = _plCallback; _plCallback = null; cb(); }
+        }, 380);
+      }
+      /* si datos no cargaron, el loop CSS continúa solo */
     });
   })();
 
