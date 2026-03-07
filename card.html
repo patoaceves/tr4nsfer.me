@@ -39,7 +39,7 @@
 
     /* ── CARD ── */
     .card-wrap{width:100%;max-width:340px;}
-    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.1);cursor:default;}
+    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;z-index:1;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.1);cursor:default;}
     .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
     .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:20px 22px 24px;}
     .lc-top img{height:14px;width:auto;display:block;opacity:0.8;}
@@ -58,20 +58,14 @@
     .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
 
     /* ── ACTIONS ── */
-    .actions{width:100%;max-width:340px;margin-top:20px;display:flex;flex-direction:column;gap:10px;}
-    .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;}
-    .action-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
-    .action-value{font-size:14px;font-weight:600;letter-spacing:0.02em;}
-    .action-value.mono{font-variant-numeric:tabular-nums;letter-spacing:0.06em;}
-    .btn-copy{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:#fff;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;letter-spacing:0.04em;}
+    .actions{width:100%;max-width:340px;margin-top:20px;display:flex;flex-direction:column;gap:10px;position:relative;z-index:2;}
+    .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,0.12));border:1px solid var(--card-row-border,rgba(0,200,150,0.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
+    .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
+    .action-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0;}
+    .action-value{font-size:14px;font-weight:600;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
+    .btn-copy{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;letter-spacing:0.04em;flex-shrink:0;}
     .btn-copy:hover{background:rgba(255,255,255,0.14);}
-    .btn-copy.copied{background:var(--teal);color:#000;border-color:var(--teal);}
-    .btn-wa{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:#25d366;color:#fff;border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:opacity .18s,transform .12s,box-shadow .2s;letter-spacing:-0.01em;}
-    .btn-wa:hover{opacity:.92;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(37,211,102,0.3),0 8px 24px rgba(37,211,102,0.45),0 16px 48px rgba(37,211,102,0.2);}
-    .btn-wa svg{flex-shrink:0;}
-    .btn-email{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:15px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .18s,transform .12s,box-shadow .2s,border-color .18s;letter-spacing:-0.01em;text-decoration:none;}
-    .btn-email svg{flex-shrink:0;color:var(--teal);}
-    .btn-email:hover{background:rgba(0,200,150,0.07);border-color:rgba(0,200,150,0.35);transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,0.15),0 8px 24px rgba(0,200,150,0.2);}
+    .btn-copy.copied{color:var(--muted);}
 
     /* ── BRANDING ── */
     .branding{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:6px;}
@@ -147,15 +141,21 @@
     </div>
 
     <!-- ACTION ROWS -->
-    <div class="actions">
-      <button class="btn-wa" id="btn-wa" style="display:none;" onclick="openWhatsApp()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.84.494 3.564 1.354 5.054L2 22l5.1-1.335A9.956 9.956 0 0011.998 22c5.522 0 10-4.477 10-10S17.52 2 11.998 2zm0 18.18a8.18 8.18 0 01-4.18-1.148l-.3-.178-3.027.793.808-2.952-.196-.31A8.18 8.18 0 1111.998 20.18z"/></svg>
-        Enviar datos por WhatsApp
-      </button>
-      <a class="btn-email" id="btn-email" style="display:none;" href="#">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Enviar por correo
-      </a>
+    <div class="actions" id="actions" style="display:none;">
+      <div class="action-row" id="row-wa" style="display:none;">
+        <div class="action-row-left">
+          <div class="action-label">WhatsApp</div>
+          <div class="action-value" id="act-wa-text">—</div>
+        </div>
+        <button class="btn-copy" onclick="copyAction('act-wa-text',this,'raw-wa')">Copiar</button>
+      </div>
+      <div class="action-row" id="row-email" style="display:none;">
+        <div class="action-row-left">
+          <div class="action-label">Correo electr&#243;nico</div>
+          <div class="action-value" id="act-email-text">—</div>
+        </div>
+        <button class="btn-copy" onclick="copyAction('act-email-text',this)">Copiar</button>
+      </div>
     </div>
 
     <!-- BRANDING -->
@@ -182,20 +182,41 @@
     {id:'solido',render:()=>``},
   ];
 
-  let _waNumber='';
+  let _waRaw='';
+
+  /* ── LADA formatter (igual que app.html) ── */
+  const LADAS_2D=new Set(['55','56','81','33','99']);
+  function fmtWA(digits){
+    if(!digits)return '';
+    const l2=digits.substring(0,2);
+    if(LADAS_2D.has(l2)) return [digits.substring(0,2),digits.substring(2,6),digits.substring(6,10)].filter(p=>p).join(' ');
+    return [digits.substring(0,3),digits.substring(3,6),digits.substring(6,10)].filter(p=>p).join(' ');
+  }
 
   function fmt(clabe){return clabe.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
 
-  function copyText(fieldId,btnId){
-    const val=$('act-clabe')&&fieldId==='act-clabe'?$('act-clabe').textContent.replace(/\s/g,''):$(fieldId).textContent;
+  function copyAction(textId,btn,rawAttr){
+    var el=document.getElementById(textId);
+    if(!el)return;
+    var val=rawAttr&&el.dataset[rawAttr]?el.dataset[rawAttr]:el.textContent.trim();
     navigator.clipboard.writeText(val).then(()=>{
-      const b=$(btnId); b.textContent='✓ Copiado'; b.classList.add('copied');
-      setTimeout(()=>{b.textContent='Copiar';b.classList.remove('copied');},2000);
+      btn.textContent='✓ Copiado'; btn.classList.add('copied');
+      setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000);
     });
   }
 
-  function openWhatsApp(){
-    window.open(`https://wa.me/52${_waNumber}`,'_blank');
+  /* ── Card color → CSS variables ── */
+  const CARD_COLOR_MAP={
+    'linear-gradient(135deg,#004d38,#00c896)':{rgb:'0,200,150',  accent:'#00c896'},
+    'linear-gradient(135deg,#0d0d0d,#1f1f1f)':{rgb:'200,200,200',accent:'#aaaaaa'},
+    'linear-gradient(135deg,#7a2050,#e8719a)':{rgb:'232,113,154',accent:'#e8719a'},
+    'linear-gradient(135deg,#0f3460,#1a6fb5)':{rgb:'26,111,181', accent:'#00c896'},
+  };
+  function applyCardVars(cg){
+    const c=CARD_COLOR_MAP[cg]||{rgb:'0,200,150',accent:'#00c896'};
+    document.documentElement.style.setProperty('--card-row-bg','rgba('+c.rgb+',0.14)');
+    document.documentElement.style.setProperty('--card-row-border','rgba('+c.rgb+',0.30)');
+    document.documentElement.style.setProperty('--card-accent',c.accent);
   }
 
   function renderProfile(d){
@@ -213,6 +234,9 @@
     card.style.background=(isSolido&&preset)?preset.solid:cg;
     document.body.style.background=d.bg_color||'#000';
 
+    // Apply card color CSS vars to action rows
+    applyCardVars(cg);
+
     // Card design layer
     const dl=$('card-design-layer');
     dl.innerHTML=CARD_DESIGNS[d.card_design||0].render();
@@ -229,7 +253,6 @@
     // CLABE
     const clabeRaw=d.clabe||'';
     $('lc-clabe').textContent=fmt(clabeRaw);
-    $('act-clabe').textContent=fmt(clabeRaw);
     $('card-copy-clabe').onclick=()=>{
       navigator.clipboard.writeText(clabeRaw).then(()=>{
         $('card-copy-clabe').style.opacity='0.2';
@@ -241,26 +264,32 @@
     const nom=d.titular_cuenta||'';
     $('lc-name').textContent=nom;
     if(nom.length>25) $('lc-name').style.fontSize='14px';
-    $('act-nombre').textContent=nom;
-    $('card-copy-nombre').onclick=()=>{
-      navigator.clipboard.writeText(nom).then(()=>{
-        $('card-copy-nombre').style.opacity='0.2';
-        setTimeout(()=>$('card-copy-nombre').style.opacity='0.5',500);
-      });
-    };
 
     // Alias
     if(d.alias){$('lc-alias').textContent=d.alias;}
 
-    // WhatsApp — respeta flag show_whatsapp (default true si no existe)
-    if(d.whatsapp && d.show_whatsapp !== false){_waNumber=d.whatsapp;$('btn-wa').style.display='flex';}
+    // Actions section
+    var anyAction=false;
 
-    // Email — respeta flag show_email (default true si no existe)
-    if(d.email && d.show_email !== false){
-      var eb=$('btn-email');
-      eb.href='mailto:'+d.email;
-      eb.style.display='flex';
+    // WhatsApp
+    if(d.whatsapp && d.show_whatsapp!==false){
+      _waRaw=d.whatsapp;
+      const fmt10=fmtWA(d.whatsapp);
+      const waText=$('act-wa-text');
+      waText.textContent='+52 '+fmt10;
+      waText.dataset.rawWa=d.whatsapp; // raw 10 digits for copy
+      $('row-wa').style.display='flex';
+      anyAction=true;
     }
+
+    // Email
+    if(d.email && d.show_email!==false){
+      $('act-email-text').textContent=d.email;
+      $('row-email').style.display='flex';
+      anyAction=true;
+    }
+
+    if(anyAction) $('actions').style.display='flex';
 
     // Show profile
     hideLoader();
