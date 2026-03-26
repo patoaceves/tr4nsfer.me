@@ -14,56 +14,80 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     :root{--teal:#00c896;--bg:#000;--muted:rgba(255,255,255,0.45);--text:#fff;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 40px;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 48px;}
     @media(max-width:600px){body{justify-content:flex-start;padding-top:48px;}}
-    .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
-    .state-title{font-size:15px;font-weight:600;color:var(--muted);}
-    .state-sub{font-size:13px;color:rgba(255,255,255,0.3);}
-    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s;}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
+    @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(.4,0,.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(.4,0,.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(.4,0,.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
     #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
-    .pl-svg{width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,0.38));opacity:0;animation:plCycle 2.1s linear infinite;}
+    .pl-svg{width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,.38));opacity:0;animation:plCycle 2.1s linear infinite;}
     .pl-stroke-horiz{stroke-dasharray:737;stroke-dashoffset:737;animation:plHoriz 2.1s linear infinite;}
     .pl-stroke-diag{stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag 2.1s linear infinite;}
     .pl-stroke-vert{stroke-dasharray:750;stroke-dashoffset:750;animation:plVert 2.1s linear infinite;}
     .pl-dot{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear infinite;}
-    @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
-    @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
-    .card-wrap{width:100%;max-width:340px;}
-    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.1);cursor:default;}
+    .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
+    .state-title{font-size:15px;font-weight:600;color:var(--muted);}
+    .state-sub{font-size:13px;color:rgba(255,255,255,.3);}
+    #state-profile{display:none;width:100%;flex-direction:column;align-items:center;animation:fadeInUp .4s ease both;}
+    .card-wrap{width:100%;max-width:340px;position:relative;}
+    .logo-circle{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);overflow:hidden;z-index:10;display:none;align-items:center;justify-content:center;}
+    .logo-circle.visible{display:flex;}
+    .logo-circle img{width:100%;height:100%;object-fit:cover;}
+    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.1);cursor:default;}
     .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
     .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:20px 22px 24px;}
-    .lc-top img{height:14px;width:auto;display:block;opacity:0.8;}
+    .lc-top img{height:14px;width:auto;display:block;opacity:.8;}
     .lc-middle{display:flex;flex-direction:column;flex:1;justify-content:space-evenly;padding:14px 0;}
-    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);border-radius:24px;padding:7px 16px 7px 8px;align-self:flex-start;}
-    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,0.15);display:none;}
-    .lc-bank-name{font-size:16px;font-weight:600;opacity:0.92;letter-spacing:0.01em;}
+    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:24px;padding:7px 16px 7px 8px;align-self:flex-start;}
+    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.15);display:none;}
+    .lc-bank-name{font-size:16px;font-weight:600;opacity:.92;}
     .lc-group{display:flex;flex-direction:column;gap:4px;}
-    .lc-section-label,.lc-clabe-label{font-size:11px;text-transform:uppercase;letter-spacing:0.14em;opacity:0.55;font-weight:600;}
-    .lc-clabe{font-size:18px;font-weight:600;letter-spacing:0.04em;font-family:'Inter',sans-serif;line-height:1.3;white-space:nowrap;}
+    .lc-section-label,.lc-clabe-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;opacity:.55;font-weight:600;}
+    .lc-clabe{font-size:18px;font-weight:600;letter-spacing:.04em;font-family:'Inter',sans-serif;line-height:1.3;white-space:nowrap;}
     .lc-copy-row{display:flex;align-items:center;gap:8px;}
-    .lc-copy-btn{background:none;border:none;cursor:pointer;padding:4px;opacity:0.5;transition:opacity .15s;display:flex;align-items:center;}
+    .lc-copy-btn{background:none;border:none;cursor:pointer;padding:4px;opacity:.5;transition:opacity .15s;display:flex;align-items:center;}
     .lc-copy-btn:hover{opacity:1;}
-    .lc-name{font-size:17px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;}
+    .lc-name{font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;}
     .lc-bottom{display:flex;justify-content:space-between;align-items:flex-end;}
-    .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+    .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.6);}
+    .live-card.light-text{color:#fff;}
+    .live-card.dark-text{color:#1a1a1a;}
     .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;}
-    .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,0.12));border:1px solid var(--card-row-border,rgba(0,200,150,0.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
+    .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,.12));border:1px solid var(--card-row-border,rgba(0,200,150,.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
     .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
-    .action-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
-    .action-value{font-size:14px;font-weight:600;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
-    .btn-copy{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;flex-shrink:0;}
-    .btn-copy:hover{background:rgba(255,255,255,0.14);}
-    .btn-copy.copied{color:var(--muted);}
+    .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+    .action-value{font-size:14px;font-weight:600;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
+    .btn-action{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;flex-shrink:0;}
+    .btn-action:hover{background:rgba(255,255,255,.14);}
+    .btn-action.copied{color:var(--muted);}
     .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;}
-    .branding-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);}
-    .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:0.55;transition:opacity .2s;}
+    .branding-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
+    .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:.55;transition:opacity .2s;}
     .branding a:hover{opacity:1;}
     .branding img{height:12px;width:auto;}
-    .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s;}
-    .branding-cta:hover{color:rgba(0,200,150,0.8);}
+    .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;}
+    .branding-cta:hover{color:rgba(0,200,150,.8);}
+    /* FISCAL MODAL */
+    .fiscal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
+    .fiscal-overlay.visible{display:flex;}
+    .fiscal-modal{background:#111;border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;position:relative;}
+    .fiscal-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .fiscal-modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;}
+    .fiscal-close{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);padding:4px;transition:color .15s;display:flex;align-items:center;}
+    .fiscal-close:hover{color:#fff;}
+    .fiscal-row{padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;margin-bottom:8px;}
+    .fiscal-row:last-of-type{margin-bottom:0;}
+    .fiscal-row-label{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:3px;}
+    .fiscal-row-value{font-size:13px;font-weight:500;color:rgba(255,255,255,.88);line-height:1.4;word-break:break-word;}
+    .fiscal-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px;color:rgba(255,255,255,.4);font-size:13px;}
+    .fiscal-err{padding:16px;text-align:center;color:#f04040;font-size:13px;}
+    .fiscal-expiry{font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);}
+    .spin-ring{display:inline-block;width:16px;height:16px;animation:spin .7s linear infinite;}
     @media(max-width:400px){.live-card{border-radius:18px;}.lc-clabe{font-size:17px;}.lc-name{font-size:16px;}}
   </style>
 </head>
@@ -76,181 +100,130 @@
       <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
     </svg>
   </div>
-
   <div id="state-error" class="state" style="display:none;">
     <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/></svg>
     <div class="state-title">Perfil no encontrado</div>
     <div class="state-sub">Este link puede haber expirado o no existe.</div>
   </div>
-
-  <div id="state-profile" style="display:none;width:100%;flex-direction:column;align-items:center;">
+  <div id="state-profile">
     <div class="card-wrap">
+      <div class="logo-circle" id="logo-circle"><img id="logo-circle-img" src="" alt="Logo"/></div>
       <div class="live-card light-text" id="live-card">
         <div class="card-design-layer" id="card-design-layer"></div>
         <div class="lc-inner">
           <div class="lc-top"><img src="logo-white.png" alt="tr4nsfer.me"/></div>
           <div class="lc-middle">
-            <div class="lc-bank" id="lc-bank">
-              <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
-              <span class="lc-bank-name" id="lc-bank-name">—</span>
-            </div>
+            <div class="lc-bank" id="lc-bank"><img class="lc-bank-icon" id="lc-bank-icon" src="" alt=""/><span class="lc-bank-name" id="lc-bank-name">—</span></div>
             <div class="lc-group">
               <div class="lc-clabe-label">CLABE</div>
-              <div class="lc-copy-row">
-                <div class="lc-clabe" id="lc-clabe"></div>
-                <button class="lc-copy-btn" id="card-copy-clabe" title="Copiar CLABE">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-              </div>
+              <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" id="card-copy-clabe" title="Copiar CLABE"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
             </div>
             <div class="lc-group">
               <div class="lc-section-label">TITULAR DE LA CUENTA</div>
-              <div class="lc-copy-row">
-                <div class="lc-name" id="lc-name"></div>
-                <button class="lc-copy-btn" id="card-copy-nombre" title="Copiar nombre">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-              </div>
+              <div class="lc-copy-row"><div class="lc-name" id="lc-name"></div><button class="lc-copy-btn" id="card-copy-nombre" title="Copiar nombre"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
             </div>
           </div>
           <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
         </div>
       </div>
     </div>
-
     <div class="actions" id="actions" style="display:none;">
-      <div class="action-row" id="row-wa" style="display:none;">
-        <div class="action-row-left">
-          <div class="action-label">WhatsApp</div>
-          <div class="action-value" id="act-wa-text">—</div>
-        </div>
-        <button class="btn-copy" onclick="copyAction('act-wa-text',this,'rawWa')">Copiar</button>
-      </div>
-      <div class="action-row" id="row-email" style="display:none;">
-        <div class="action-row-left">
-          <div class="action-label">Correo electrónico</div>
-          <div class="action-value" id="act-email-text">—</div>
-        </div>
-        <button class="btn-copy" onclick="copyAction('act-email-text',this)">Copiar</button>
-      </div>
+      <div class="action-row" id="row-wa" style="display:none;"><div class="action-row-left"><div class="action-label">WhatsApp</div><div class="action-value" id="act-wa-text">—</div></div><button class="btn-action" onclick="copyAction('act-wa-text',this,'rawWa')">Copiar</button></div>
+      <div class="action-row" id="row-email" style="display:none;"><div class="action-row-left"><div class="action-label">Correo electrónico</div><div class="action-value" id="act-email-text">—</div></div><button class="btn-action" onclick="copyAction('act-email-text',this)">Copiar</button></div>
+      <div class="action-row" id="row-fiscal" style="display:none;"><div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="color:rgba(255,255,255,.5);font-size:12px;">RFC · Régimen · Dirección</div></div><button class="btn-action" onclick="openFiscalModal()">Ver →</button></div>
     </div>
-
     <div class="branding">
       <div class="branding-label">Powered by</div>
       <a href="/" target="_blank"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
       <a href="/app" target="_blank" class="branding-cta">Crea el tuyo <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
   </div>
-
+  <!-- FISCAL MODAL -->
+  <div class="fiscal-overlay" id="fiscal-overlay" onclick="onOverlayClick(event)">
+    <div class="fiscal-modal">
+      <div class="fiscal-modal-hdr">
+        <div class="fiscal-modal-title">Datos fiscales</div>
+        <button class="fiscal-close" onclick="closeFiscalModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div id="fiscal-body"></div>
+    </div>
+  </div>
 <script>
-  const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
-  const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
-  const $=id=>document.getElementById(id);
-  const favicon=d=>`https://www.google.com/s2/favicons?domain=${d}&sz=32`;
-
-  /* IMPORTANT: indices must match app.html CARD_DESIGNS order
-     0=diagonal 1=aurora 2=espiral 3=cristal 4=topografico 5=solido */
-  const CARD_DESIGNS=[
-    {id:'diagonal', render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,36 0,78" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,24" fill="rgba(255,255,255,0.07)"/><polygon points="0,82 100,38 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-    {id:'aurora',   render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`},
-    {id:'espiral',  render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,100 Q50,49 100,36" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,100 Q60,62 100,52" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,100 Q36,33 100,18" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`},
-    {id:'cristal',  render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,28 0,20" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,30" fill="rgba(255,255,255,0.08)"/><polygon points="38,28 78,30 100,12 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,20 38,28 22,62 0,52" fill="rgba(255,255,255,0.06)"/><polygon points="38,28 78,30 68,78 22,62" fill="rgba(255,255,255,0.04)"/><polygon points="0,82 22,62 68,78 100,96 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-    {
-      /* viewBox 0 0 100 120 matches the 1:1.2 aspect ratio so equal radii = circles */
-      id:'topografico', render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`
-    },
-    {id:'solido', render:()=>``},
-  ];
-
-  const CARD_PRESETS=[
-    {value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a'},
-    {value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000'},
-    {value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a'},
-    {value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96'},
-    {value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb'},
-    {value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a'},
-  ];
-
-  const CARD_COLOR_MAP={
-    'linear-gradient(135deg,#004d38,#00c896)':{rgb:'0,200,150',  accent:'#00c896'},
-    'linear-gradient(135deg,#0d0d0d,#1f1f1f)':{rgb:'200,200,200',accent:'#aaaaaa'},
-    'linear-gradient(135deg,#7a2050,#e8719a)':{rgb:'232,113,154',accent:'#e8719a'},
-    'linear-gradient(135deg,#0f3460,#1a6fb5)':{rgb:'26,111,181', accent:'#00c896'},
-    'linear-gradient(135deg,#2d1b69,#8b5cf6)':{rgb:'139,92,246', accent:'#8b5cf6'},
-    'linear-gradient(135deg,#7c2d12,#f97316)':{rgb:'249,115,22', accent:'#f97316'},
-  };
-
-  const LADAS_2D=new Set(['55','56','81','33','99']);
-  function fmtWA(d){ if(!d)return ''; const l2=d.substring(0,2); if(LADAS_2D.has(l2))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(p=>p).join(' '); return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(p=>p).join(' '); }
-  function fmt(c){return c.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
-
-  function copyAction(textId,btn,rawAttr){
-    var el=document.getElementById(textId); if(!el) return;
-    var val=rawAttr&&el.dataset[rawAttr]?el.dataset[rawAttr]:el.textContent.trim();
-    navigator.clipboard.writeText(val).then(()=>{ btn.textContent='✓ Copiado'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); });
-  }
-
-  function getCardColorVars(cg){
-    if(CARD_COLOR_MAP[cg]) return CARD_COLOR_MAP[cg];
-    const m=cg.match(/#[0-9a-fA-F]{6}/g),endHex=m?m[m.length-1]:'#00c896';
-    const r=parseInt(endHex.slice(1,3),16),g=parseInt(endHex.slice(3,5),16),b=parseInt(endHex.slice(5,7),16);
-    return {rgb:`${r},${g},${b}`,accent:endHex};
-  }
-
-  function applyCardVars(cg){
-    const c=getCardColorVars(cg);
-    document.documentElement.style.setProperty('--card-row-bg','rgba('+c.rgb+',0.14)');
-    document.documentElement.style.setProperty('--card-row-border','rgba('+c.rgb+',0.30)');
-    document.documentElement.style.setProperty('--card-accent',c.accent);
-  }
-
-  function renderProfile(d){
-    const card=$('live-card');
-    const designIdx=Math.min(d.card_design||0, CARD_DESIGNS.length-1);
-    const isSolido=CARD_DESIGNS[designIdx].id==='solido';
-    const cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
-    const preset=CARD_PRESETS.find(p=>p.value===cg);
-    card.style.background=(isSolido&&preset)?preset.solid:cg;
-    document.body.style.background=d.bg_color||'#000';
-    applyCardVars(cg);
-    $('card-design-layer').innerHTML=CARD_DESIGNS[designIdx].render();
-    if(d.banco){ $('lc-bank-name').textContent=d.banco; if(d.banco_domain){var ic=$('lc-bank-icon');ic.src=favicon(d.banco_domain);ic.style.display='block';} $('lc-bank').style.display='flex'; }
-    else $('lc-bank').style.display='none';
-    const clabeRaw=d.clabe||'';
-    $('lc-clabe').textContent=fmt(clabeRaw);
-    $('card-copy-clabe').onclick=()=>{ navigator.clipboard.writeText(clabeRaw).then(()=>{ $('card-copy-clabe').style.opacity='0.2'; setTimeout(()=>$('card-copy-clabe').style.opacity='0.5',500); }); };
-    const nom=d.titular_cuenta||''; $('lc-name').textContent=nom; if(nom.length>25) $('lc-name').style.fontSize='14px';
-    $('card-copy-nombre').onclick=()=>{ navigator.clipboard.writeText(nom).then(()=>{ $('card-copy-nombre').style.opacity='0.2'; setTimeout(()=>$('card-copy-nombre').style.opacity='0.5',500); }); };
-    if(d.alias) $('lc-alias').textContent=d.alias;
-    var anyAction=false;
-    if(d.whatsapp&&d.show_whatsapp!==false){ const wd=d.whatsapp.length>10?d.whatsapp.slice(-10):d.whatsapp; var wt=$('act-wa-text'); wt.textContent='+52 '+fmtWA(wd); wt.dataset.rawWa=d.whatsapp; $('row-wa').style.display='flex'; anyAction=true; }
-    if(d.email&&d.show_email!==false){ $('act-email-text').textContent=d.email; $('row-email').style.display='flex'; anyAction=true; }
-    if(anyAction) $('actions').style.display='flex';
-    hideLoader();
-    var prof=$('state-profile'); prof.style.display='flex';
-  }
-
-  var _plDone=false,_plDismissed=false,_plCallback=null;
-  (function(){
-    var loader=$('page-loader'); if(!loader) return;
-    loader.querySelector('.pl-svg').addEventListener('animationiteration',function(e){
-      if(e.animationName!=='plCycle'||_plDismissed) return;
-      if(_plDone){ _plDismissed=true; loader.classList.add('hide'); setTimeout(()=>{ if(loader.parentNode)loader.parentNode.removeChild(loader); if(_plCallback){var cb=_plCallback;_plCallback=null;cb();} },380); }
-    });
-  })();
-  function hideLoader(cb){ _plCallback=cb||null; _plDone=true; }
-
-  async function init(){
-    const params=new URLSearchParams(window.location.search);
-    const slug=params.get('id')||window.location.pathname.replace(/\//g,'').split('?')[0];
-    if(!slug){hideLoader(()=>$('state-error').style.display='flex');return;}
-    const resp=await fetch(`${SUPABASE_URL}/functions/v1/get-link?slug=${slug}`,{headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}});
-    if(!resp.ok){hideLoader(()=>$('state-error').style.display='flex');return;}
-    const data=await resp.json();
-    if(!data||data.error){hideLoader(()=>$('state-error').style.display='flex');return;}
-    renderProfile(data);
-  }
-  init();
+const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+const $=id=>document.getElementById(id);
+const favicon=d=>`https://www.google.com/s2/favicons?domain=${d}&sz=32`;
+const CARD_DESIGNS=[
+  {id:'diagonal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,36 0,78" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,24" fill="rgba(255,255,255,0.07)"/><polygon points="0,82 100,38 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
+  {id:'aurora',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`},
+  {id:'espiral',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,100 Q50,49 100,36" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,100 Q60,62 100,52" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,100 Q36,33 100,18" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`},
+  {id:'cristal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,28 0,20" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,30" fill="rgba(255,255,255,0.08)"/><polygon points="38,28 78,30 100,12 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,20 38,28 22,62 0,52" fill="rgba(255,255,255,0.06)"/><polygon points="38,28 78,30 68,78 22,62" fill="rgba(255,255,255,0.04)"/><polygon points="0,82 22,62 68,78 100,96 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
+  {id:'topografico',render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`},
+  {id:'solido',render:()=>``},
+];
+const CARD_PRESETS=[{value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a'},{value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000'},{value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a'},{value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96'},{value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb'},{value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a'}];
+const CARD_COLOR_MAP={'linear-gradient(135deg,#004d38,#00c896)':{rgb:'0,200,150',accent:'#00c896'},'linear-gradient(135deg,#0d0d0d,#1f1f1f)':{rgb:'200,200,200',accent:'#aaaaaa'},'linear-gradient(135deg,#7a2050,#e8719a)':{rgb:'232,113,154',accent:'#e8719a'},'linear-gradient(135deg,#0f3460,#1a6fb5)':{rgb:'26,111,181',accent:'#00c896'},'linear-gradient(135deg,#2d1b69,#8b5cf6)':{rgb:'139,92,246',accent:'#8b5cf6'},'linear-gradient(135deg,#7c2d12,#f97316)':{rgb:'249,115,22',accent:'#f97316'}};
+const LADAS_2D=new Set(['55','56','81','33','99']);
+function fmtWA(d){if(!d)return '';const l2=d.substring(0,2);if(LADAS_2D.has(l2))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(p=>p).join(' ');return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(p=>p).join(' ');}
+function fmt(c){return c.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
+function copyAction(textId,btn,rawAttr){const el=document.getElementById(textId);if(!el)return;const val=rawAttr&&el.dataset[rawAttr]?el.dataset[rawAttr]:el.textContent.trim();navigator.clipboard.writeText(val).then(()=>{btn.textContent='✓ Copiado';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000);});}
+function getCardColorVars(cg){if(CARD_COLOR_MAP[cg])return CARD_COLOR_MAP[cg];const m=cg.match(/#[0-9a-fA-F]{6}/g),e=m?m[m.length-1]:'#00c896';const r=parseInt(e.slice(1,3),16),g=parseInt(e.slice(3,5),16),b=parseInt(e.slice(5,7),16);return {rgb:`${r},${g},${b}`,accent:e};}
+let currentSlug='';
+const REGIMEN_LABELS={'601':'General de Ley PM','612':'Actividades Empresariales','621':'Incorporación Fiscal','626':'RESICO','605':'Sueldos y Salarios','606':'Arrendamiento','608':'Demás ingresos','616':'Sin obligaciones fiscales','622':'Act. Agríc., Ganaderas, Silv.','625':'Plataformas Tecnológicas','603':'PM sin Fines de Lucro'};
+function openFiscalModal(){$('fiscal-overlay').classList.add('visible');$('fiscal-body').innerHTML='<div class="fiscal-loading"><svg class="spin-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>Verificando acceso…</div>';loadFiscalData();}
+function closeFiscalModal(){$('fiscal-overlay').classList.remove('visible');}
+function onOverlayClick(e){if(e.target===$('fiscal-overlay'))closeFiscalModal();}
+async function loadFiscalData(){
+  try{
+    const tr=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-token`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({slug:currentSlug})});
+    if(!tr.ok)throw new Error('No se pudo obtener acceso.');
+    const {token,error:te}=await tr.json();if(te||!token)throw new Error(te||'Token inválido');
+    const dr=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-data`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({token})});
+    if(!dr.ok)throw new Error('Error al obtener datos.');
+    const fd=await dr.json();if(fd.error)throw new Error(fd.error);
+    const rows=[[fd.razon_social,'Razón social'],[fd.rfc,'RFC'],[fd.regimen_fiscal?(REGIMEN_LABELS[fd.regimen_fiscal]||fd.regimen_fiscal)+' ('+fd.regimen_fiscal+')':null,'Régimen fiscal'],[[fd.cp_fiscal,fd.ciudad_fiscal,fd.estado_fiscal].filter(Boolean).join(' · ')||null,'C.P. / Ciudad / Estado'],[fd.colonia_fiscal,'Colonia'],[fd.calle_fiscal,'Calle y número']].filter(r=>r[0]);
+    $('fiscal-body').innerHTML=rows.map(r=>`<div class="fiscal-row"><div class="fiscal-row-label">${r[1]}</div><div class="fiscal-row-value">${r[0]}</div></div>`).join('')+'<div class="fiscal-expiry">🔒 Datos cifrados · Esta sesión expira en 15 min</div>';
+  }catch(e){$('fiscal-body').innerHTML=`<div class="fiscal-err">${e.message}</div>`;}
+}
+function renderProfile(d){
+  currentSlug=d.custom_slug||d.slug||'';
+  const card=$('live-card');
+  const di=Math.min(d.card_design||0,CARD_DESIGNS.length-1);
+  const isSolido=CARD_DESIGNS[di].id==='solido';
+  const cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
+  const preset=CARD_PRESETS.find(p=>p.value===cg);
+  card.style.background=(isSolido&&preset)?preset.solid:cg;
+  document.body.style.background=d.bg_color||'#000';
+  const cv=getCardColorVars(cg);
+  document.documentElement.style.setProperty('--card-row-bg','rgba('+cv.rgb+',.14)');
+  document.documentElement.style.setProperty('--card-row-border','rgba('+cv.rgb+',.30)');
+  document.documentElement.style.setProperty('--card-accent',cv.accent);
+  const m=((isSolido&&preset)?preset.solid:cg).match(/#([0-9a-f]{6})/i);
+  if(m){const n=parseInt(m[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}
+  $('card-design-layer').innerHTML=CARD_DESIGNS[di].render();
+  if(d.banco){$('lc-bank-name').textContent=d.banco;if(d.banco_domain){const ic=$('lc-bank-icon');ic.src=favicon(d.banco_domain);ic.style.display='block';}$('lc-bank').style.display='flex';}else $('lc-bank').style.display='none';
+  const clabeRaw=d.clabe||'';$('lc-clabe').textContent=fmt(clabeRaw);$('card-copy-clabe').onclick=()=>{navigator.clipboard.writeText(clabeRaw).then(()=>{$('card-copy-clabe').style.opacity='.2';setTimeout(()=>$('card-copy-clabe').style.opacity='.5',500);});};
+  const nom=d.titular_cuenta||'';$('lc-name').textContent=nom;if(nom.length>25)$('lc-name').style.fontSize='14px';$('card-copy-nombre').onclick=()=>{navigator.clipboard.writeText(nom).then(()=>{$('card-copy-nombre').style.opacity='.2';setTimeout(()=>$('card-copy-nombre').style.opacity='.5',500);});};
+  if(d.alias)$('lc-alias').textContent=d.alias;
+  if(d.logo_url){$('logo-circle-img').src=d.logo_url;$('logo-circle').classList.add('visible');}
+  let any=false;
+  if(d.whatsapp&&d.show_whatsapp!==false){const wd=d.whatsapp.length>10?d.whatsapp.slice(-10):d.whatsapp;const wt=$('act-wa-text');wt.textContent='+52 '+fmtWA(wd);wt.dataset.rawWa=d.whatsapp;$('row-wa').style.display='flex';any=true;}
+  if(d.email&&d.show_email!==false){$('act-email-text').textContent=d.email;$('row-email').style.display='flex';any=true;}
+  if(d.has_fiscal){$('row-fiscal').style.display='flex';any=true;}
+  if(any)$('actions').style.display='flex';
+  hideLoader();$('state-profile').style.display='flex';
+}
+var _done=false,_dismissed=false,_cb=null;
+(function(){var L=$('page-loader');if(!L)return;L.querySelector('.pl-svg').addEventListener('animationiteration',function(e){if(e.animationName!=='plCycle'||_dismissed)return;if(_done){_dismissed=true;L.classList.add('hide');setTimeout(()=>{if(L.parentNode)L.parentNode.removeChild(L);if(_cb){var c=_cb;_cb=null;c();}},380);}});})();
+function hideLoader(cb){_cb=cb||null;_done=true;}
+async function init(){
+  const p=new URLSearchParams(window.location.search);
+  const slug=p.get('id')||window.location.pathname.replace(/\//g,'').split('?')[0];
+  if(!slug){hideLoader(()=>$('state-error').style.display='flex');return;}
+  try{const r=await fetch(`${SUPABASE_URL}/functions/v1/get-link?slug=${slug}`,{headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}});if(!r.ok)throw 0;const d=await r.json();if(!d||d.error)throw 0;renderProfile(d);}
+  catch{hideLoader(()=>$('state-error').style.display='flex');}
+}
+init();
 </script>
 </body>
 </html>
