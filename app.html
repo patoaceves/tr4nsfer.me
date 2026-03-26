@@ -24,6 +24,7 @@
     .geo-square{border:1px solid rgba(0,200,150,.18);}
     .geo-square.filled{background:rgba(0,200,150,.06);}
     .geo-triangle{line-height:0;}
+    @keyframes cardFloat{0%{transform:translateY(0) rotate(0deg);opacity:0}8%{opacity:1}85%{opacity:.5}100%{transform:translateY(-420px) rotate(360deg);opacity:0}}
     @keyframes riseShape{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}88%{opacity:.65}100%{transform:translateY(-110vh) rotate(360deg);opacity:0}}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -169,8 +170,8 @@
     .lc-logo-sq.visible{display:block;}
     .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
     .lc-logo-dot{position:absolute;top:0;right:0;}.lc-logo-dot img{height:14px;width:auto;display:block;opacity:.75;}
-    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:24px;padding:7px 16px 7px 8px;margin-bottom:4px;align-self:flex-start;}
-    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.15);display:none;}
+    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.40);border-radius:24px;padding:7px 16px 7px 8px;margin-bottom:4px;align-self:flex-start;}
+    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.95);padding:2px;display:none;}
     .lc-bank-name{font-size:16px;font-weight:600;opacity:.92;}
     .lc-middle{text-align:left;flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-evenly;padding:6px 0;}
     .lc-group{display:flex;flex-direction:column;align-items:flex-start;gap:1px;}
@@ -292,7 +293,7 @@
     .icon-chip{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--border2);background:var(--input-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .18s,background .18s;flex-shrink:0;}
     .icon-chip:hover{border-color:var(--teal-border);background:var(--teal-dim);}
     .icon-chip.active{border-color:var(--teal)!important;background:var(--teal-dim)!important;}
-    .lc-icon-layer{position:absolute;bottom:-20px;right:-20px;z-index:0;pointer-events:none;opacity:0.13;}
+    .lc-icon-layer{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:inherit;}
     /* PAGE LOADER */
     #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:none;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
     #page-loader.active{display:flex;}
@@ -505,32 +506,6 @@
           </div>
 
 
-          <!-- GIRO DEL NEGOCIO (negocios only) -->
-          <div class="field" id="fg-icon" style="display:none;">
-            <div class="field-label-row">
-              <label>Giro del negocio <span class="opt">&#8212; opcional</span></label>
-              <label class="show-toggle">
-                <input type="checkbox" id="show_icon" onchange="onIconToggle()"/>
-                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
-                <span class="show-toggle-label">Agregar</span>
-              </label>
-            </div>
-            <div id="icon-selector-wrap" style="display:none;">
-              <div class="icon-grid" id="icon-grid"></div>
-            <div id="icon-color-wrap" style="display:none;margin-top:10px;">
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;">Color del ícono</div>
-              <div style="display:flex;gap:7px;flex-wrap:wrap;" id="icon-color-swatches">
-                <div class="swatch active" data-icolor="rgba(255,255,255,1)" style="background:#fff;border:2px solid #fff;" title="Blanco"></div>
-                <div class="swatch" data-icolor="rgba(0,200,150,0.9)" style="background:#00c896;" title="Teal"></div>
-                <div class="swatch" data-icolor="rgba(255,255,255,0.3)" style="background:rgba(255,255,255,0.3);border:1.5px dashed rgba(255,255,255,0.4);" title="Translúcido"></div>
-                <div class="swatch" data-icolor="rgba(0,0,0,0.7)" style="background:#000;" title="Negro"></div>
-                <div class="swatch" data-icolor="rgba(255,180,0,0.9)" style="background:#FFB400;" title="Dorado"></div>
-                <div class="swatch" data-icolor="rgba(200,100,255,0.9)" style="background:#C864FF;" title="Morado"></div>
-              </div>
-            </div>
-            </div>
-          </div>
-
           <!-- DATOS FISCALES TOGGLE -->
           <div class="field" id="fg-fiscal-toggle">
             <div class="field-label-row">
@@ -657,6 +632,21 @@
         <div class="color-section"><div class="color-section-label">Dise&#241;o</div><div class="design-picker" id="design-picker"></div></div>
         <div class="color-section"><div class="color-section-label">Color de tarjeta</div><div class="swatches" id="card-swatches"></div><input type="color" id="native-color-card" class="native-color-input" value="#8b5cf6"></div>
         <div class="color-section"><div class="color-section-label">Fondo</div><div class="swatches" id="bg-swatches"></div><input type="color" id="native-color-bg" class="native-color-input" value="#000000"></div>
+        <div class="color-section" id="icon-editor-section" style="display:none;">
+          <div class="color-section-label">Ícono del giro</div>
+          <div class="icon-grid" id="icon-grid" style="margin-top:6px;"></div>
+          <div id="icon-color-wrap" style="display:none;margin-top:10px;">
+            <div class="color-section-label" style="margin-bottom:8px;">Color del ícono</div>
+            <div class="swatches" id="icon-color-swatches">
+              <div class="swatch active" data-icolor="rgba(255,255,255,1)" style="background:#fff;border:2px solid #fff;" title="Blanco"></div>
+              <div class="swatch" data-icolor="rgba(0,200,150,0.9)" style="background:#00c896;" title="Teal"></div>
+              <div class="swatch" data-icolor="rgba(255,255,255,0.25)" style="background:rgba(255,255,255,0.25);border:1.5px dashed rgba(255,255,255,0.4);" title="Translúcido"></div>
+              <div class="swatch" data-icolor="rgba(0,0,0,0.7)" style="background:#1a1a1a;" title="Negro"></div>
+              <div class="swatch" data-icolor="rgba(255,180,0,0.9)" style="background:#FFB400;" title="Dorado"></div>
+              <div class="swatch" data-icolor="rgba(200,100,255,0.9)" style="background:#C864FF;" title="Morado"></div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="floating-btn-wrap">
         <button id="floating-btn" onclick="floatingBtnClick()"><span id="floating-btn-text">Continuar &#8594;</span></button>
@@ -809,6 +799,9 @@ function selectType(type) {
   $('app-hero').style.display='';
   $('app-hero-title').textContent=type==='personal'?'Empieza aquí':'Perfil de negocio';
   $('app-hero-sub').textContent=type==='personal'?'Ingresa tus datos y personaliza tu perfil.':'Datos bancarios y empresariales en un link.';
+  // Show/hide icon section in color editor based on type
+  const iconSec=$('icon-editor-section');
+  if(iconSec)iconSec.style.display=type==='negocios'?'block':'none';
   showMainLayout();
   setFloatingBtn({text:'Continuar →',visible:true});
 }
@@ -865,7 +858,6 @@ function goToStep2(){
     if($('step2-card-subtitle'))$('step2-card-subtitle').textContent=isNeg?'Completa los datos de tu negocio para activar tu perfil.':'Completa tus datos para activar tu perfil.';
     $('fg-nombre-negocio').style.display=isNeg?'':'none';
     $('fg-logo').style.display=isNeg?'':'none';
-    const fgIcon=$('fg-icon');if(fgIcon)fgIcon.style.display=isNeg?'':'none';
     const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
     // For negocio: rename nombre field to business name, hide the optional nombre-negocio toggle
     const lbNombre=document.querySelector('#fg-nombre label');
@@ -892,6 +884,7 @@ function goToStep2(){
 }
 function backToStep1(){
   $('color-editor').classList.remove('fade-out');
+  selectedIconId=null;selectedIconColor='rgba(255,255,255,1)';updateCardIcon(null);
   if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
   transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
   transitionLeftPanel('panel-step2','panel-step1',()=>{currentStep=1;$('main-layout').classList.remove('step2');setFloatingBtn({text:'Continuar →',visible:true});window.scrollTo({top:0,behavior:'smooth'});});
@@ -1146,11 +1139,7 @@ function applyBgColor(){const frame=$('card-frame');frame.style.background=selec
 
 
 /* ── INDUSTRY ICON ── */
-function onIconToggle(){
-  const checked=$('show_icon').checked;
-  $('icon-selector-wrap').style.display=checked?'block':'none';
-  if(!checked){selectedIconId=null;updateCardIcon(null);}
-}
+// onIconToggle removed — icon section is always visible in color editor for negocio
 function buildIconPicker(){
   // Icon color swatches
   var iswatches=document.querySelectorAll('[data-icolor]');
@@ -1170,9 +1159,15 @@ function buildIconPicker(){
     chip.onclick=function(){
       document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});
       chip.classList.add('active');
-      selectedIconId=icon.id;
-      updateCardIcon(icon.id);
-      const cw=$('icon-color-wrap');if(cw)cw.style.display='block';
+      // Toggle: click same icon to deselect
+      if(selectedIconId===icon.id){
+        selectedIconId=null;updateCardIcon(null);
+        document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});
+        const cw=$('icon-color-wrap');if(cw)cw.style.display='none';
+      } else {
+        selectedIconId=icon.id;updateCardIcon(icon.id);
+        const cw=$('icon-color-wrap');if(cw)cw.style.display='block';
+      }
     };
     grid.appendChild(chip);
   });
@@ -1182,7 +1177,16 @@ function updateCardIcon(iconId){
   if(!iconId){layer.innerHTML='';return;}
   const icon=INDUSTRY_ICONS.find(function(i){return i.id===iconId;});if(!icon)return;
   const col=selectedIconColor||'rgba(255,255,255,1)';
-  layer.innerHTML='<div style="transform:rotate(-15deg);transform-origin:center;">'+iconSVG(icon,140,col,0.7)+'</div>';
+  const N=8;
+  let html='';
+  for(var i=0;i<N;i++){
+    var sz=Math.round(22+Math.random()*30);
+    var left=Math.round(Math.random()*88);
+    var dur=(10+i*1.8+Math.random()*4).toFixed(1);
+    var del=(-(i*(14/N)+Math.random()*3)).toFixed(1);
+    html+='<div style="position:absolute;bottom:-'+(sz+10)+'px;left:'+left+'%;width:'+sz+'px;height:'+sz+'px;animation:cardFloat '+dur+'s linear '+del+'s infinite;">'+iconSVG(icon,sz,col,0.75)+'</div>';
+  }
+  layer.innerHTML=html;
 }
 /* ── INIT ── */
 buildDesignPicker();buildSwatches();initColorPickers();buildIconPicker();
