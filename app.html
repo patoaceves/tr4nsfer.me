@@ -28,6 +28,20 @@
     .geo-triangle { line-height: 0; }
     @keyframes riseShape { 0%{transform:translateY(0) rotate(0deg);opacity:0} 10%{opacity:1} 88%{opacity:.65} 100%{transform:translateY(-110vh) rotate(360deg);opacity:0} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    /* TYPE SELECTOR */
+    #view-type { width: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 72vh; padding: 0 0 48px; animation: fadeUp .4s ease both; }
+    #view-type.active { display: flex; }
+    .type-hero { text-align: center; margin-bottom: 36px; }
+    .type-hero h1 { font-size: clamp(28px,4vw,44px); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 10px; }
+    .type-hero p { font-size: 15px; color: var(--muted); }
+    .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 560px; }
+    .type-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; padding: 32px 24px 28px; cursor: pointer; transition: border-color .2s, transform .15s, box-shadow .2s; text-align: center; }
+    .type-card:hover { border-color: rgba(0,200,150,.3); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,200,150,.08); }
+    .type-card-icon { margin-bottom: 14px; display: flex; justify-content: center; }
+    .type-card-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -.02em; }
+    .type-card-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    @media(max-width:500px) { .type-grid { grid-template-columns: 1fr; max-width: 100%; } }
     @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
     @keyframes successFadeIn { from{opacity:0;transform:translateY(16px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
 
@@ -168,6 +182,9 @@
     .lc-copy-btn:hover { opacity: 1; }
     .lc-name { font-size: 17px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-family: "Inter",sans-serif; white-space: nowrap; }
     .lc-alias { font-size: 12px; opacity: .6; letter-spacing: 2.5px; text-transform: uppercase; font-family: "Inter",sans-serif; font-weight: 700; }
+    .lc-logo-sq { width: 64px; height: 64px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,.15); border: 1.5px solid rgba(255,255,255,.30); display: none; flex-shrink: 0; }
+    .lc-logo-sq.visible { display: block; }
+    .lc-logo-sq img { width: 100%; height: 100%; object-fit: cover; }
     .live-card.light-text { color: #ffffff; }
     .live-card.dark-text { color: #1a1a1a; }
 
@@ -326,7 +343,27 @@
 </header>
 
 <div class="page">
-  <div class="app-hero" id="app-hero">
+  <!-- TYPE SELECTOR -->
+  <div id="view-type" class="active">
+    <div class="type-hero">
+      <h1>&#191;Qu&#233; tipo de perfil?</h1>
+      <p>Elige el que mejor describe tu uso.</p>
+    </div>
+    <div class="type-grid">
+      <div class="type-card" onclick="selectType('personal')">
+        <div class="type-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#00c896" stroke-width="1.8"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="type-card-title">Personal</div>
+        <div class="type-card-desc">Comparte tu CLABE para recibir transferencias SPEI.</div>
+      </div>
+      <div class="type-card" onclick="selectType('negocios')">
+        <div class="type-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="15" rx="2" stroke="#00c896" stroke-width="1.8"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#00c896" stroke-width="1.8"/><path d="M12 12v4M10 14h4" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="type-card-title">Negocio</div>
+        <div class="type-card-desc">Logo, nombre comercial y datos fiscales para facturaci&#243;n.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-hero" id="app-hero" style="display:none;">
     <h1 id="app-hero-title">Empieza aqu&#237;</h1>
     <p id="app-hero-sub">Ingresa tus datos y personaliza tu perfil.</p>
   </div>
@@ -337,6 +374,7 @@
 
       <!-- PANEL 1 -->
       <div class="left-panel" id="panel-step1">
+        <button class="step2-back" id="type-back-btn" onclick="goBackToType()" style="display:none;">&#8592; Volver</button>
         <div class="card">
           <div class="card-header">
             <div class="n26-bar"></div>
@@ -465,6 +503,49 @@
             </div>
           </div>
 
+
+          <!-- NEGOCIO SECTION (shown only for negocio type) -->
+          <div id="negocio-section-divider" style="display:none;margin-top:12px;padding-top:18px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Informaci&#243;n del negocio</div>
+          </div>
+
+          <!-- NOMBRE NEGOCIO (negocios only) -->
+          <div class="field" id="fg-nombre-negocio" style="display:none;">
+            <div class="field-label-row">
+              <label>Nombre del negocio <span class="opt">&#8212; opcional</span></label>
+              <label class="show-toggle">
+                <input type="checkbox" id="show_nombre_negocio" onchange="onNombreNegocioToggle()"/>
+                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+                <span class="show-toggle-label">Agregar</span>
+              </label>
+            </div>
+            <div id="nombre-negocio-input-wrap" style="display:none;">
+              <input type="text" id="nombre-negocio" placeholder="Ej. Mi Empresa SA de CV" maxlength="40" oninput="updateNombreNegocioPreview()"/>
+            </div>
+          </div>
+
+          <!-- LOGO (negocios only) -->
+          <div class="field" id="fg-logo" style="display:none;">
+            <div class="field-label-row">
+              <label>Logo <span class="opt">&#8212; opcional</span></label>
+              <label class="show-toggle">
+                <input type="checkbox" id="show_logo" onchange="onLogoToggle()"/>
+                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+                <span class="show-toggle-label">Agregar</span>
+              </label>
+            </div>
+            <div class="logo-upload-area" id="logo-upload-area">
+              <div class="logo-dropzone" onclick="$('logo-file').click()">
+                <div class="logo-dz-square" id="logo-dz-square">
+                  <img id="logo-thumb" src="" alt=""/>
+                  <svg id="logo-plus-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="logo-dz-text"><strong>Sube tu logo</strong>PNG o JPG &middot; Cuadrado recomendado</div>
+              </div>
+              <input type="file" id="logo-file" accept="image/*" style="display:none;" onchange="onLogoFile(this)"/>
+            </div>
+          </div>
+
           <!-- DATOS FISCALES TOGGLE -->
           <div class="field" id="fg-fiscal-toggle">
             <div class="field-label-row">
@@ -568,7 +649,8 @@
             <div class="live-card light-text" id="live-card">
               <div class="card-design-layer" id="card-design-layer"></div>
               <div class="lc-inner">
-                <div class="lc-top"><span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span></div>
+                <div class="lc-top">
+                <div class="lc-logo-sq" id="lc-logo-sq" style="display:none;"><img id="lc-logo-img" src="" alt=""/></div><span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span></div>
                 <div class="lc-middle">
                   <div class="lc-bank" id="lc-bank" style="display:none;">
                     <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
@@ -742,6 +824,8 @@ const BANCOS = {
   '141':{ nombre:'VOLKSWAGEN',domain:'vwfs.mx'},'846':{ nombre:'STP',domain:'stp.mx'},
 };
 const favicon = d => `https://www.google.com/s2/favicons?domain=${d}&sz=32`;
+const MX_STATES = {'DIF':'Ciudad de México','AGS':'Aguascalientes','BC':'Baja California','BCS':'Baja California Sur','CAM':'Campeche','CHP':'Chiapas','CHH':'Chihuahua','COA':'Coahuila','COL':'Colima','DUR':'Durango','GTO':'Guanajuato','GRO':'Guerrero','HID':'Hidalgo','JAL':'Jalisco','MEX':'Estado de México','MIC':'Michoacán','MOR':'Morelos','NAY':'Nayarit','NLE':'Nuevo León','OAX':'Oaxaca','PUE':'Puebla','QRO':'Querétaro','ROO':'Quintana Roo','SLP':'San Luis Potosí','SIN':'Sinaloa','SON':'Sonora','TAB':'Tabasco','TAM':'Tamaulipas','TLX':'Tlaxcala','VER':'Veracruz','YUC':'Yucatán','ZAC':'Zacatecas'};
+const MX_STATES_BY_NAME = {'Ciudad de Mexico':'Ciudad de México','Nuevo Leon':'Nuevo León','Michoacan':'Michoacán','Queretaro':'Querétaro','San Luis Potosi':'San Luis Potosí','Yucatan':'Yucatán','Mexico':'Estado de México','Jalisco':'Jalisco','Veracruz de Ignacio de la Llave':'Veracruz','Coahuila de Zaragoza':'Coahuila'};
 
 /* ── Color por banco — se aplica automáticamente al detectar la CLABE ── */
 const BANCO_COLORS = {
@@ -802,11 +886,8 @@ const CARD_PRESETS = [
 ];
 const BG_PRESETS = [
   { label:'Negro',   value:'#000000' },
-  { label:'Carb\u00f3n', value:'#111827' },
-  { label:'Bosque',  value:'#0a1a10' },
   { label:'Blanco',  value:'#ffffff' },
-  { label:'Lavanda', value:'#cec4f5' },
-  { label:'Mint',    value:'#aadfc4' },
+  { label:'Marca',   value:'#003d2e' },
 ];
 const SOLID_MAP = {
   'linear-gradient(135deg,#004d38,#00c896)':'0,200,150',
@@ -831,6 +912,11 @@ let clabeCheckState = 'idle', clabeCheckTimer = null;
 let slugCheckState = 'idle', slugCheckTimer = null;
 let cpLookupTimer = null;
 let logoBase64 = null;
+let profileType = 'personal';
+let clabeCheckState = 'idle', clabeCheckTimer = null;
+let slugCheckState = 'idle', slugCheckTimer = null;
+let cpLookupTimer = null;
+let logoBase64 = null;
 
 /* ── helpers ── */
 function setFloatingBtn({ text, disabled, visible }) {
@@ -840,8 +926,17 @@ function setFloatingBtn({ text, disabled, visible }) {
   if(disabled!==undefined) btn.disabled=disabled;
 }
 function floatingBtnClick() { if(currentStep===1) goToStep2(); }
-function showMainLayout() { $('main-layout').classList.add('active'); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); setFloatingBtn({visible:true}); }
-function hideMainLayout() { $('main-layout').classList.remove('active'); setFloatingBtn({visible:false}); }
+function showMainLayout() {
+  $('main-layout').style.display='';
+  $('main-layout').classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  setFloatingBtn({visible:true});
+}
+function hideMainLayout() {
+  $('main-layout').classList.remove('active');
+  $('main-layout').style.display='none';
+  setFloatingBtn({visible:false});
+}
 
 function transitionLeftPanel(fromId, toId, onSwap) {
   const fromEl=$(fromId), toEl=$(toId);
@@ -868,6 +963,37 @@ function transitionHero(title, subtitle) {
   },290);
 }
 
+function selectType(type) {
+  profileType = type;
+  $('view-type').style.display = 'none';
+  $('view-type').classList.remove('active');
+  const backBtn = $('type-back-btn');
+  if(backBtn) backBtn.style.display = 'inline-flex';
+  $('app-hero').style.display = '';
+  $('app-hero-title').textContent = type === 'personal' ? 'Empieza aquí' : 'Perfil de negocio';
+  $('app-hero-sub').textContent = type === 'personal' ? 'Ingresa tus datos y personaliza tu perfil.' : 'Datos bancarios y empresariales en un link.';
+  showMainLayout();
+  setFloatingBtn({text:'Continuar →',visible:true});
+}
+function goBackToType() {
+  const backBtn = $('type-back-btn');
+  if(backBtn) backBtn.style.display = 'none';
+  $('view-type').style.display = 'flex';
+  $('view-type').classList.add('active');
+  $('app-hero').style.display = 'none';
+  $('main-layout').classList.remove('active', 'step2');
+  $('main-layout').style.display = 'none';
+  setFloatingBtn({visible:false});
+  if(currentStep === 2) {
+    currentStep = 1;
+    $('panel-step2').classList.add('hidden');
+    $('panel-step1').classList.remove('hidden','exit-left');
+    $('panel-step1').style.opacity = '';
+    $('panel-step1').style.transform = '';
+    $('color-editor').classList.remove('fade-out');
+  }
+}
+
 function goToStep2() {
   const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
   let ok=true;
@@ -881,14 +1007,39 @@ function goToStep2() {
   $('step2-banco').textContent=bancoData?bancoData.nombre:'Banco no identificado';
   $('color-editor').classList.add('fade-out');
   setFloatingBtn({visible:false});
-  transitionHero('\u00daltimo paso','Completa tu informaci\u00f3n y crea tu link personal.');
+  const backBtn=$('type-back-btn');if(backBtn)backBtn.style.display='none';
+  const isNeg = profileType==='negocios';
+  transitionHero('\u00daltimo paso', isNeg?'Completa los datos del administrador del perfil del negocio.':'Completa tu informaci\u00f3n y crea tu link personal.');
   transitionLeftPanel('panel-step1','panel-step2',()=>{
     currentStep=2; $('main-layout').classList.add('step2');
+    // Show/hide negocio fields
+    $('fg-nombre-negocio').style.display = isNeg ? '' : 'none';
+    $('fg-logo').style.display = isNeg ? '' : 'none';
+    const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
+    // Update nombre field label for negocio
+    const lbNombre=document.querySelector('#fg-nombre label');
+    const inpNombre=$('nombre');
+    if(isNeg){
+      if(lbNombre)lbNombre.childNodes[0].textContent='Nombre del negocio ';
+      if(inpNombre){inpNombre.placeholder='Ej. Taquer\u00eda El G\u00fcero SA de CV';inpNombre.style.textTransform='uppercase';inpNombre.oninput=function(){this.value=this.value.toUpperCase();if(this.value.trim().length>=2)$('fg-nombre').classList.remove('has-error');};}
+      document.querySelector('#fg-nombre .field-error').textContent='Ingresa el nombre del negocio.';
+      $('fg-nombre-negocio').style.display='none';
+      if(div)div.style.display='none';
+    } else {
+      if(lbNombre)lbNombre.childNodes[0].textContent='Nombre completo ';
+      if(inpNombre){inpNombre.placeholder='Ej. Mar\u00eda Garc\u00eda L\u00f3pez';inpNombre.style.textTransform='';inpNombre.oninput=function(){if(this.value.trim().length>=3)$('fg-nombre').classList.remove('has-error');};}
+      document.querySelector('#fg-nombre .field-error').textContent='Ingresa tu nombre completo.';
+    }
+    // Reset fiscal toggle to OFF
+    const sfCb=$('show_fiscal');if(sfCb){sfCb.checked=false;}
+    const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');
+    updateContactPreview();
     window.scrollTo({top:0,behavior:'smooth'});
   });
 }
 function backToStep1() {
   $('color-editor').classList.remove('fade-out');
+  const backBtn=$('type-back-btn');if(backBtn)backBtn.style.display='inline-flex';
   transitionHero('Empieza aqu\u00ed','Ingresa tus datos y personaliza tu perfil.');
   transitionLeftPanel('panel-step2','panel-step1',()=>{
     currentStep=1; $('main-layout').classList.remove('step2');
@@ -897,11 +1048,17 @@ function backToStep1() {
   });
 }
 function resetToStep1() {
-  currentStep=1; clabeCheckState='idle'; slugCheckState='idle';
+  currentStep=1; clabeCheckState='idle'; slugCheckState='idle'; logoBase64=null;
   $('color-editor').classList.remove('fade-out');
   $('panel-step2').classList.add('hidden'); $('panel-step1').classList.remove('hidden','exit-left');
   $('panel-step1').style.opacity=''; $('panel-step1').style.transform='';
-  showMainLayout(); setFloatingBtn({text:'Continuar \u2192',visible:true});
+  // Go back to type selector
+  const backBtn=$('type-back-btn');if(backBtn)backBtn.style.display='none';
+  $('view-type').style.display='flex'; $('view-type').classList.add('active');
+  $('app-hero').style.display='none';
+  $('main-layout').classList.remove('active','step2');
+  $('main-layout').style.display='none';
+  setFloatingBtn({visible:false});
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -979,6 +1136,39 @@ function onLogoFile(input) {
     $('logo-plus-icon').style.display='none';
     $('logo-circle-img').src=logoBase64;
     $('logo-circle-overlay').classList.add('visible');
+  };
+  reader.readAsDataURL(file);
+}
+
+
+/* ── NOMBRE NEGOCIO ── */
+function onNombreNegocioToggle() {
+  const checked=$('show_nombre_negocio').checked;
+  $('nombre-negocio-input-wrap').style.display=checked?'block':'none';
+  if(!checked){$('nombre-negocio').value='';$('lc-negocio-group').style.display='none';}
+}
+function updateNombreNegocioPreview() {
+  const val=$('nombre-negocio').value.trim();
+  if(val&&$('show_nombre_negocio').checked){$('lc-negocio-val').textContent=val.toUpperCase();$('lc-negocio-group').style.display='flex';}
+  else $('lc-negocio-group').style.display='none';
+}
+
+/* ── LOGO TOGGLE ── */
+function onLogoToggle() {
+  const checked=$('show_logo').checked;
+  const area=$('logo-upload-area');if(area)area.classList.toggle('visible',checked);
+  if(!checked){logoBase64=null;const sq=$('lc-logo-sq');if(sq)sq.classList.remove('visible');const img=$('lc-logo-img');if(img)img.src='';const thumb=$('logo-thumb');if(thumb){thumb.style.display='none';thumb.src='';}const plus=$('logo-plus-icon');if(plus)plus.style.display='block';}
+  updateContactPreview();
+}
+function onLogoFile(input) {
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    logoBase64=e.target.result;
+    const thumb=$('logo-thumb');if(thumb){thumb.src=logoBase64;thumb.style.display='block';}
+    const plus=$('logo-plus-icon');if(plus)plus.style.display='none';
+    const img=$('lc-logo-img');if(img)img.src=logoBase64;
+    const sq=$('lc-logo-sq');if(sq)sq.classList.add('visible');
   };
   reader.readAsDataURL(file);
 }
@@ -1143,7 +1333,7 @@ async function submitForm(){
   }:null;
   const fnResp=await fetch(`${SUPABASE_URL}/functions/v1/create-link`,{
     method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
-    body:JSON.stringify({ clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked),custom_slug:customSlug||null,has_fiscal:showFiscal,icon_id:selectedIcon!=='none'?selectedIcon:null,icon_color:selectedIcon!=='none'?selectedIconColor:null,...(fiscalData||{}) })
+    body:JSON.stringify({ clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked),custom_slug:customSlug||null,profile_type:profileType,nombre_negocio:profileType==='negocios'?$('nombre').value.trim():null,logo_url:logoBase64||null,has_fiscal:showFiscal,icon_id:selectedIcon!=='none'?selectedIcon:null,icon_color:selectedIcon!=='none'?selectedIconColor:null,...(fiscalData||{}) })
   });
   if(fnResp.status===409){ hidePageLoader(()=>{ textEl.textContent='Generar mi Link'; submitBtn.disabled=false; showMainLayout(); $('main-layout').classList.add('step2'); $('slug-error').textContent='Este link ya est\u00e1 en uso. Elige otro.'; setError('fg-slug',true); slugCheckState='taken'; slugStatusIcon('error'); setFloatingBtn({visible:false}); }); return; }
   if(!fnResp.ok){ hidePageLoader(()=>{ textEl.textContent='Error. Intenta de nuevo.'; submitBtn.disabled=false; setFloatingBtn({visible:true}); }); return; }
@@ -1419,9 +1609,11 @@ function applyBgColor(){
 
 /* ── INIT ── */
 buildDesignPicker(); buildSwatches(); initColorPickers();
-  buildIconPicker(); buildIconSwatches();
+buildIconPicker(); buildIconSwatches();
 renderDesign($('card-design-layer'),0); applyCardColor(); applyBgColor();
-showMainLayout(); setFloatingBtn({text:'Continuar \u2192',visible:true});
+// Show type selector only — main layout hidden until type selected
+$('app-hero').style.display='none';
+$('main-layout').style.display='none';
 
 /* ── SHAPES ── */
 (function(){
