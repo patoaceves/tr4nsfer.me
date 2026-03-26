@@ -49,7 +49,11 @@
     .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.1);cursor:default;}
     .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
     .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:20px 22px 24px;}
-    .lc-top{display:flex;align-items:flex-start;justify-content:flex-end;}
+    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
+    .lc-logo-sq{width:64px;height:64px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
+    .lc-logo-sq.visible{display:block;}
+    .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
+    .lc-negocio-name{font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
     .lc-top-logo{height:14px;width:auto;display:block;opacity:.8;}
     .lc-middle{display:flex;flex-direction:column;flex:1;justify-content:space-evenly;padding:14px 0;}
     .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:24px;padding:7px 16px 7px 8px;align-self:flex-start;}
@@ -129,9 +133,13 @@
       <div class="card-design-layer" id="card-design-layer"></div>
       <div class="lc-inner">
         <div class="lc-top">
+          <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt="Logo"/></div>
           <img class="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
         </div>
         <div class="lc-middle">
+          <div class="lc-group" id="lc-negocio-group" style="display:none;">
+            <div class="lc-negocio-name" id="lc-negocio-name"></div>
+          </div>
           <div class="lc-bank" id="lc-bank">
             <img class="lc-bank-icon" id="lc-bank-icon" src="" alt=""/>
             <span class="lc-bank-name" id="lc-bank-name">&#8212;</span>
@@ -374,6 +382,8 @@ function renderProfile(d){
   const m=(cg).match(/#([0-9a-f]{6})/i);
   if(m){const n=parseInt(m[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}
   $('card-design-layer').innerHTML=CARD_DESIGNS[di].render();
+  if(d.logo_url){const sq=$('lc-logo-sq');if(sq){$('lc-logo-img').src=d.logo_url;sq.classList.add('visible');}}
+  if(d.nombre_negocio){const ng=$('lc-negocio-group');if(ng){$('lc-negocio-name').textContent=d.nombre_negocio.toUpperCase();ng.style.display='flex';}}
   if(d.banco){$('lc-bank-name').textContent=d.banco;if(d.banco_domain){const ic=$('lc-bank-icon');ic.src=favicon(d.banco_domain);ic.style.display='block';}$('lc-bank').style.display='flex';}else $('lc-bank').style.display='none';
   const clabeRaw=d.clabe||'';$('lc-clabe').textContent=fmt(clabeRaw);
   $('card-copy-clabe').onclick=()=>{navigator.clipboard.writeText(clabeRaw).then(()=>{$('card-copy-clabe').style.opacity='.2';setTimeout(()=>$('card-copy-clabe').style.opacity='.5',500);});};
