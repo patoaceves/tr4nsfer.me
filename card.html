@@ -13,28 +13,26 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    :root{--teal:#00c896;--bg:#000;--surface:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.1);--muted:rgba(255,255,255,0.45);--text:#fff;}
+    :root{--teal:#00c896;--bg:#000;--muted:rgba(255,255,255,0.45);--text:#fff;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 40px;}
-    @media(max-width:600px){body{justify-content:flex-start;}}
+    @media(max-width:600px){body{justify-content:flex-start;padding-top:48px;}}
     .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
     .state-title{font-size:15px;font-weight:600;color:var(--muted);}
     .state-sub{font-size:13px;color:rgba(255,255,255,0.3);}
-    /* PAGE LOADER */
     #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s;}
     #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
-    .pl-svg         {width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,0.38));opacity:0;animation:plCycle 2.1s linear infinite;}
-    .pl-stroke-horiz{stroke-dasharray:737; stroke-dashoffset:737; animation:plHoriz 2.1s linear infinite;}
-    .pl-stroke-diag {stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag  2.1s linear infinite;}
-    .pl-stroke-vert {stroke-dasharray:750; stroke-dashoffset:750; animation:plVert  2.1s linear infinite;}
-    .pl-dot         {transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear infinite;}
+    .pl-svg{width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,0.38));opacity:0;animation:plCycle 2.1s linear infinite;}
+    .pl-stroke-horiz{stroke-dasharray:737;stroke-dashoffset:737;animation:plHoriz 2.1s linear infinite;}
+    .pl-stroke-diag{stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag 2.1s linear infinite;}
+    .pl-stroke-vert{stroke-dasharray:750;stroke-dashoffset:750;animation:plVert 2.1s linear infinite;}
+    .pl-dot{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear infinite;}
     @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
     @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plDiag {0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plVert {0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plDot  {0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
-    /* CARD */
+    @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
     .card-wrap{width:100%;max-width:340px;}
-    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;z-index:1;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.1);cursor:default;}
+    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.1);cursor:default;}
     .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
     .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:20px 22px 24px;}
     .lc-top img{height:14px;width:auto;display:block;opacity:0.8;}
@@ -51,16 +49,14 @@
     .lc-name{font-size:17px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;}
     .lc-bottom{display:flex;justify-content:space-between;align-items:flex-end;}
     .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.6);}
-    /* ACTIONS */
-    .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
+    .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;}
     .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,0.12));border:1px solid var(--card-row-border,rgba(0,200,150,0.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
     .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
-    .action-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0;}
+    .action-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
     .action-value{font-size:14px;font-weight:600;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
-    .btn-copy{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;letter-spacing:0.04em;flex-shrink:0;}
+    .btn-copy{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;flex-shrink:0;}
     .btn-copy:hover{background:rgba(255,255,255,0.14);}
     .btn-copy.copied{color:var(--muted);}
-    /* BRANDING */
     .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;}
     .branding-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);}
     .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:0.55;transition:opacity .2s;}
@@ -117,9 +113,7 @@
               </div>
             </div>
           </div>
-          <div class="lc-bottom">
-            <div class="lc-alias" id="lc-alias"></div>
-          </div>
+          <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
         </div>
       </div>
     </div>
@@ -144,10 +138,7 @@
     <div class="branding">
       <div class="branding-label">Powered by</div>
       <a href="/" target="_blank"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
-      <a href="/app" target="_blank" class="branding-cta">
-        Crea el tuyo
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
+      <a href="/app" target="_blank" class="branding-cta">Crea el tuyo <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
   </div>
 
@@ -157,13 +148,18 @@
   const $=id=>document.getElementById(id);
   const favicon=d=>`https://www.google.com/s2/favicons?domain=${d}&sz=32`;
 
+  /* IMPORTANT: indices must match app.html CARD_DESIGNS order
+     0=diagonal 1=aurora 2=espiral 3=cristal 4=topografico 5=solido */
   const CARD_DESIGNS=[
-    {id:'diagonal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,36 0,78" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,24" fill="rgba(255,255,255,0.07)"/><polygon points="0,82 100,38 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-    {id:'aurora',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`},
-    {id:'espiral',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,100 Q50,49 100,36" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,100 Q60,62 100,52" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,100 Q36,33 100,18" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`},
-    {id:'solido',render:()=>``},
-    {id:'cristal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,28 0,20" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,30" fill="rgba(255,255,255,0.08)"/><polygon points="38,28 78,30 100,12 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,20 38,28 22,62 0,52" fill="rgba(255,255,255,0.06)"/><polygon points="38,28 78,30 68,78 22,62" fill="rgba(255,255,255,0.04)"/><polygon points="0,82 22,62 68,78 100,96 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-    {id:'topografico',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><ellipse cx="118" cy="18" rx="80" ry="50" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/><ellipse cx="118" cy="18" rx="62" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.7"/><ellipse cx="118" cy="18" rx="45" ry="27" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.7"/><ellipse cx="118" cy="18" rx="28" ry="17" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.6"/><ellipse cx="-18" cy="92" rx="68" ry="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/><ellipse cx="-18" cy="92" rx="50" ry="30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/></svg>`},
+    {id:'diagonal', render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,36 0,78" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,24" fill="rgba(255,255,255,0.07)"/><polygon points="0,82 100,38 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
+    {id:'aurora',   render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`},
+    {id:'espiral',  render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,100 Q50,49 100,36" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,100 Q60,62 100,52" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,100 Q36,33 100,18" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`},
+    {id:'cristal',  render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,28 0,20" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,30" fill="rgba(255,255,255,0.08)"/><polygon points="38,28 78,30 100,12 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,20 38,28 22,62 0,52" fill="rgba(255,255,255,0.06)"/><polygon points="38,28 78,30 68,78 22,62" fill="rgba(255,255,255,0.04)"/><polygon points="0,82 22,62 68,78 100,96 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
+    {
+      /* viewBox 0 0 100 120 matches the 1:1.2 aspect ratio so equal radii = circles */
+      id:'topografico', render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><ellipse cx="50" cy="60" rx="46" ry="46" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="35" ry="35" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="24" ry="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="14" ry="14" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/><ellipse cx="50" cy="60" rx="6" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/></svg>`
+    },
+    {id:'solido', render:()=>``},
   ];
 
   const CARD_PRESETS=[
@@ -185,30 +181,18 @@
   };
 
   const LADAS_2D=new Set(['55','56','81','33','99']);
-  function fmtWA(digits){
-    if(!digits) return '';
-    const l2=digits.substring(0,2);
-    if(LADAS_2D.has(l2)) return [digits.substring(0,2),digits.substring(2,6),digits.substring(6,10)].filter(p=>p).join(' ');
-    return [digits.substring(0,3),digits.substring(3,6),digits.substring(6,10)].filter(p=>p).join(' ');
-  }
-
-  function fmt(clabe){return clabe.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
+  function fmtWA(d){ if(!d)return ''; const l2=d.substring(0,2); if(LADAS_2D.has(l2))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(p=>p).join(' '); return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(p=>p).join(' '); }
+  function fmt(c){return c.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
 
   function copyAction(textId,btn,rawAttr){
-    var el=document.getElementById(textId);
-    if(!el) return;
+    var el=document.getElementById(textId); if(!el) return;
     var val=rawAttr&&el.dataset[rawAttr]?el.dataset[rawAttr]:el.textContent.trim();
-    navigator.clipboard.writeText(val).then(()=>{
-      btn.textContent='✓ Copiado'; btn.classList.add('copied');
-      setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000);
-    });
+    navigator.clipboard.writeText(val).then(()=>{ btn.textContent='✓ Copiado'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000); });
   }
 
   function getCardColorVars(cg){
     if(CARD_COLOR_MAP[cg]) return CARD_COLOR_MAP[cg];
-    // Custom gradient — extract end hex
-    const m=cg.match(/#[0-9a-fA-F]{6}/g);
-    const endHex=m?m[m.length-1]:'#00c896';
+    const m=cg.match(/#[0-9a-fA-F]{6}/g),endHex=m?m[m.length-1]:'#00c896';
     const r=parseInt(endHex.slice(1,3),16),g=parseInt(endHex.slice(3,5),16),b=parseInt(endHex.slice(5,7),16);
     return {rgb:`${r},${g},${b}`,accent:endHex};
   }
@@ -222,102 +206,50 @@
 
   function renderProfile(d){
     const card=$('live-card');
-    const designIdx=d.card_design||0;
-    const isSolido=CARD_DESIGNS[designIdx]&&CARD_DESIGNS[designIdx].id==='solido';
+    const designIdx=Math.min(d.card_design||0, CARD_DESIGNS.length-1);
+    const isSolido=CARD_DESIGNS[designIdx].id==='solido';
     const cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
     const preset=CARD_PRESETS.find(p=>p.value===cg);
     card.style.background=(isSolido&&preset)?preset.solid:cg;
     document.body.style.background=d.bg_color||'#000';
-
     applyCardVars(cg);
-
-    const dl=$('card-design-layer');
-    dl.innerHTML=CARD_DESIGNS[designIdx]?CARD_DESIGNS[designIdx].render():'';
-
-    if(d.banco){
-      $('lc-bank-name').textContent=d.banco;
-      if(d.banco_domain){const icon=$('lc-bank-icon');icon.src=favicon(d.banco_domain);icon.style.display='block';}
-      $('lc-bank').style.display='flex';
-    } else {
-      $('lc-bank').style.display='none';
-    }
-
+    $('card-design-layer').innerHTML=CARD_DESIGNS[designIdx].render();
+    if(d.banco){ $('lc-bank-name').textContent=d.banco; if(d.banco_domain){var ic=$('lc-bank-icon');ic.src=favicon(d.banco_domain);ic.style.display='block';} $('lc-bank').style.display='flex'; }
+    else $('lc-bank').style.display='none';
     const clabeRaw=d.clabe||'';
     $('lc-clabe').textContent=fmt(clabeRaw);
-    $('card-copy-clabe').onclick=()=>{
-      navigator.clipboard.writeText(clabeRaw).then(()=>{
-        $('card-copy-clabe').style.opacity='0.2';
-        setTimeout(()=>$('card-copy-clabe').style.opacity='0.5',500);
-      });
-    };
-
-    const nom=d.titular_cuenta||'';
-    $('lc-name').textContent=nom;
-    if(nom.length>25) $('lc-name').style.fontSize='14px';
-    $('card-copy-nombre').onclick=()=>{
-      navigator.clipboard.writeText(nom).then(()=>{
-        $('card-copy-nombre').style.opacity='0.2';
-        setTimeout(()=>$('card-copy-nombre').style.opacity='0.5',500);
-      });
-    };
-
+    $('card-copy-clabe').onclick=()=>{ navigator.clipboard.writeText(clabeRaw).then(()=>{ $('card-copy-clabe').style.opacity='0.2'; setTimeout(()=>$('card-copy-clabe').style.opacity='0.5',500); }); };
+    const nom=d.titular_cuenta||''; $('lc-name').textContent=nom; if(nom.length>25) $('lc-name').style.fontSize='14px';
+    $('card-copy-nombre').onclick=()=>{ navigator.clipboard.writeText(nom).then(()=>{ $('card-copy-nombre').style.opacity='0.2'; setTimeout(()=>$('card-copy-nombre').style.opacity='0.5',500); }); };
     if(d.alias) $('lc-alias').textContent=d.alias;
-
     var anyAction=false;
-
-    if(d.whatsapp&&d.show_whatsapp!==false){
-      const waDigits=d.whatsapp.length>10?d.whatsapp.slice(-10):d.whatsapp;
-      const fmt10=fmtWA(waDigits);
-      const waText=$('act-wa-text');
-      waText.textContent='+52 '+fmt10;
-      waText.dataset.rawWa=d.whatsapp;
-      $('row-wa').style.display='flex';
-      anyAction=true;
-    }
-
-    if(d.email&&d.show_email!==false){
-      $('act-email-text').textContent=d.email;
-      $('row-email').style.display='flex';
-      anyAction=true;
-    }
-
+    if(d.whatsapp&&d.show_whatsapp!==false){ const wd=d.whatsapp.length>10?d.whatsapp.slice(-10):d.whatsapp; var wt=$('act-wa-text'); wt.textContent='+52 '+fmtWA(wd); wt.dataset.rawWa=d.whatsapp; $('row-wa').style.display='flex'; anyAction=true; }
+    if(d.email&&d.show_email!==false){ $('act-email-text').textContent=d.email; $('row-email').style.display='flex'; anyAction=true; }
     if(anyAction) $('actions').style.display='flex';
-
     hideLoader();
-    const prof=$('state-profile');
-    prof.style.display='flex';
+    var prof=$('state-profile'); prof.style.display='flex';
   }
 
-  /* ── Page loader ── */
   var _plDone=false,_plDismissed=false,_plCallback=null;
   (function(){
-    var loader=$('page-loader');
-    if(!loader) return;
+    var loader=$('page-loader'); if(!loader) return;
     loader.querySelector('.pl-svg').addEventListener('animationiteration',function(e){
       if(e.animationName!=='plCycle'||_plDismissed) return;
-      if(_plDone){
-        _plDismissed=true;
-        loader.classList.add('hide');
-        setTimeout(function(){
-          if(loader.parentNode) loader.parentNode.removeChild(loader);
-          if(_plCallback){var cb=_plCallback;_plCallback=null;cb();}
-        },380);
-      }
+      if(_plDone){ _plDismissed=true; loader.classList.add('hide'); setTimeout(()=>{ if(loader.parentNode)loader.parentNode.removeChild(loader); if(_plCallback){var cb=_plCallback;_plCallback=null;cb();} },380); }
     });
   })();
-  function hideLoader(callback){_plCallback=callback||null;_plDone=true;}
+  function hideLoader(cb){ _plCallback=cb||null; _plDone=true; }
 
   async function init(){
     const params=new URLSearchParams(window.location.search);
     const slug=params.get('id')||window.location.pathname.replace(/\//g,'').split('?')[0];
-    if(!slug){hideLoader(function(){$('state-error').style.display='flex';});return;}
+    if(!slug){hideLoader(()=>$('state-error').style.display='flex');return;}
     const resp=await fetch(`${SUPABASE_URL}/functions/v1/get-link?slug=${slug}`,{headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}});
-    if(!resp.ok){hideLoader(function(){$('state-error').style.display='flex';});return;}
+    if(!resp.ok){hideLoader(()=>$('state-error').style.display='flex');return;}
     const data=await resp.json();
-    if(!data||data.error){hideLoader(function(){$('state-error').style.display='flex';});return;}
+    if(!data||data.error){hideLoader(()=>$('state-error').style.display='flex');return;}
     renderProfile(data);
   }
-
   init();
 </script>
 </body>
