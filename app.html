@@ -552,11 +552,11 @@
               <div class="form-row" style="margin-bottom:10px;">
                 <div class="field" style="margin-bottom:0;">
                   <label>Municipio / Ciudad <span class="req">*</span></label>
-                  <input type="text" id="ciudad-fiscal" placeholder="Ej. Cuauht&#233;moc"/>
+                  <input type="text" id="ciudad-fiscal" placeholder="EJ. CUAUHTÉMOC" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
                 </div>
                 <div class="field" style="margin-bottom:0;">
                   <label>Estado</label>
-                  <input type="text" id="estado-fiscal" readonly placeholder="Auto-detectado"/>
+                  <input type="text" id="estado-fiscal" readonly placeholder="AUTO-DETECTADO" style="text-transform:uppercase;"/>
                 </div>
               </div>
               <div class="field" id="fg-colonia" style="margin-bottom:10px;">
@@ -564,11 +564,11 @@
                 <select id="colonia-fiscal"><option value="">Selecciona tu colonia</option></select>
               </div>
               <div id="colonia-otra-wrap" style="display:none;margin-bottom:10px;">
-                <input type="text" id="colonia-otra" placeholder="Escribe tu colonia"/>
+                <input type="text" id="colonia-otra" placeholder="ESCRIBE TU COLONIA" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
               </div>
               <div class="field" id="fg-calle">
                 <label>Calle y n&#250;mero <span class="req">*</span></label>
-                <input type="text" id="calle-fiscal" placeholder="Ej. Av. Insurgentes Sur 123"/>
+                <input type="text" id="calle-fiscal" placeholder="EJ. AV. INSURGENTES SUR 123" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
                 <span class="field-error">Ingresa la calle y n&#250;mero.</span>
               </div>
             </div>
@@ -894,7 +894,7 @@ async function lookupCP(cp){
     if(!d.places||!d.places.length){showCpError();return;}
     // Estado — proper accented name via abbreviation map
     const abbr=d.places[0]['state abbreviation'];
-    $('estado-fiscal').value=MX_STATES[abbr]||d.places[0]['state']||'';
+    $('estado-fiscal').value=(MX_STATES[abbr]||d.places[0]['state']||'').toUpperCase();
     // Ciudad — text input, user types municipality manually
     const ciudadInp=$('ciudad-fiscal');
     if(ciudadInp){ciudadInp.value='';ciudadInp.placeholder='Ej. Cuauhtémoc';}
