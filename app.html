@@ -292,8 +292,7 @@
     .icon-chip{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--border2);background:var(--input-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .18s,background .18s;flex-shrink:0;}
     .icon-chip:hover{border-color:var(--teal-border);background:var(--teal-dim);}
     .icon-chip.active{border-color:var(--teal)!important;background:var(--teal-dim)!important;}
-    .lc-icon-layer{position:absolute;bottom:18px;right:18px;z-index:0;pointer-events:none;opacity:0.10;}
-    .geo-icon{position:absolute;bottom:-60px;animation:riseShape linear infinite;}
+    .lc-icon-layer{position:absolute;bottom:-20px;right:-20px;z-index:0;pointer-events:none;opacity:0.13;}
     /* PAGE LOADER */
     #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:none;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
     #page-loader.active{display:flex;}
@@ -518,6 +517,17 @@
             </div>
             <div id="icon-selector-wrap" style="display:none;">
               <div class="icon-grid" id="icon-grid"></div>
+            <div id="icon-color-wrap" style="display:none;margin-top:10px;">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;">Color del ícono</div>
+              <div style="display:flex;gap:7px;flex-wrap:wrap;" id="icon-color-swatches">
+                <div class="swatch active" data-icolor="rgba(255,255,255,1)" style="background:#fff;border:2px solid #fff;" title="Blanco"></div>
+                <div class="swatch" data-icolor="rgba(0,200,150,0.9)" style="background:#00c896;" title="Teal"></div>
+                <div class="swatch" data-icolor="rgba(255,255,255,0.3)" style="background:rgba(255,255,255,0.3);border:1.5px dashed rgba(255,255,255,0.4);" title="Translúcido"></div>
+                <div class="swatch" data-icolor="rgba(0,0,0,0.7)" style="background:#000;" title="Negro"></div>
+                <div class="swatch" data-icolor="rgba(255,180,0,0.9)" style="background:#FFB400;" title="Dorado"></div>
+                <div class="swatch" data-icolor="rgba(200,100,255,0.9)" style="background:#C864FF;" title="Morado"></div>
+              </div>
+            </div>
             </div>
           </div>
 
@@ -784,7 +794,7 @@ const SOLID_MAP={'linear-gradient(135deg,#004d38,#00c896)':'0,200,150','linear-g
 const ACCENT_MAP={'linear-gradient(135deg,#004d38,#00c896)':'#00c896','linear-gradient(135deg,#0d0d0d,#1f1f1f)':'#aaaaaa','linear-gradient(135deg,#7a2050,#e8719a)':'#e8719a','linear-gradient(135deg,#0f3460,#1a6fb5)':'#00c896','linear-gradient(135deg,#2d1b69,#8b5cf6)':'#8b5cf6','linear-gradient(135deg,#7c2d12,#f97316)':'#f97316'};
 
 let selectedDesign=0,selectedCardGradient='linear-gradient(135deg,#004d38,#00c896)',selectedBgColor='#000000',currentStep=1;
-let selectedIconId=null,userPickedColor=false;
+let selectedIconId=null,selectedIconColor='rgba(255,255,255,1)',userPickedColor=false;
 let clabeCheckState='idle',clabeCheckTimer=null;
 let slugCheckState='idle',slugCheckTimer=null;
 let cpLookupTimer=null;
@@ -1142,6 +1152,16 @@ function onIconToggle(){
   if(!checked){selectedIconId=null;updateCardIcon(null);}
 }
 function buildIconPicker(){
+  // Icon color swatches
+  var iswatches=document.querySelectorAll('[data-icolor]');
+  iswatches.forEach(function(sw){
+    sw.addEventListener('click',function(){
+      iswatches.forEach(function(s){s.classList.remove('active');});
+      sw.classList.add('active');
+      selectedIconColor=sw.dataset.icolor;
+      if(selectedIconId)updateCardIcon(selectedIconId);
+    });
+  });
   const grid=$('icon-grid');if(!grid)return;
   INDUSTRY_ICONS.forEach(function(icon){
     const chip=document.createElement('div');
@@ -1152,6 +1172,7 @@ function buildIconPicker(){
       chip.classList.add('active');
       selectedIconId=icon.id;
       updateCardIcon(icon.id);
+      const cw=$('icon-color-wrap');if(cw)cw.style.display='block';
     };
     grid.appendChild(chip);
   });
@@ -1160,7 +1181,8 @@ function updateCardIcon(iconId){
   const layer=$('lc-icon-layer');if(!layer)return;
   if(!iconId){layer.innerHTML='';return;}
   const icon=INDUSTRY_ICONS.find(function(i){return i.id===iconId;});if(!icon)return;
-  layer.innerHTML=iconSVG(icon,64,'rgba(255,255,255,0.9)',0.85);
+  const col=selectedIconColor||'rgba(255,255,255,1)';
+  layer.innerHTML='<div style="transform:rotate(-15deg);transform-origin:center;">'+iconSVG(icon,140,col,0.7)+'</div>';
 }
 /* ── INIT ── */
 buildDesignPicker();buildSwatches();initColorPickers();buildIconPicker();
@@ -1172,25 +1194,6 @@ $('main-layout').style.display='none'; // extra safety until selectType is calle
 /* ── SHAPES ── */
 (function(){const c=document.getElementById('shapes'),N=22,TF='rgba(0,200,150,.07)',TS='rgba(0,200,150,.20)';const t=[];for(let i=0;i<N;i++)t.push(i%2===0?'square':'triangle');for(let i=t.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[t[i],t[j]]=[t[j],t[i]];}const cW=100/N;for(let i=0;i<N;i++){const isSq=t[i]==='square',fill=Math.random()>.5;const left=cW*i+cW*.15+Math.random()*cW*.7,size=14+Math.abs(Math.sin(i*1.3))*44+Math.random()*10;const dur=12+(i%5)*2.4+Math.random()*4,del=-(i*(dur/N))-Math.random()*4;const el=document.createElement('div');el.className='geo-shape '+(isSq?'geo-square':'geo-triangle');if(isSq&&fill)el.classList.add('filled');const base=`left:${left.toFixed(2)}%;animation-duration:${dur.toFixed(1)}s;animation-delay:${del.toFixed(1)}s;`;if(isSq){el.style.cssText=base+`width:${Math.round(size)}px;height:${Math.round(size)}px;border-radius:${Math.random()>.55?'3px':'0'};`;}else{const s=Math.round(size),pts=['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'][i%4];el.style.cssText=base+`width:${s}px;height:${s}px;`;el.innerHTML=`<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="${pts}" fill="${fill?TF:'none'}" stroke="${fill?'none':TS}" stroke-width="${fill?'0':'3'}" stroke-linejoin="round"/></svg>`;}c.appendChild(el);}})();
 
-
-/* ── FLOATING ICONS ── */
-(function(){
-  var c=document.getElementById('shapes');
-  if(!c||typeof INDUSTRY_ICONS==='undefined')return;
-  var NI=10;
-  for(var i=0;i<NI;i++){
-    var ico=INDUSTRY_ICONS[i%INDUSTRY_ICONS.length];
-    var left=(i*(95/NI)+2+Math.random()*7).toFixed(2);
-    var sz=Math.round(16+Math.random()*20);
-    var dur=(15+(i%5)*2.5+Math.random()*4).toFixed(1);
-    var del=(-(i*2.4+Math.random()*6)).toFixed(1);
-    var el=document.createElement('div');
-    el.className='geo-shape geo-icon';
-    el.style.cssText='left:'+left+'%;animation-duration:'+dur+'s;animation-delay:'+del+'s;width:'+sz+'px;height:'+sz+'px;';
-    el.innerHTML=iconSVG(ico,sz,'rgba(0,200,150,0.15)',0.7);
-    c.appendChild(el);
-  }
-})();
 
 /* ── PAGE LOADER ── */
 (function(){var loader=document.getElementById('page-loader');if(!loader)return;var _done=false,_dismissed=false,_onDone=null;function restartAnim(){var els=loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');els.forEach(el=>el.style.animation='none');loader.offsetHeight;els.forEach(el=>el.style.animation='');}loader.querySelector('.pl-svg').addEventListener('animationiteration',function(e){if(e.animationName!=='plCycle'||_dismissed)return;if(_done){_dismissed=true;loader.classList.add('hide');setTimeout(()=>{loader.classList.remove('active','hide');_done=false;_dismissed=false;if(_onDone){var cb=_onDone;_onDone=null;cb();}},380);}});window.showPageLoader=()=>{_done=false;_dismissed=false;_onDone=null;loader.classList.remove('hide');loader.classList.add('active');restartAnim();};window.hidePageLoader=cb=>{_onDone=cb||null;_done=true;};})();
