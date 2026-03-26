@@ -42,11 +42,14 @@
     /* PAGE */
     .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:100px 20px 60px;}
     /* TYPE SELECTOR */
-    #view-type{width:100%;display:none;flex-direction:column;align-items:center;padding:24px 0 48px;animation:fadeUp .4s ease both;}
+    #view-type{width:100%;display:none;flex-direction:column;align-items:center;justify-content:center;min-height:72vh;padding:0 0 48px;animation:fadeUp .4s ease both;}
     #view-type.active{display:flex;}
     .type-hero{text-align:center;margin-bottom:36px;}
     .type-hero h1{font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px;}
     .type-hero p{font-size:15px;color:var(--muted);}
+    .type-back{display:none;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--text-soft);cursor:pointer;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:999px;font-family:"Inter",sans-serif;padding:9px 18px;margin-bottom:28px;transition:background .18s,transform .1s;align-self:flex-start;}
+    .type-back:hover{background:#222;border-color:#333;transform:translateY(-1px);}
+    .type-back.visible{display:inline-flex;}
     .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:560px;}
     .type-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:32px 24px 28px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;text-align:center;}
     .type-card:hover{border-color:rgba(0,200,150,.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,200,150,.08);}
@@ -140,8 +143,9 @@
     .logo-upload-area.visible{display:block;}
     .logo-dropzone{border:1.5px dashed var(--border2);border-radius:9px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .18s,background .18s;}
     .logo-dropzone:hover{border-color:var(--teal-border);background:var(--teal-dim);}
-    .logo-dz-square{width:44px;height:44px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .logo-dz-square{width:88px;height:88px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
     .logo-dz-square img{width:100%;height:100%;object-fit:cover;display:none;}
+    .razon-social-input{text-transform:uppercase!important;}
     .logo-dz-text{font-size:12px;color:var(--muted);line-height:1.5;}
     .logo-dz-text strong{color:var(--teal);font-weight:600;display:block;margin-bottom:1px;}
     /* FISCAL FIELDS */
@@ -161,7 +165,7 @@
     .lc-inner{position:relative;z-index:1;height:100%;padding:20px 22px 24px;display:flex;flex-direction:column;justify-content:space-between;}
     .lc-top{display:flex;align-items:center;justify-content:space-between;}
     /* Logo square — inside card top-left */
-    .lc-logo-sq{width:44px;height:44px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
+    .lc-logo-sq{width:80px;height:80px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
     .lc-logo-sq.visible{display:block;}
     .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
     .lc-logo-dot img{height:14px;width:auto;display:block;opacity:.75;}
@@ -320,6 +324,7 @@
 
   <!-- TYPE SELECTOR -->
   <div id="view-type" class="active">
+    <button class="type-back" id="type-back-btn" onclick="goBackToType()">&#8592; Volver</button>
     <div class="type-hero">
       <h1>&#191;Qu&#233; tipo de perfil?</h1>
       <p>Elige el que mejor describe tu uso.</p>
@@ -394,7 +399,7 @@
           <div><div class="step2-badge-text" id="step2-nombre-cuenta">&#8212;</div><div class="step2-badge-sub" id="step2-banco">&#8212;</div></div>
         </div>
         <div class="card">
-          <div class="card-header"><div class="n26-bar"></div><h1>Informaci&#243;n personal</h1><p>Completa tus datos para activar tu perfil.</p></div>
+          <div class="card-header"><div class="n26-bar"></div><h1 id="step2-card-title">Informaci&#243;n personal</h1><p id="step2-card-subtitle">Completa tus datos para activar tu perfil.</p></div>
           <!-- NOMBRE -->
           <div class="field" id="fg-nombre">
             <label>Nombre completo <span class="req">*</span></label>
@@ -439,6 +444,23 @@
             <span class="field-error" id="wa-error">Ingresa un n&#250;mero v&#225;lido.</span>
           </div>
 
+          <!-- TU LINK — below WhatsApp, above negocio section -->
+          <div class="field" id="fg-slug" style="margin-top:4px;">
+            <label>Tu link <span class="opt">&#8212; opcional</span></label>
+            <div class="slug-wrap" id="slug-wrap">
+              <span class="slug-prefix">tr4nsfer.me/</span>
+              <input type="text" id="slug-custom" placeholder="tu-nombre" maxlength="20" inputmode="url" autocomplete="off" spellcheck="false" oninput="onSlugInput()"/>
+              <div class="slug-status" id="slug-status"></div>
+            </div>
+            <span class="field-error" id="slug-error">Solo letras, n&#250;meros y guiones. M&#237;nimo 3 caracteres.</span>
+          </div>
+
+
+          <!-- NEGOCIO SECTION DIVIDER (shown only for negocio type) -->
+          <div id="negocio-section-divider" style="display:none;margin-top:12px;padding-top:18px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Informaci&#243;n del negocio</div>
+          </div>
+
           <!-- NOMBRE NEGOCIO (negocios only) -->
           <div class="field" id="fg-nombre-negocio" style="display:none;">
             <div class="field-label-row">
@@ -468,7 +490,7 @@
               <div class="logo-dropzone" onclick="$('logo-file').click()">
                 <div class="logo-dz-square" id="logo-dz-square">
                   <img id="logo-thumb" src="" alt=""/>
-                  <svg id="logo-plus-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></svg>
+                  <svg id="logo-plus-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></svg>
                 </div>
                 <div class="logo-dz-text"><strong>Sube tu logo</strong>PNG o JPG &middot; Cuadrado recomendado</div>
               </div>
@@ -490,10 +512,9 @@
 
           <!-- FISCAL FIELDS -->
           <div class="fiscal-fields" id="fiscal-fields">
-            <div class="fiscal-divider">Datos fiscales</div>
             <div class="field" id="fg-razon-social">
               <label>Raz&#243;n social <span class="req">*</span></label>
-              <input type="text" id="razon-social" placeholder="Ej. Empresa SA de CV" autocomplete="organization"/>
+              <input type="text" id="razon-social" placeholder="Ej. EMPRESA SA DE CV" autocomplete="organization" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
               <span class="field-error">Ingresa la raz&#243;n social.</span>
             </div>
             <div class="field" id="fg-rfc">
@@ -531,7 +552,7 @@
             <div id="cp-autofill-row" style="display:none;">
               <div class="form-row" style="margin-bottom:10px;">
                 <div class="field" style="margin-bottom:0;">
-                  <label>Ciudad / Municipio <span class="req">*</span></label>
+                  <label>Municipio / Ciudad <span class="req">*</span></label>
                   <select id="ciudad-fiscal"><option value="">Cargando...</option></select>
                 </div>
                 <div class="field" style="margin-bottom:0;">
@@ -552,22 +573,14 @@
                 <span class="field-error">Ingresa la calle y n&#250;mero.</span>
               </div>
             </div>
-          </div>
+          </div><!-- /fiscal-fields -->
 
-          <!-- SLUG -->
-          <div class="field" id="fg-slug" style="margin-top:6px;">
-            <label>Tu link <span class="opt">&#8212; opcional</span></label>
-            <div class="slug-wrap" id="slug-wrap">
-              <span class="slug-prefix">tr4nsfer.me/</span>
-              <input type="text" id="slug-custom" placeholder="tu-nombre" maxlength="20" inputmode="url" autocomplete="off" spellcheck="false" oninput="onSlugInput()"/>
-              <div class="slug-status" id="slug-status"></div>
-            </div>
-            <span class="field-error" id="slug-error">Solo letras, n&#250;meros y guiones. M&#237;nimo 3 caracteres.</span>
-          </div>
+
         </div>
       </div>
 
       <!-- STEP2 FOOTER -->
+
       <div class="step2-footer" id="step2-footer">
         <div class="consent-block">
           <label class="consent-row" id="fg-consent1">
@@ -609,7 +622,6 @@
               <div class="lc-middle">
                 <!-- Nombre negocio (business only) -->
                 <div class="lc-group" id="lc-negocio-group" style="display:none;">
-                  <div class="lc-section-label">EMPRESA</div>
                   <div class="lc-negocio-name" id="lc-negocio-val"></div>
                 </div>
                 <div class="lc-bank" id="lc-bank" style="display:none;">
@@ -631,7 +643,7 @@
           <div class="contact-preview" id="contact-preview" style="display:none;">
             <div class="cp-row" id="cp-wa" style="display:none;"><div class="cp-row-left"><div class="cp-label">WhatsApp</div><div class="cp-value" id="cp-wa-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-wa-text',this)">Copiar</button></div>
             <div class="cp-row" id="cp-email" style="display:none;"><div class="cp-row-left"><div class="cp-label">Correo electr&#243;nico</div><div class="cp-value" id="cp-email-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-email-text',this)">Copiar</button></div>
-            <div class="cp-row" id="cp-fiscal" style="display:none;"><div class="cp-row-left"><div class="cp-label">Datos fiscales</div><div class="cp-value" style="color:rgba(255,255,255,.5);font-size:12px;">RFC &#183; R&#233;gimen &#183; Direcci&#243;n</div></div><button class="cp-copy" style="pointer-events:none;">Ver &#8594;</button></div>
+            <div class="cp-row" id="cp-fiscal-row" style="display:none;"><div class="cp-row-left"><div class="cp-label">Datos fiscales</div><div class="cp-value" style="color:rgba(255,255,255,.5);font-size:12px;">RFC &#183; R&#233;gimen &#183; Direcci&#243;n</div></div><button class="cp-copy" style="pointer-events:none;">Ver &#8594;</button></div>
           </div>
         </div>
       </div>
@@ -716,6 +728,22 @@ function selectType(type) {
   showMainLayout();
   setFloatingBtn({text:'Continuar →',visible:true});
 }
+function goBackToType() {
+  // Show type selector again from step1
+  $('view-type').style.display='flex';
+  $('app-hero').style.display='none';
+  $('main-layout').classList.remove('active');
+  setFloatingBtn({visible:false});
+  // Also reset if in step2
+  if(currentStep===2){
+    currentStep=1;
+    $('main-layout').classList.remove('step2');
+    $('panel-step2').classList.add('hidden');
+    $('panel-step1').classList.remove('hidden','exit-left');
+    $('panel-step1').style.opacity='';$('panel-step1').style.transform='';
+    $('color-editor').classList.remove('fade-out');
+  }
+}
 
 /* ── HELPERS ── */
 function setFloatingBtn({text,disabled,visible}){const wrap=$('floating-btn-wrap'),btn=$('floating-btn'),textEl=$('floating-btn-text');if(visible===false)wrap.classList.add('hidden');else wrap.classList.remove('hidden');if(text!==undefined)textEl.textContent=text;if(disabled!==undefined)btn.disabled=disabled;}
@@ -743,12 +771,14 @@ function goToStep2(){
   $('step2-banco').textContent=bancoData?bancoData.nombre:'Banco no identificado';
   $('color-editor').classList.add('fade-out');
   setFloatingBtn({visible:false});
-  transitionHero('Último paso','Completa tu información y crea tu link personal.');
+  const isNeg=profileType==='negocios';
+  transitionHero('Último paso',isNeg?'Completa los datos del administrador del perfil del negocio.':'Completa tu información y crea tu link personal.');
   transitionLeftPanel('panel-step1','panel-step2',()=>{
     currentStep=2;$('main-layout').classList.add('step2');
-    // Show/hide business-specific fields
-    $('fg-nombre-negocio').style.display=profileType==='negocios'?'':'none';
-    $('fg-logo').style.display=profileType==='negocios'?'':'none';
+    if($('step2-card-subtitle'))$('step2-card-subtitle').textContent=isNeg?'Completa los datos del administrador del perfil del negocio.':'Completa tus datos para activar tu perfil.';
+    $('fg-nombre-negocio').style.display=isNeg?'':'none';
+    $('fg-logo').style.display=isNeg?'':'none';
+    const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
     window.scrollTo({top:0,behavior:'smooth'});
   });
 }
@@ -764,7 +794,7 @@ function resetToStep1(){
   $('panel-step1').style.opacity='';$('panel-step1').style.transform='';
   // Re-show type selector
   $('view-type').style.display='flex';$('app-hero').style.display='none';
-  $('main-layout').classList.remove('active');
+  $('main-layout').classList.remove('active','step2');
   setFloatingBtn({visible:false});
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -847,27 +877,55 @@ function onCpInput(){
 async function lookupCP(cp){
   const spinner=$('cp-spinner');spinner.classList.add('visible');$('fg-cp').classList.remove('has-error');
   try{
-    const resp=await fetch(`https://api.zippopotam.us/mx/${cp}`);
+    // copomex API: returns proper municipio + estado + colonias for Mexican CPs
+    const resp=await fetch(`https://api.copomex.com/query/info_cp/${cp}?token=pruebas`);
     spinner.classList.remove('visible');
     if(!resp.ok){showCpError();return;}
     const data=await resp.json();
-    if(!data.places||!data.places.length){showCpError();return;}
-    // Estado (read-only, proper accents)
-    const abbr=data.places[0]['state abbreviation'];
-    $('estado-fiscal').value=MX_STATES[abbr]||data.places[0]['state'];
-    // Colonias dropdown from all place names
-    const colonias=[...new Set(data.places.map(p=>p['place name']))].sort();
-    const colSel=$('colonia-fiscal');
-    colSel.innerHTML='<option value="">Selecciona tu colonia</option>'+colonias.map(c=>`<option value="${c}">${c}</option>`).join('')+'<option value="__otra__">Otra colonia…</option>';
-    colSel.onchange=function(){$('colonia-otra-wrap').style.display=this.value==='__otra__'?'block':'none';};
-    // Ciudad — single select with same places as hint
+    // copomex returns { error, code_error, response: [...] }
+    if(data.error||!data.response||!data.response.length){showCpError();return;}
+    const records=data.response;
+    // Estado — from first record (same for all)
+    $('estado-fiscal').value=records[0].estado||'';
+    // Municipios — unique list (usually just one per CP)
+    const municipios=[...new Set(records.map(r=>r.municipio).filter(Boolean))].sort();
     const ciudadSel=$('ciudad-fiscal');
-    ciudadSel.innerHTML='<option value="">Selecciona o escribe</option>'+colonias.map(c=>`<option value="${c}">${c}</option>`).join('');
-    // Show all address fields
+    ciudadSel.innerHTML='<option value="">Selecciona municipio</option>'+
+      municipios.map(m=>`<option value="${m}">${m}</option>`).join('');
+    // Auto-select if only one municipality
+    if(municipios.length===1) ciudadSel.value=municipios[0];
+    // Colonias — unique list from nombre field
+    const colonias=[...new Set(records.map(r=>r.nombre||r.colonia||r.asentamiento).filter(Boolean))].sort();
+    const colSel=$('colonia-fiscal');
+    colSel.innerHTML='<option value="">Selecciona tu colonia</option>'+
+      colonias.map(c=>`<option value="${c}">${c}</option>`).join('')+
+      '<option value="__otra__">Otra colonia&#8230;</option>';
+    colSel.onchange=function(){$('colonia-otra-wrap').style.display=this.value==='__otra__'?'block':'none';};
     $('cp-autofill-row').style.display='block';
   }catch(e){
     spinner.classList.remove('visible');
-    $('estado-fiscal').value='';$('cp-autofill-row').style.display='block';
+    // Fallback to zippopotam if copomex fails
+    try{
+      const resp2=await fetch(`https://api.zippopotam.us/mx/${cp}`);
+      if(!resp2.ok){showCpError();return;}
+      const d=await resp2.json();
+      if(!d.places||!d.places.length){showCpError();return;}
+      const abbr=d.places[0]['state abbreviation'];
+      $('estado-fiscal').value=MX_STATES[abbr]||d.places[0]['state'];
+      // Zippopotam returns colonias as place names — use for colonia dropdown
+      const colonias=[...new Set(d.places.map(p=>p['place name']))].sort();
+      const colSel=$('colonia-fiscal');
+      colSel.innerHTML='<option value="">Selecciona tu colonia</option>'+
+        colonias.map(c=>`<option value="${c}">${c}</option>`).join('')+
+        '<option value="__otra__">Otra colonia&#8230;</option>';
+      colSel.onchange=function(){$('colonia-otra-wrap').style.display=this.value==='__otra__'?'block':'none';};
+      // Zippopotam doesn't have municipality — leave ciudad dropdown empty for manual selection
+      const ciudadSel=$('ciudad-fiscal');
+      ciudadSel.innerHTML='<option value="">Escribe tu municipio</option>';
+      $('cp-autofill-row').style.display='block';
+    }catch(e2){
+      $('cp-autofill-row').style.display='block';
+    }
   }
 }
 function showCpError(){$('fg-cp').classList.add('has-error');$('cp-error').textContent='Código postal no encontrado.';}
@@ -892,7 +950,7 @@ function updateContactPreview(){
   var showWa=$('show_whatsapp')&&$('show_whatsapp').checked&&waRaw.length>0;
   var showEm=$('show_email')&&$('show_email').checked&&emVal.length>0;
   var showFiscal=$('show_fiscal')&&$('show_fiscal').checked;
-  var cpWa=$('cp-wa'),cpEm=$('cp-email'),cpFiscal=$('cp-fiscal'),cp=$('contact-preview');
+  var cpWa=$('cp-wa'),cpEm=$('cp-email'),cpFiscal=$('cp-fiscal-row'),cp=$('contact-preview');
   if(!cpWa||!cpEm||!cp)return;
   if(showWa){$('cp-wa-text').textContent=(cc==='+52'?(cc+' '+fmtWA(waRaw)):(cc+' '+waRaw));cpWa.style.display='flex';}else cpWa.style.display='none';
   if(showEm){$('cp-email-text').textContent=emVal;cpEm.style.display='flex';}else cpEm.style.display='none';
