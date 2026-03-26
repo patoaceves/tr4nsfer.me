@@ -44,6 +44,7 @@
       100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
     }
     .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 100px 20px 60px; }
+    /* HEADER */
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px;
       display: flex; align-items: center; justify-content: space-between; padding: 0 48px;
@@ -59,6 +60,7 @@
     .btn-nav { display: inline-flex; align-items: center; justify-content: center; padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; background: var(--teal); color: #000; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; white-space: nowrap; }
     .btn-nav:hover { background: #00daa6; transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,200,150,0.25), 0 8px 24px rgba(0,200,150,0.5), 0 16px 48px rgba(0,200,150,0.25); }
     @media (max-width: 860px) { header { padding: 0 24px; } .nav-links { display: none; } }
+    /* FOOTER */
     footer { position: relative; z-index: 1; width: 100%; border-top: 1px solid var(--border); padding: 64px 48px 40px; }
     .footer-inner { max-width: 1100px; margin: 0 auto; margin-bottom: 48px; }
     .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; }
@@ -74,6 +76,7 @@
     .footer-bottom { padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .footer-copy { font-size: 12px; color: var(--dim); }
     @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr; gap: 32px; } footer { padding: 48px 24px 32px; } .footer-bottom { flex-direction: column; gap: 8px; text-align: center; } }
+    /* APP HERO */
     .app-hero { width: 100%; text-align: center; padding: 48px 20px 44px; background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,200,150,0.08) 0%, transparent 70%); animation: fadeUp 0.4s ease both; transition: opacity 0.28s ease, transform 0.28s ease; }
     .app-hero.hero-exit { opacity: 0; transform: translateY(-8px); pointer-events: none; }
     .app-hero.hero-enter { opacity: 0; transform: translateY(8px); }
@@ -81,19 +84,67 @@
     .app-hero p  { font-size: 16px; color: var(--muted); line-height: 1.6; }
     .view { display: none; width: 100%; }
     .view.active { display: flex; flex-direction: column; align-items: center; }
+    /* MAIN LAYOUT — default (step 1) */
     #main-layout { display: none; width: 100%; max-width: 960px; animation: fadeUp 0.4s ease 0.08s both; }
-    #main-layout.active { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-    .left-col { position: relative; min-height: 0; }
+    #main-layout.active {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: "left right";
+      gap: 24px;
+      align-items: start;
+    }
+    /* MAIN LAYOUT — step 2: footer appears below left-col, right-col spans both rows */
+    #main-layout.step2.active {
+      grid-template-areas:
+        "left  right"
+        "foot  right";
+      grid-template-rows: auto auto;
+    }
+    .left-col  { grid-area: left;  position: relative; min-height: 0; }
+    .right-col { grid-area: right; position: sticky; top: 32px; display: flex; flex-direction: column; gap: 16px; }
+    .step2-footer {
+      grid-area: foot;
+      display: none;
+      margin-top: 0;
+    }
+    #main-layout.step2 > .step2-footer { display: block; }
+    /* Panel transitions */
     .left-panel { width: 100%; transition: opacity 0.3s ease, transform 0.3s ease; }
     .left-panel.exit-left { position: absolute; top: 0; left: 0; width: 100%; opacity: 0; transform: translateX(-18px); pointer-events: none; }
     .left-panel.hidden { display: none; }
     .left-panel.enter-right { opacity: 0; transform: translateX(18px); }
-    .right-col { position: sticky; top: 32px; display: flex; flex-direction: column; gap: 16px; }
+    /* MOBILE — single column, natural order: left → right → foot */
+    @media (max-width: 700px) {
+      #main-layout.active,
+      #main-layout.step2.active {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "left"
+          "right"
+          "foot";
+        max-width: 100%;
+        gap: 6px;
+      }
+      .right-col { position: static; }
+      #main-layout.step2 .color-editor { display: none; }
+      .page { padding: 80px 14px 100px; }
+      .app-hero { padding: 32px 16px 28px; }
+      .app-hero h1 { font-size: 30px; letter-spacing: -1.2px; }
+      .card { padding: 18px 16px; }
+      .card-frame { padding: 28px 16px 24px; }
+      .live-card { width: min(300px, 88vw); }
+      .contact-preview { width: min(300px, 88vw); }
+      .form-row { grid-template-columns: 1fr; }
+      #floating-btn-wrap { justify-content: stretch; }
+      #floating-btn { width: 100%; }
+    }
+    /* CARD */
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px 26px 24px; box-shadow: 0 0 0 1px rgba(0,200,150,0.03), 0 20px 60px rgba(0,0,0,0.55); }
     .card-header { margin-bottom: 22px; }
     .n26-bar { width: 22px; height: 2.5px; background: var(--teal); border-radius: 2px; margin-bottom: 14px; box-shadow: 0 0 8px rgba(0,200,150,0.4); }
     .card-header h1 { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: -0.025em; }
     .card-header p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    /* FORM */
     .field { margin-bottom: 13px; }
     label { display: block; font-size: 10.5px; font-weight: 500; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
     label .req { color: var(--teal); margin-left: 1px; opacity: 0.8; }
@@ -107,10 +158,9 @@
     .banco-wrap input { padding-right: 40px; }
     .banco-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 4px; object-fit: contain; display: none; background: var(--surface2); }
     .banco-wrap.detected input { color: var(--teal); border-color: var(--teal-border); }
-    #clabe.complete { color: var(--teal); border-color: var(--teal-border); box-shadow: 0 0 0 3px var(--teal-dim); padding-right: 42px; }
+    #clabe.complete { color: var(--teal); border-color: var(--teal-border); box-shadow: 0 0 0 3px var(--teal-dim); }
     .clabe-wrap { position: relative; }
     .clabe-verified { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none; pointer-events: none; }
-    #clabe.complete ~ .clabe-verified { display: none; } /* controlled by JS */
     .clabe-checking-ring { position: absolute; right: 10px; top: 50%; width: 16px; height: 16px; display: none; pointer-events: none; }
     @keyframes spin { from { transform: translateY(-50%) rotate(0deg); } to { transform: translateY(-50%) rotate(360deg); } }
     .clabe-checking-ring.visible { display: block; animation: spin 0.7s linear infinite; }
@@ -119,6 +169,17 @@
     .field-error { font-size: 10.5px; color: var(--error); display: none; margin-top: 4px; }
     .has-error input { border-color: var(--error) !important; box-shadow: 0 0 0 3px rgba(240,64,64,0.08) !important; }
     .has-error .field-error { display: block; }
+    /* SLUG INPUT */
+    .slug-wrap { display: flex; align-items: stretch; background: var(--input-bg); border: 1px solid var(--border2); border-radius: 9px; overflow: hidden; transition: border-color 0.18s, box-shadow 0.18s; }
+    .slug-wrap:focus-within { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-dim); }
+    .slug-prefix { display: flex; align-items: center; padding: 10px 8px 10px 12px; font-size: 11.5px; color: var(--muted); white-space: nowrap; flex-shrink: 0; user-select: none; }
+    .slug-wrap input { flex: 1; background: transparent; border: none; border-radius: 0; padding: 10px 12px 10px 0; min-width: 0; font-size: 13.5px; color: var(--text-soft); font-family: "Inter", sans-serif; outline: none; }
+    .slug-wrap input:focus { border-color: transparent; box-shadow: none; }
+    .slug-wrap input::placeholder { color: #222; }
+    .slug-status { position: relative; display: flex; align-items: center; padding-right: 10px; flex-shrink: 0; }
+    .has-error .slug-wrap { border-color: var(--error) !important; box-shadow: 0 0 0 3px rgba(240,64,64,0.08) !important; }
+    .slug-ok .slug-wrap { border-color: var(--teal-border); }
+    /* BUTTONS */
     .btn { width: 100%; background: var(--teal); color: #000; border: none; border-radius: 9px; padding: 12px 18px; font-size: 13.5px; font-weight: 600; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; transition: background 0.18s, transform 0.1s, box-shadow 0.18s; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn:hover { background: #00daa6; transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,200,150,0.25), 0 8px 24px rgba(0,200,150,0.5), 0 16px 48px rgba(0,200,150,0.25); }
     .btn:active { transform: scale(0.98); }
@@ -128,13 +189,14 @@
     .btn-copy { background: var(--surface2); color: var(--teal); border: 1px solid var(--border2); padding: 7px 12px; font-size: 11px; font-weight: 500; width: auto; margin-top: 0; border-radius: 7px; flex-shrink: 0; letter-spacing: 0; }
     .btn-copy:hover { background: var(--teal-dim); border-color: var(--teal-border); box-shadow: none; }
     .btn-copy.copied { color: var(--muted); }
+    /* FLOATING BTN */
     #floating-btn-wrap { display: flex; justify-content: flex-end; padding: 16px 12px; margin: -16px -12px; transition: opacity 0.25s; overflow: visible; }
     #floating-btn-wrap.hidden { opacity: 0; pointer-events: none; }
     #floating-btn { background: var(--teal); color: #000; border: none; border-radius: 999px; padding: 14px 28px; font-size: 14px; font-weight: 700; font-family: "Inter", sans-serif; cursor: pointer; letter-spacing: -0.01em; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; transition: background 0.18s, transform 0.12s, box-shadow 0.2s; }
     #floating-btn:hover { background: #00daa6; transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(0,200,150,0.25), 0 8px 24px rgba(0,200,150,0.5), 0 16px 48px rgba(0,200,150,0.25); }
     #floating-btn:active { transform: translateY(0px); }
     #floating-btn:disabled { opacity: .4; cursor: not-allowed; }
-    .spinner { display: none; }
+    /* CARD FRAME */
     .card-frame { width: 100%; padding: 52px 28px 48px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: #000000; transition: background 0.4s; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
     .card-frame-stack { display: flex; flex-direction: column; align-items: center; gap: 20px; }
     .live-card { width: 330px; aspect-ratio: 1 / 1.2; border-radius: 14px; position: relative; z-index: 1; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08); transition: background 0.3s; background: linear-gradient(135deg, #004d38, #00c896); cursor: default; user-select: none; }
@@ -158,7 +220,7 @@
     .live-card.light-text { color: #ffffff; }
     .live-card.dark-text  { color: #1a1a1a; }
     /* COLOR EDITOR */
-    .color-editor { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 16px; transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.35s ease; overflow: hidden; max-height: 520px; transform-origin: top; }
+    .color-editor { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 16px; transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.35s ease; overflow: hidden; max-height: 560px; transform-origin: top; }
     .color-editor.fade-out { opacity: 0; transform: translateY(-8px); max-height: 0; padding-top: 0; padding-bottom: 0; border-color: transparent; pointer-events: none; }
     .color-editor-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 16px; }
     .color-section { margin-bottom: 16px; }
@@ -175,11 +237,9 @@
     .swatch { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; flex-shrink: 0; }
     .swatch:hover { transform: scale(1.12); }
     .swatch.active { border-color: #ffffff; }
-    /* Custom color swatch ("+") */
-    .swatch-add { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--surface2) !important; border: 1.5px dashed var(--muted2) !important; color: var(--muted); flex-shrink: 0; transition: transform 0.15s, border-color 0.15s, color 0.15s; position: relative; overflow: visible; }
+    .swatch-add { width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--surface2) !important; border: 1.5px dashed var(--muted2) !important; color: var(--muted); flex-shrink: 0; transition: transform 0.15s, border-color 0.15s, color 0.15s; position: relative; }
     .swatch-add:hover { color: var(--text); border-color: var(--dim) !important; transform: scale(1.12); }
     .swatch-add.active { border-color: #ffffff !important; color: #fff; }
-    /* Hide native color input — triggered programmatically */
     .native-color-input { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; border: none; padding: 0; }
     /* STEP 2 */
     .step2-back { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: var(--text-soft); cursor: pointer; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 999px; font-family: "Inter", sans-serif; padding: 11px 20px; margin-bottom: 16px; transition: background 0.18s, border-color 0.18s, transform 0.1s; }
@@ -233,14 +293,11 @@
     .show-toggle:has(input:checked) .show-toggle-label { color: var(--teal); }
     .field-label-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
     .field-label-row label { margin-bottom: 0; }
-    #view-success .card { text-align: center; max-width: 440px; }
+    /* SUCCESS */
     #view-success.active { animation: successFadeIn 0.45s cubic-bezier(0.22,1,0.36,1) both; }
     @keyframes successFadeIn { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    .success-icon { width: 48px; height: 48px; background: var(--teal-dim); border: 1px solid var(--teal-border); border-radius: 13px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--teal); box-shadow: 0 0 20px rgba(0,200,150,0.12); }
-    .step2-footer { display: none; margin-top: 30px; }
-    #main-layout.step2 .step2-footer { display: block; }
-    #main-layout.step2 { row-gap: 24px; }
-    #main-layout.step2 #panel-step2 .card { padding-bottom: 12px; }
+    .success-icon { width: 56px; height: 56px; background: var(--teal-dim); border: 1px solid var(--teal-border); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--teal); box-shadow: 0 0 20px rgba(0,200,150,0.12); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     /* PAGE LOADER */
     #page-loader { position: fixed; inset: 0; z-index: 9999; background: #000; display: none; align-items: center; justify-content: center; transition: opacity 0.35s ease, visibility 0.35s; }
     #page-loader.active { display: flex; }
@@ -255,24 +312,6 @@
     @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
     @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(0.4,0,0.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
     @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 700px) {
-      #main-layout.active { grid-template-columns: 1fr; max-width: 100%; }
-      .right-col { position: static; }
-      #main-layout.step2 .left-col { order: 1; }
-      #main-layout.step2 .right-col { order: 2; }
-      #main-layout.step2 .color-editor { display: none; }
-      .page { padding: 80px 14px 100px; }
-      .app-hero { padding: 32px 16px 28px; }
-      .app-hero h1 { font-size: 30px; letter-spacing: -1.2px; }
-      .card { padding: 18px 16px; }
-      .card-frame { padding: 28px 16px 24px; }
-      .live-card { width: min(300px, 88vw); }
-      .contact-preview { width: min(300px, 88vw); }
-      .form-row { grid-template-columns: 1fr; }
-      #floating-btn-wrap { justify-content: stretch; }
-      #floating-btn { width: 100%; }
-    }
   </style>
 </head>
 <body>
@@ -298,22 +337,25 @@
 </header>
 <div class="page">
   <div class="app-hero" id="app-hero">
-    <h1 id="app-hero-title">Empieza aquí</h1>
+    <h1 id="app-hero-title">Empieza aqu&#237;</h1>
     <p id="app-hero-sub">Ingresa tus datos y personaliza tu perfil.</p>
   </div>
   <div id="main-layout">
+
+    <!-- LEFT COLUMN -->
     <div class="left-col" id="left-col">
+
       <!-- PANEL 1 -->
       <div class="left-panel" id="panel-step1">
         <div class="card">
           <div class="card-header">
             <div class="n26-bar"></div>
             <h1>Datos de la cuenta</h1>
-            <p>Comparte tus datos bancarios de forma rápida y segura.</p>
+            <p>Comparte tus datos bancarios de forma r&#225;pida y segura.</p>
           </div>
           <div class="security-notice">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="#00c896" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#00c896" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>Tu información está cifrada y es 100% confidencial. No vendemos ni compartimos tus datos con nadie.</span>
+            <span>Tu informaci&#243;n est&#225; cifrada y es 100% confidencial. No vendemos ni compartimos tus datos con nadie.</span>
           </div>
           <div class="field" id="fg-nombre-cuenta">
             <label>Titular de la cuenta <span class="req">*</span></label>
@@ -323,11 +365,11 @@
           <div class="field" id="fg-clabe">
             <label>CLABE interbancaria <span class="req">*</span></label>
             <div class="clabe-wrap">
-              <input type="tel" id="clabe" placeholder="18 dígitos" maxlength="22" inputmode="numeric" oninput="onClabeInput()" onpaste="setTimeout(onClabeInput,0)" />
+              <input type="tel" id="clabe" placeholder="18 d&#237;gitos" maxlength="22" inputmode="numeric" oninput="onClabeInput()" onpaste="setTimeout(onClabeInput,0)" />
               <svg class="clabe-verified" id="clabe-verified" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <svg class="clabe-checking-ring" id="clabe-checking-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
             </div>
-            <span class="field-error" id="clabe-error-msg">La CLABE debe tener exactamente 18 dígitos.</span>
+            <span class="field-error" id="clabe-error-msg">La CLABE debe tener exactamente 18 d&#237;gitos.</span>
           </div>
           <div class="field" id="fg-banco">
             <label>Banco</label>
@@ -337,35 +379,36 @@
             </div>
           </div>
           <div class="field">
-            <label>Alias <span class="opt">— opcional</span></label>
-            <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios…" oninput="updateCard()" />
+            <label>Alias <span class="opt">&#8212; opcional</span></label>
+            <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios&#8230;" oninput="updateCard()" />
           </div>
         </div>
       </div>
+
       <!-- PANEL 2 -->
       <div class="left-panel hidden" id="panel-step2">
-        <button class="step2-back" onclick="backToStep1()">← Volver</button>
+        <button class="step2-back" onclick="backToStep1()">&#8592; Volver</button>
         <div class="step2-badge">
           <div class="step2-badge-dot"></div>
           <div>
-            <div class="step2-badge-text" id="step2-nombre-cuenta">—</div>
-            <div class="step2-badge-sub" id="step2-banco">—</div>
+            <div class="step2-badge-text" id="step2-nombre-cuenta">&#8212;</div>
+            <div class="step2-badge-sub" id="step2-banco">&#8212;</div>
           </div>
         </div>
         <div class="card">
           <div class="card-header">
             <div class="n26-bar"></div>
-            <h1>Información personal</h1>
+            <h1>Informaci&#243;n personal</h1>
             <p>Completa tus datos para activar tu perfil.</p>
           </div>
           <div class="field" id="fg-nombre">
             <label>Nombre completo <span class="req">*</span></label>
-            <input type="text" id="nombre" placeholder="Ej. María García López" autocomplete="name" oninput="if(this.value.trim().length>=3) $('fg-nombre').classList.remove('has-error')" />
+            <input type="text" id="nombre" placeholder="Ej. Mar&#237;a Garc&#237;a L&#243;pez" autocomplete="name" oninput="if(this.value.trim().length>=3) $('fg-nombre').classList.remove('has-error')" />
             <span class="field-error">Ingresa tu nombre completo.</span>
           </div>
           <div class="field" id="fg-email">
             <div class="field-label-row">
-              <label>Correo electrónico <span class="req">*</span></label>
+              <label>Correo electr&#243;nico <span class="req">*</span></label>
               <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
                 <input type="checkbox" id="show_email" checked />
                 <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
@@ -373,11 +416,11 @@
               </label>
             </div>
             <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview();onEmailInput()" onblur="onEmailBlur()" />
-            <span class="field-error">Ingresa un correo válido.</span>
+            <span class="field-error">Ingresa un correo v&#225;lido.</span>
           </div>
           <div class="field" id="fg-whatsapp">
             <div class="field-label-row">
-              <label>WhatsApp <span class="opt">— opcional</span></label>
+              <label>WhatsApp <span class="opt">&#8212; opcional</span></label>
               <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
                 <input type="checkbox" id="show_whatsapp" checked />
                 <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
@@ -386,48 +429,35 @@
             </div>
             <div class="wa-input-wrap">
               <select id="wa-country" class="wa-country-select" onchange="onWaInput()">
-                <option value="+52" data-digits="10" selected>🇲🇽 +52</option>
-                <option value="+1"  data-digits="10">🇺🇸 +1</option>
-                <option value="+1"  data-digits="10">🇨🇦 +1</option>
-                <option value="+34" data-digits="9" >🇪🇸 +34</option>
-                <option value="+57" data-digits="10">🇨🇴 +57</option>
-                <option value="+54" data-digits="10">🇦🇷 +54</option>
-                <option value="+56" data-digits="9" >🇨🇱 +56</option>
-                <option value="+51" data-digits="9" >🇵🇪 +51</option>
-                <option value="+55" data-digits="11">🇧🇷 +55</option>
+                <option value="+52" data-digits="10" selected>&#127474;&#127485; +52</option>
+                <option value="+1"  data-digits="10">&#127482;&#127480; +1</option>
+                <option value="+1"  data-digits="10">&#127464;&#127462; +1</option>
+                <option value="+34" data-digits="9" >&#127466;&#127480; +34</option>
+                <option value="+57" data-digits="10">&#127464;&#127476; +57</option>
+                <option value="+54" data-digits="10">&#127462;&#127479; +54</option>
+                <option value="+56" data-digits="9" >&#127464;&#127473; +56</option>
+                <option value="+51" data-digits="9" >&#127477;&#127466; +51</option>
+                <option value="+55" data-digits="11">&#127463;&#127479; +55</option>
               </select>
-              <input type="tel" id="whatsapp" placeholder="Número" maxlength="15" inputmode="numeric" oninput="onWaInput()" />
+              <input type="tel" id="whatsapp" placeholder="N&#250;mero" maxlength="15" inputmode="numeric" oninput="onWaInput()" />
             </div>
-            <span class="field-error" id="wa-error">Ingresa un número válido.</span>
+            <span class="field-error" id="wa-error">Ingresa un n&#250;mero v&#225;lido.</span>
+          </div>
+          <!-- SLUG PERSONALIZADO -->
+          <div class="field" id="fg-slug">
+            <label>Tu link <span class="opt">&#8212; opcional</span></label>
+            <div class="slug-wrap" id="slug-wrap">
+              <span class="slug-prefix">tr4nsfer.me/</span>
+              <input type="text" id="slug-custom" placeholder="tu-nombre" maxlength="20" inputmode="url" autocomplete="off" spellcheck="false" oninput="onSlugInput()" />
+              <div class="slug-status" id="slug-status"></div>
+            </div>
+            <span class="field-error" id="slug-error">Solo letras, n&#250;meros y guiones. M&#237;nimo 3 caracteres.</span>
           </div>
         </div>
       </div>
-      <!-- STEP2 FOOTER -->
-      <div class="step2-footer" id="step2-footer">
-        <div class="consent-block">
-          <label class="consent-row" id="fg-consent1">
-            <input type="checkbox" id="consent1" onchange="if(this.checked) $('fg-consent1').classList.remove('has-error')" />
-            <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            <span class="consent-text">Entiendo que al generar mi perfil, mis datos de depósito serán visibles para cualquier persona que acceda al link.</span>
-            <span class="field-error">Debes aceptar para continuar.</span>
-          </label>
-          <label class="consent-row" id="fg-consent2">
-            <input type="checkbox" id="consent2" onchange="if(this.checked) $('fg-consent2').classList.remove('has-error')" />
-            <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            <span class="consent-text">He leído y acepto los <a href="#" class="consent-link">Términos y Condiciones</a> y la <a href="#" class="consent-link">Política de Privacidad</a>.</span>
-            <span class="field-error">Debes aceptar para continuar.</span>
-          </label>
-        </div>
-        <div style="display:flex;align-items:center;gap:7px;margin-top:16px;padding:10px 14px;border-radius:10px;background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.16);">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
-          <span style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);">AES-256-GCM</strong> antes de guardarse.</span>
-        </div>
-        <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span id="btn-text">Generar mi Link</span>
-        </button>
-      </div>
-    </div>
+
+    </div><!-- /left-col -->
+
     <!-- RIGHT COLUMN -->
     <div class="right-col">
       <div class="card-frame" id="card-frame">
@@ -439,7 +469,7 @@
               <div class="lc-middle">
                 <div class="lc-bank" id="lc-bank" style="display:none;">
                   <img class="lc-bank-icon" id="lc-bank-icon" src="" alt="" />
-                  <span class="lc-bank-name" id="lc-bank-name">—</span>
+                  <span class="lc-bank-name" id="lc-bank-name">&#8212;</span>
                 </div>
                 <div class="lc-group" id="lc-clabe-group" style="display:none;">
                   <div class="lc-clabe-label">CLABE</div>
@@ -455,27 +485,22 @@
           </div>
           <div class="contact-preview" id="contact-preview" style="display:none;">
             <div class="cp-row" id="cp-wa" style="display:none;">
-              <div class="cp-row-left"><div class="cp-label">WhatsApp</div><div class="cp-value" id="cp-wa-text">—</div></div>
+              <div class="cp-row-left"><div class="cp-label">WhatsApp</div><div class="cp-value" id="cp-wa-text">&#8212;</div></div>
               <button class="cp-copy" onclick="cpCopy('cp-wa-text',this)">Copiar</button>
             </div>
             <div class="cp-row" id="cp-email" style="display:none;">
-              <div class="cp-row-left"><div class="cp-label">Correo electrónico</div><div class="cp-value" id="cp-email-text">—</div></div>
+              <div class="cp-row-left"><div class="cp-label">Correo electr&#243;nico</div><div class="cp-value" id="cp-email-text">&#8212;</div></div>
               <button class="cp-copy" onclick="cpCopy('cp-email-text',this)">Copiar</button>
             </div>
           </div>
         </div>
       </div>
-      <!-- COLOR EDITOR -->
       <div class="color-editor" id="color-editor">
         <div class="color-editor-title">Personaliza tu tarjeta</div>
-        <div class="color-section">
-          <div class="color-section-label">Diseño</div>
-          <div class="design-picker" id="design-picker"></div>
-        </div>
+        <div class="color-section"><div class="color-section-label">Dise&#241;o</div><div class="design-picker" id="design-picker"></div></div>
         <div class="color-section">
           <div class="color-section-label">Color de tarjeta</div>
           <div class="swatches" id="card-swatches"></div>
-          <!-- Hidden native color input — triggered via JS -->
           <input type="color" id="native-color-card" class="native-color-input" value="#8b5cf6">
         </div>
         <div class="color-section">
@@ -486,20 +511,48 @@
       </div>
       <div id="floating-btn-wrap">
         <button id="floating-btn" onclick="floatingBtnClick()">
-          <span id="floating-btn-text">Continuar →</span>
+          <span id="floating-btn-text">Continuar &#8594;</span>
         </button>
       </div>
-    </div>
-  </div>
+    </div><!-- /right-col -->
+
+    <!-- STEP 2 FOOTER — direct child of main-layout, CSS grid-area handles position -->
+    <div class="step2-footer" id="step2-footer">
+      <div class="consent-block">
+        <label class="consent-row" id="fg-consent1">
+          <input type="checkbox" id="consent1" onchange="if(this.checked) $('fg-consent1').classList.remove('has-error')" />
+          <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="consent-text">Entiendo que al generar mi perfil, mis datos de dep&#243;sito ser&#225;n visibles para cualquier persona que acceda al link.</span>
+          <span class="field-error">Debes aceptar para continuar.</span>
+        </label>
+        <label class="consent-row" id="fg-consent2">
+          <input type="checkbox" id="consent2" onchange="if(this.checked) $('fg-consent2').classList.remove('has-error')" />
+          <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="consent-text">He le&#237;do y acepto los <a href="#" class="consent-link">T&#233;rminos y Condiciones</a> y la <a href="#" class="consent-link">Pol&#237;tica de Privacidad</a>.</span>
+          <span class="field-error">Debes aceptar para continuar.</span>
+        </label>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:16px;padding:10px 14px;border-radius:10px;background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.16);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+        <span style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);">AES-256-GCM</strong> antes de guardarse.</span>
+      </div>
+      <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="btn-text">Generar mi Link</span>
+      </button>
+    </div><!-- /step2-footer -->
+
+  </div><!-- /main-layout -->
+
   <!-- SUCCESS -->
   <div id="view-success" class="view">
     <div class="card" style="text-align:center;max-width:420px;">
-      <div class="success-icon" style="width:56px;height:56px;border-radius:16px;margin:0 auto 20px;">
+      <div class="success-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <h2 style="font-size:1.15rem;margin-bottom:8px;font-weight:700;letter-spacing:-0.03em;">¡Tu link está listo!</h2>
+      <h2 style="font-size:1.15rem;margin-bottom:8px;font-weight:700;letter-spacing:-0.03em;">&#161;Tu link est&#225; listo!</h2>
       <p style="color:var(--muted);font-size:13px;line-height:1.65;margin-bottom:24px;">
-        Lo enviamos a <strong id="success-email" style="color:var(--text-soft);font-weight:600;"></strong>. Revisa tu bandeja — si no aparece, checa spam.
+        Lo enviamos a <strong id="success-email" style="color:var(--text-soft);font-weight:600;"></strong>. Revisa tu bandeja &#8212; si no aparece, checa spam.
       </p>
       <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left;margin-bottom:24px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="2" y="4" width="20" height="16" rx="2" stroke="#00c896" stroke-width="1.8"/><path d="M2 7l10 7 10-7" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -508,37 +561,40 @@
       <button class="btn btn-outline" onclick="resetToStep1()" style="margin-top:0;">+ Crear otro link</button>
     </div>
   </div>
-</div>
+
+</div><!-- /page -->
+
 <footer>
   <div class="footer-inner">
     <div class="footer-grid">
       <div>
         <a href="index.html" class="logo footer-logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
-        <p class="footer-tagline">Gratis · Seguro · Sin fricción</p>
+        <p class="footer-tagline">Gratis &middot; Seguro &middot; Sin fricci&#243;n</p>
       </div>
       <div class="footer-col">
-        <h4>Menú</h4>
+        <h4>Men&#250;</h4>
         <ul>
           <li><a href="index.html">Inicio</a></li>
           <li><a href="index.html#pricing">Pricing</a></li>
           <li><a href="index.html#ayuda">Ayuda</a></li>
-          <li><a href="app.html" class="ft-cta">Crear mi Link →</a></li>
+          <li><a href="app.html" class="ft-cta">Crear mi Link &rarr;</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Legal</h4>
         <ul>
-          <li><a href="#">Términos</a></li>
-          <li><a href="#">Política de Privacidad</a></li>
+          <li><a href="#">T&#233;rminos</a></li>
+          <li><a href="#">Pol&#237;tica de Privacidad</a></li>
         </ul>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
-    <span class="footer-copy">tr4nsfer.me © 2026</span>
-    <span class="footer-copy">Hecho en México 🇲🇽</span>
+    <span class="footer-copy">tr4nsfer.me &copy; 2026</span>
+    <span class="footer-copy">Hecho en M&#233;xico &#127474;&#127485;</span>
   </div>
 </footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const GHL_WEBHOOK_URL = 'TU_WEBHOOK_URL_AQUI';
@@ -550,7 +606,7 @@
   const BANCOS = {
     '133':{ nombre:'ACTINVER', domain:'actinver.com' }, '062':{ nombre:'AFIRME', domain:'afirme.com' },
     '721':{ nombre:'albo', domain:'albo.mx' }, '706':{ nombre:'ARCUS FI', domain:'arcusfi.com' },
-    '127':{ nombre:'BANCO AZTECA', domain:'bancoazteca.com.mx' }, '030':{ nombre:'BAJÍO', domain:'bb.com.mx' },
+    '127':{ nombre:'BANCO AZTECA', domain:'bancoazteca.com.mx' }, '030':{ nombre:'BAJ\u00cdO', domain:'bb.com.mx' },
     '002':{ nombre:'BANAMEX', domain:'banamex.com' }, '154':{ nombre:'BANCO COVALTO', domain:'covalto.com' },
     '006':{ nombre:'BANCOMEXT', domain:'bancomext.com' }, '137':{ nombre:'BANCOPPEL', domain:'bancoppel.com' },
     '152':{ nombre:'BANCREA', domain:'bancrea.com' }, '019':{ nombre:'BANJERCITO', domain:'banjercito.com.mx' },
@@ -583,44 +639,25 @@
   };
   const favicon = d => `https://www.google.com/s2/favicons?domain=${d}&sz=32`;
 
-  /* ── CARD DESIGNS ─────────────────────────────────────────
-     Order: Diagonal · Aurora · Espiral · Cristal · Topo · Sólido
-     Indices must match card.html and card_design stored in DB  */
   const CARD_DESIGNS = [
-    {
-      id:'diagonal', label:'Diagonal',
+    { id:'diagonal', label:'Diagonal',
       render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,58 0,125" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,38" fill="rgba(255,255,255,0.07)"/><polygon points="0,130 100,60 100,159 0,159" fill="rgba(255,255,255,0.05)"/></svg>`,
-      thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 54,0 54,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="0,49 54,23 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`
-    },
-    {
-      id:'aurora', label:'Aurora',
+      thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 54,0 54,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="0,49 54,23 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>` },
+    { id:'aurora', label:'Aurora',
       render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`,
-      thumbRender:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="at-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#at-a)"/><rect width="100%" height="100%" fill="url(#at-b)"/></svg>`
-    },
-    {
-      id:'espiral', label:'Espiral',
+      thumbRender:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="at-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#at-a)"/><rect width="100%" height="100%" fill="url(#at-b)"/></svg>` },
+    { id:'espiral', label:'Espiral',
       render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`,
-      thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q27,29 54,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q31,37 54,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/></svg>`
-    },
-    {
-      id:'cristal', label:'Cristal',
+      thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q27,29 54,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q31,37 54,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/></svg>` },
+    { id:'cristal', label:'Cristal',
       render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,38 0,28" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,42" fill="rgba(255,255,255,0.08)"/><polygon points="38,38 78,42 100,15 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,28 38,38 22,85 0,72" fill="rgba(255,255,255,0.06)"/><polygon points="38,38 78,42 68,105 22,85" fill="rgba(255,255,255,0.04)"/><polygon points="0,120 22,85 68,105 100,130 100,159 0,159" fill="rgba(255,255,255,0.05)"/></svg>`,
-      thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 30,0 20,20 0,15" fill="rgba(255,255,255,0.13)"/><polygon points="30,0 54,0 42,22" fill="rgba(255,255,255,0.08)"/><polygon points="20,20 42,22 54,8 54,0 30,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,42 20,20 42,22 54,36 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`
-    },
-    {
-      /* Topográfico: huge ellipses — overflow clipped by card's overflow:hidden */
-      id:'topografico', label:'Topo',
+      thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 30,0 20,20 0,15" fill="rgba(255,255,255,0.13)"/><polygon points="30,0 54,0 42,22" fill="rgba(255,255,255,0.08)"/><polygon points="20,20 42,22 54,8 54,0 30,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,42 20,20 42,22 54,36 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>` },
+    { id:'topografico', label:'Topo',
       render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`,
-      thumbRender:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/></svg>`
-    },
-    {
-      id:'solido', label:'Sólido',
-      render:()=>``,
-      thumbRender:()=>``
-    },
+      thumbRender:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/></svg>` },
+    { id:'solido', label:'S\u00f3lido', render:()=>``, thumbRender:()=>`` },
   ];
 
-  /* 6 card color presets */
   const CARD_PRESETS = [
     { label:'Verde',  value:'linear-gradient(135deg,#004d38,#00c896)', solid:'#00a87a' },
     { label:'Negro',  value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)', solid:'#000000' },
@@ -629,43 +666,39 @@
     { label:'Morado', value:'linear-gradient(135deg,#2d1b69,#8b5cf6)', solid:'#5b3fcb' },
     { label:'Cobre',  value:'linear-gradient(135deg,#7c2d12,#f97316)', solid:'#c45c1a' },
   ];
-
-  /* 6 background presets — 3 dark / 3 light */
   const BG_PRESETS = [
     { label:'Negro',   value:'#000000' },
-    { label:'Carbón',  value:'#111827' },
+    { label:'Carb\u00f3n',  value:'#111827' },
     { label:'Bosque',  value:'#0a1a10' },
     { label:'Blanco',  value:'#ffffff' },
-    { label:'Lavanda', value:'#cec4f5' },   /* more saturated */
-    { label:'Mint',    value:'#aadfc4' },   /* more saturated */
+    { label:'Lavanda', value:'#cec4f5' },
+    { label:'Mint',    value:'#aadfc4' },
   ];
-
-  /* Color maps for card-frame CSS variables */
   const SOLID_MAP = {
-    'linear-gradient(135deg,#004d38,#00c896)': '0,200,150',
-    'linear-gradient(135deg,#0d0d0d,#1f1f1f)': '200,200,200',
-    'linear-gradient(135deg,#7a2050,#e8719a)': '232,113,154',
-    'linear-gradient(135deg,#0f3460,#1a6fb5)': '26,111,181',
-    'linear-gradient(135deg,#2d1b69,#8b5cf6)': '139,92,246',
-    'linear-gradient(135deg,#7c2d12,#f97316)': '249,115,22',
+    'linear-gradient(135deg,#004d38,#00c896)':'0,200,150',
+    'linear-gradient(135deg,#0d0d0d,#1f1f1f)':'200,200,200',
+    'linear-gradient(135deg,#7a2050,#e8719a)':'232,113,154',
+    'linear-gradient(135deg,#0f3460,#1a6fb5)':'26,111,181',
+    'linear-gradient(135deg,#2d1b69,#8b5cf6)':'139,92,246',
+    'linear-gradient(135deg,#7c2d12,#f97316)':'249,115,22',
   };
   const ACCENT_MAP = {
-    'linear-gradient(135deg,#004d38,#00c896)': '#00c896',
-    'linear-gradient(135deg,#0d0d0d,#1f1f1f)': '#aaaaaa',
-    'linear-gradient(135deg,#7a2050,#e8719a)': '#e8719a',
-    'linear-gradient(135deg,#0f3460,#1a6fb5)': '#00c896',
-    'linear-gradient(135deg,#2d1b69,#8b5cf6)': '#8b5cf6',
-    'linear-gradient(135deg,#7c2d12,#f97316)': '#f97316',
+    'linear-gradient(135deg,#004d38,#00c896)':'#00c896',
+    'linear-gradient(135deg,#0d0d0d,#1f1f1f)':'#aaaaaa',
+    'linear-gradient(135deg,#7a2050,#e8719a)':'#e8719a',
+    'linear-gradient(135deg,#0f3460,#1a6fb5)':'#00c896',
+    'linear-gradient(135deg,#2d1b69,#8b5cf6)':'#8b5cf6',
+    'linear-gradient(135deg,#7c2d12,#f97316)':'#f97316',
   };
 
   let selectedDesign = 0;
   let selectedCardGradient = 'linear-gradient(135deg,#004d38,#00c896)';
   let selectedBgColor = '#000000';
   let currentStep = 1;
-  let clabeCheckState = 'idle'; // idle | checking | ok | exists
+  let clabeCheckState = 'idle';
   let clabeCheckTimer = null;
-
-  const store = {};
+  let slugCheckState = 'idle';
+  let slugCheckTimer = null;
 
   /* ── helpers ── */
   function setFloatingBtn({ text, disabled, visible }) {
@@ -691,6 +724,7 @@
       setTimeout(()=>{ toEl.style.transition=''; },320);
     },280);
   }
+
   function transitionHero(title, subtitle) {
     const hero=$('app-hero'); hero.classList.add('hero-exit');
     setTimeout(()=>{
@@ -707,37 +741,38 @@
     const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
     let ok=true;
     if(setError('fg-nombre-cuenta',nombreCuenta.length<2)) ok=false;
-    if(clabe.length!==18){ setError('fg-clabe',true); $('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.'; ok=false; }
+    if(clabe.length!==18){ setError('fg-clabe',true); $('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 d\u00edgitos.'; ok=false; }
     if(clabeCheckState==='exists'){ setError('fg-clabe',true); ok=false; }
     if(clabeCheckState==='checking') return;
     if(!ok) return;
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode];
-    $('step2-nombre-cuenta').textContent=nombreCuenta+($('alias').value.trim()?` · ${$('alias').value.trim()}`:'');
+    $('step2-nombre-cuenta').textContent=nombreCuenta+($('alias').value.trim()?' \u00b7 '+$('alias').value.trim():'');
     $('step2-banco').textContent=bancoData?bancoData.nombre:'Banco no identificado';
     $('color-editor').classList.add('fade-out');
     setFloatingBtn({visible:false});
-    transitionHero('Último paso','Completa tu información y crea tu link personal.');
+    transitionHero('\u00daltimo paso','Completa tu informaci\u00f3n y crea tu link personal.');
     transitionLeftPanel('panel-step1','panel-step2',()=>{
       currentStep=2; $('main-layout').classList.add('step2');
-      if(window.innerWidth<=700){ var f=$('step2-footer'),ml=$('main-layout'); if(f&&ml) ml.appendChild(f); }
       window.scrollTo({top:0,behavior:'smooth'});
     });
   }
+
   function backToStep1() {
     $('color-editor').classList.remove('fade-out');
-    transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
+    transitionHero('Empieza aqu\u00ed','Ingresa tus datos y personaliza tu perfil.');
     transitionLeftPanel('panel-step2','panel-step1',()=>{
       currentStep=1; $('main-layout').classList.remove('step2');
-      if(window.innerWidth<=700){ var f=$('step2-footer'),lc=$('left-col'); if(f&&lc) lc.appendChild(f); }
-      setFloatingBtn({text:'Continuar →',visible:true});
+      setFloatingBtn({text:'Continuar \u2192',visible:true});
       window.scrollTo({top:0,behavior:'smooth'});
     });
   }
+
   function resetToStep1() {
-    currentStep=1; $('color-editor').classList.remove('fade-out');
+    currentStep=1; clabeCheckState='idle'; slugCheckState='idle';
+    $('color-editor').classList.remove('fade-out');
     $('panel-step2').classList.add('hidden'); $('panel-step1').classList.remove('hidden','exit-left');
     $('panel-step1').style.opacity=''; $('panel-step1').style.transform='';
-    showMainLayout(); setFloatingBtn({text:'Continuar →',visible:true});
+    showMainLayout(); setFloatingBtn({text:'Continuar \u2192',visible:true});
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
@@ -750,67 +785,75 @@
     else nGroup.style.display='none';
     $('lc-alias').textContent=alias?alias.toUpperCase():'';
     const cg=$('lc-clabe-group');
-    if(clabe.length>=1){ const p=clabe.padEnd(18,'·'); $('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18); cg.style.display='flex'; }
+    if(clabe.length>=1){ const p=clabe.padEnd(18,'\u00b7'); $('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18); cg.style.display='flex'; }
     else cg.style.display='none';
   }
 
   /* ── CLABE duplicate check ── */
   async function checkClabeExists(clabe) {
-    clabeCheckState = 'checking';
+    clabeCheckState='checking';
     const ring=$('clabe-checking-ring'), ver=$('clabe-verified');
-    ring.classList.add('visible');
-    if(ver) ver.style.display='none';
+    ring.classList.add('visible'); if(ver) ver.style.display='none';
     try {
-      const resp = await fetch(`${SUPABASE_URL}/functions/v1/check-clabe`, {
-        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
-        body: JSON.stringify({ clabe })
-      });
-      const data = await resp.json();
+      const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-clabe`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe})});
+      const data=await resp.json();
       ring.classList.remove('visible');
-      if(data.exists) {
-        clabeCheckState = 'exists';
-        $('clabe-error-msg').textContent = 'Esta CLABE ya tiene un perfil registrado.';
-        setError('fg-clabe', true);
-        if(ver) ver.style.display='none';
-      } else {
-        clabeCheckState = 'ok';
-        setError('fg-clabe', false);
-        if(ver) ver.style.display='block';
-      }
-    } catch(e) {
-      clabeCheckState = 'idle';
-      ring.classList.remove('visible');
-    }
+      if(data.exists){ clabeCheckState='exists'; $('clabe-error-msg').textContent='Esta CLABE ya tiene un perfil registrado.'; setError('fg-clabe',true); if(ver) ver.style.display='none'; }
+      else { clabeCheckState='ok'; setError('fg-clabe',false); if(ver) ver.style.display='block'; }
+    } catch(e) { clabeCheckState='idle'; ring.classList.remove('visible'); }
   }
 
   function onClabeInput() {
     const input=$('clabe');
-    input.value = input.value.replace(/[\D\s]/g,'').substring(0,18);
-    const len = input.value.length;
-    input.classList.toggle('complete', len===18);
-    clabeCheckState = 'idle';
+    input.value=input.value.replace(/[\D\s]/g,'').substring(0,18);
+    const len=input.value.length;
+    input.classList.toggle('complete',len===18);
+    clabeCheckState='idle';
     const ring=$('clabe-checking-ring'), ver=$('clabe-verified');
-    ring.classList.remove('visible');
-    if(ver) ver.style.display='none';
-    $('clabe-error-msg').textContent = 'La CLABE debe tener exactamente 18 dígitos.';
-    if(len===18){
-      $('fg-clabe').classList.remove('has-error');
-      clearTimeout(clabeCheckTimer);
-      clabeCheckTimer = setTimeout(() => checkClabeExists(input.value), 500);
-    }
+    ring.classList.remove('visible'); if(ver) ver.style.display='none';
+    $('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 d\u00edgitos.';
+    if(len===18){ $('fg-clabe').classList.remove('has-error'); clearTimeout(clabeCheckTimer); clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500); }
     const code=input.value.substring(0,3), wrap=$('banco-wrap'), bancoInput=$('banco'), iconEl=$('banco-icon'), lcBank=$('lc-bank');
-    if(code.length===3 && BANCOS[code]){
-      const b=BANCOS[code]; bancoInput.value=b.nombre; iconEl.src=favicon(b.domain); iconEl.alt=b.nombre;
-      wrap.classList.add('detected'); $('lc-bank-icon').src=favicon(b.domain); $('lc-bank-icon').style.display='block';
-      $('lc-bank-name').textContent=b.nombre; lcBank.style.display='flex';
-    } else {
-      bancoInput.value=''; iconEl.src=''; wrap.classList.remove('detected'); lcBank.style.display='none';
-    }
+    if(code.length===3&&BANCOS[code]){ const b=BANCOS[code]; bancoInput.value=b.nombre; iconEl.src=favicon(b.domain); iconEl.alt=b.nombre; wrap.classList.add('detected'); $('lc-bank-icon').src=favicon(b.domain); $('lc-bank-icon').style.display='block'; $('lc-bank-name').textContent=b.nombre; lcBank.style.display='flex'; }
+    else { bancoInput.value=''; iconEl.src=''; wrap.classList.remove('detected'); lcBank.style.display='none'; }
     updateCard();
   }
 
+  /* ── Slug check ── */
+  function slugStatusIcon(type) {
+    const st=$('slug-status');
+    if(type==='checking') { st.innerHTML='<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="animation:spin 0.7s linear infinite;display:block;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>'; }
+    else if(type==='ok') { st.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:block;"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+    else if(type==='error') { st.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>'; }
+    else { st.innerHTML=''; }
+  }
+
+  async function checkSlugAvailable(slug) {
+    slugCheckState='checking';
+    slugStatusIcon('checking');
+    try {
+      const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-slug`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({slug})});
+      const data=await resp.json();
+      if(data.available){ slugCheckState='ok'; slugStatusIcon('ok'); $('fg-slug').classList.remove('has-error'); $('slug-wrap').style.borderColor=''; }
+      else { slugCheckState='taken'; slugStatusIcon('error'); $('slug-error').textContent='Este link ya est\u00e1 en uso. Elige otro.'; setError('fg-slug',true); }
+    } catch(e) { slugCheckState='idle'; slugStatusIcon(''); }
+  }
+
+  function onSlugInput() {
+    const inp=$('slug-custom');
+    let val=inp.value.toLowerCase().replace(/[^a-z0-9-]/g,'');
+    if(inp.value!==val) inp.value=val;
+    slugCheckState='idle'; slugStatusIcon('');
+    $('fg-slug').classList.remove('has-error');
+    clearTimeout(slugCheckTimer);
+    if(val.length===0){ return; }
+    if(val.length<3){ slugCheckState='short'; return; }
+    if(/^[a-z0-9-]{3,20}$/.test(val)){ slugCheckTimer=setTimeout(()=>checkSlugAvailable(val),600); }
+    else { slugCheckState='invalid'; }
+  }
+
   /* ── Design picker ── */
-  function renderDesign(containerEl, idx) { if(!containerEl) return; containerEl.innerHTML = CARD_DESIGNS[idx].render(); }
+  function renderDesign(containerEl, idx) { if(!containerEl) return; containerEl.innerHTML=CARD_DESIGNS[idx].render(); }
 
   function buildDesignPicker() {
     const picker=$('design-picker');
@@ -820,118 +863,66 @@
       const p0=CARD_PRESETS.find(p=>p.value===selectedCardGradient);
       thumb.style.background=(d.id==='solido'&&p0)?p0.solid:selectedCardGradient;
       thumb.innerHTML=d.thumbRender();
-      thumb.onclick=()=>{
-        selectedDesign=i;
-        document.querySelectorAll('.design-thumb').forEach(t=>t.classList.remove('active'));
-        thumb.classList.add('active');
-        renderDesign($('card-design-layer'),i);
-        applyCardColor();
-      };
+      thumb.onclick=()=>{ selectedDesign=i; document.querySelectorAll('.design-thumb').forEach(t=>t.classList.remove('active')); thumb.classList.add('active'); renderDesign($('card-design-layer'),i); applyCardColor(); };
       const lbl=document.createElement('div'); lbl.className='design-thumb-label'; lbl.textContent=d.label;
       wrap.appendChild(thumb); wrap.appendChild(lbl); picker.appendChild(wrap);
     });
   }
 
-  /* ── Swatches + native color picker ── */
   function buildSwatches() {
     const cw=$('card-swatches'), bw=$('bg-swatches');
-
-    /* Card presets */
     CARD_PRESETS.forEach((p,i)=>{
-      const sw=document.createElement('div');
-      sw.className='swatch'+(i===0?' active':'');
-      sw.style.background=p.solid||p.value;
-      if(p.label==='Negro') sw.style.border='1px solid #444';
+      const sw=document.createElement('div'); sw.className='swatch'+(i===0?' active':'');
+      sw.style.background=p.solid||p.value; if(p.label==='Negro') sw.style.border='1px solid #444';
       sw.title=p.label;
-      sw.onclick=()=>{
-        document.querySelectorAll('#card-swatches .swatch, #card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
-        sw.classList.add('active');
-        selectedCardGradient=p.value;
-        applyCardColor();
-      };
+      sw.onclick=()=>{ document.querySelectorAll('#card-swatches .swatch, #card-swatches .swatch-add').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); selectedCardGradient=p.value; applyCardColor(); };
       cw.appendChild(sw);
     });
-    /* "+" custom card color */
     const addCard=document.createElement('div'); addCard.className='swatch-add'; addCard.title='Color personalizado';
     addCard.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
-    addCard.onclick=()=>{
-      document.querySelectorAll('#card-swatches .swatch, #card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
-      addCard.classList.add('active');
-      $('native-color-card').click();
-    };
+    addCard.onclick=()=>{ document.querySelectorAll('#card-swatches .swatch, #card-swatches .swatch-add').forEach(s=>s.classList.remove('active')); addCard.classList.add('active'); $('native-color-card').click(); };
     cw.appendChild(addCard);
 
-    /* BG presets */
     BG_PRESETS.forEach((p,i)=>{
-      const sw=document.createElement('div');
-      sw.className='swatch'+(i===0?' active':'');
+      const sw=document.createElement('div'); sw.className='swatch'+(i===0?' active':'');
       sw.style.background=p.value;
       const dark=['#000000','#111827','#0a1a10'].includes(p.value);
       sw.style.border=dark?'1px solid #2a2a2a':'1px solid #aaa';
       sw.title=p.label;
-      sw.onclick=()=>{
-        document.querySelectorAll('#bg-swatches .swatch, #bg-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
-        sw.classList.add('active');
-        selectedBgColor=p.value;
-        applyBgColor();
-      };
+      sw.onclick=()=>{ document.querySelectorAll('#bg-swatches .swatch, #bg-swatches .swatch-add').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); selectedBgColor=p.value; applyBgColor(); };
       bw.appendChild(sw);
     });
-    /* "+" custom bg color */
-    const addBg=document.createElement('div'); addBg.className='swatch-add'; addBg.title='Color personalizado';
+    const addBg=document.createElement('div'); addBg.className='swatch-add'; addBg.title='Fondo personalizado';
     addBg.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
-    addBg.onclick=()=>{
-      document.querySelectorAll('#bg-swatches .swatch, #bg-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
-      addBg.classList.add('active');
-      $('native-color-bg').click();
-    };
+    addBg.onclick=()=>{ document.querySelectorAll('#bg-swatches .swatch, #bg-swatches .swatch-add').forEach(s=>s.classList.remove('active')); addBg.classList.add('active'); $('native-color-bg').click(); };
     bw.appendChild(addBg);
   }
 
-  /* ── Wire up native color inputs (opens browser color picker with eyedropper) ── */
   function initColorPickers() {
-    const cardInput=$('native-color-card');
-    const bgInput=$('native-color-bg');
-
-    cardInput.addEventListener('input', ()=>{
-      const val=cardInput.value; // always valid #rrggbb
-      const r=parseInt(val.slice(1,3),16), g=parseInt(val.slice(3,5),16), b=parseInt(val.slice(5,7),16);
+    $('native-color-card').addEventListener('input', ()=>{
+      const val=$('native-color-card').value;
+      const r=parseInt(val.slice(1,3),16),g=parseInt(val.slice(3,5),16),b=parseInt(val.slice(5,7),16);
       const dark='#'+[r,g,b].map(c=>Math.floor(c*0.35).toString(16).padStart(2,'0')).join('');
-      selectedCardGradient=`linear-gradient(135deg,${dark},${val})`;
-      applyCardColor();
+      selectedCardGradient=`linear-gradient(135deg,${dark},${val})`; applyCardColor();
     });
-
-    bgInput.addEventListener('input', ()=>{
-      selectedBgColor=bgInput.value;
-      applyBgColor();
-    });
+    $('native-color-bg').addEventListener('input', ()=>{ selectedBgColor=$('native-color-bg').value; applyBgColor(); });
   }
 
-  /* ── Resolve card CSS variables from gradient string ── */
   function getCardColorVars(gradient) {
-    if(SOLID_MAP[gradient]) return { rgb: SOLID_MAP[gradient], accent: ACCENT_MAP[gradient] };
-    const m=gradient.match(/#[0-9a-fA-F]{6}/g);
-    const endHex=m?m[m.length-1]:'#00c896';
-    const r=parseInt(endHex.slice(1,3),16), g=parseInt(endHex.slice(3,5),16), b=parseInt(endHex.slice(5,7),16);
+    if(SOLID_MAP[gradient]) return { rgb:SOLID_MAP[gradient], accent:ACCENT_MAP[gradient] };
+    const m=gradient.match(/#[0-9a-fA-F]{6}/g), endHex=m?m[m.length-1]:'#00c896';
+    const r=parseInt(endHex.slice(1,3),16),g=parseInt(endHex.slice(3,5),16),b=parseInt(endHex.slice(5,7),16);
     return { rgb:`${r},${g},${b}`, accent:endHex };
   }
 
   function applyCardColor() {
-    const card=$('live-card');
-    const isSolido=CARD_DESIGNS[selectedDesign]&&CARD_DESIGNS[selectedDesign].id==='solido';
+    const card=$('live-card'), isSolido=CARD_DESIGNS[selectedDesign]&&CARD_DESIGNS[selectedDesign].id==='solido';
     const preset=CARD_PRESETS.find(p=>p.value===selectedCardGradient);
     const bg=isSolido&&preset?preset.solid:selectedCardGradient;
     card.style.background=bg;
-    document.querySelectorAll('.design-thumb').forEach((t,i)=>{
-      t.style.background=(CARD_DESIGNS[i]&&CARD_DESIGNS[i].id==='solido'&&preset)?preset.solid:selectedCardGradient;
-    });
-    const hexMatch=bg.match(/#([0-9a-f]{6})/i);
-    if(hexMatch){
-      const n=parseInt(hexMatch[1],16);
-      const lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;
-      card.classList.toggle('light-text',lum<0.5);
-      card.classList.toggle('dark-text',lum>=0.5);
-    }
+    document.querySelectorAll('.design-thumb').forEach((t,i)=>{ t.style.background=(CARD_DESIGNS[i]&&CARD_DESIGNS[i].id==='solido'&&preset)?preset.solid:selectedCardGradient; });
+    const hx=bg.match(/#([0-9a-f]{6})/i);
+    if(hx){ const n=parseInt(hx[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255; card.classList.toggle('light-text',lum<0.5); card.classList.toggle('dark-text',lum>=0.5); }
     const { rgb, accent }=getCardColorVars(selectedCardGradient);
     const frame=$('card-frame');
     frame.style.setProperty('--cp-row-bg','rgba('+rgb+',0.14)');
@@ -940,21 +931,16 @@
   }
 
   function applyBgColor() {
-    const frame=$('card-frame');
-    frame.style.background=selectedBgColor;
+    const frame=$('card-frame'); frame.style.background=selectedBgColor;
     const hex=selectedBgColor.replace('#','');
-    const r=parseInt(hex.substring(0,2),16), g=parseInt(hex.substring(2,4),16), b=parseInt(hex.substring(4,6),16);
+    const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
     const lum=(0.299*r+0.587*g+0.114*b)/255;
     frame.classList.toggle('bg-light',lum>=0.5);
   }
 
-  /* ── WhatsApp formatter ── */
   const LADAS_2D=new Set(['55','56','81','33','99']);
-  function fmtWA(digits){
-    if(!digits) return '';
-    if(LADAS_2D.has(digits.substring(0,2))) return [digits.substring(0,2),digits.substring(2,6),digits.substring(6,10)].filter(p=>p).join(' ');
-    return [digits.substring(0,3),digits.substring(3,6),digits.substring(6,10)].filter(p=>p).join(' ');
-  }
+  function fmtWA(digits){ if(!digits)return ''; if(LADAS_2D.has(digits.substring(0,2))) return [digits.substring(0,2),digits.substring(2,6),digits.substring(6,10)].filter(p=>p).join(' '); return [digits.substring(0,3),digits.substring(3,6),digits.substring(6,10)].filter(p=>p).join(' '); }
+
   function onWaInput(){
     var inp=$('whatsapp'),sel=$('wa-country');
     var max=sel?parseInt(sel.options[sel.selectedIndex].dataset.digits||'10'):10;
@@ -965,6 +951,7 @@
     if(fg){ if(raw.length===0||raw.length===max) fg.classList.remove('has-error'); else fg.classList.add('has-error'); }
     updateContactPreview();
   }
+
   function onEmailInput(){ var fg=$('fg-email'),val=$('email').value.trim(); if(!val){fg.classList.remove('has-error');return;} /\S+@\S+\.\S+/.test(val)?fg.classList.remove('has-error'):fg.classList.add('has-error'); }
   function onEmailBlur(){ var fg=$('fg-email'),val=$('email').value.trim(); if(!val)return; !/\S+@\S+\.\S+/.test(val)?fg.classList.add('has-error'):fg.classList.remove('has-error'); }
 
@@ -980,7 +967,8 @@
     if(showEm){ $('cp-email-text').textContent=emVal; cpEm.style.display='flex'; } else cpEm.style.display='none';
     cp.style.display=(showWa||showEm)?'flex':'none';
   }
-  function cpCopy(id,btn){ var val=$(id)?$(id).textContent.trim():''; if(!val||val==='—') return; navigator.clipboard.writeText(val).then(()=>{ btn.textContent='✓ Copiado'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},1800); }); }
+
+  function cpCopy(id,btn){ var val=$(id)?$(id).textContent.trim():''; if(!val||val==='\u2014') return; navigator.clipboard.writeText(val).then(()=>{ btn.textContent='\u2713 Copiado'; btn.classList.add('copied'); setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},1800); }); }
   function setError(fgId,show){ const fg=$(fgId); if(!fg)return show; show?fg.classList.add('has-error'):fg.classList.remove('has-error'); return show; }
 
   async function submitForm(){
@@ -991,14 +979,21 @@
     var waRawCheck=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
     var waSel=$('wa-country'); var waMax=waSel?parseInt(waSel.options[waSel.selectedIndex].dataset.digits||'10'):10;
     if(waRawCheck.length>0&&waRawCheck.length!==waMax){setError('fg-whatsapp',true);ok=false;}
+    // Slug validation
+    const slugVal=$('slug-custom').value.trim();
+    if(slugVal.length>0&&slugVal.length<3){ $('slug-error').textContent='M\u00ednimo 3 caracteres.'; setError('fg-slug',true); ok=false; }
+    if(slugCheckState==='taken'||slugCheckState==='invalid'){ ok=false; }
+    if(slugCheckState==='checking'){ return; }
     const c1=$('fg-consent1'),c2=$('fg-consent2');
     if(!$('consent1').checked){c1.classList.add('has-error');ok=false;}else c1.classList.remove('has-error');
     if(!$('consent2').checked){c2.classList.add('has-error');ok=false;}else c2.classList.remove('has-error');
     if(!ok) return;
+
     setFloatingBtn({visible:false});
     const submitBtn=$('submit-btn'),textEl=$('btn-text');
-    submitBtn.disabled=true; textEl.textContent='Generando…';
+    submitBtn.disabled=true; textEl.textContent='Generando\u2026';
     hideMainLayout(); showPageLoader();
+
     const nombreCuenta=$('nombre-cuenta').value.trim(), clabe=$('clabe').value.replace(/\D/g,'');
     const alias=$('alias').value.trim();
     const waRaw=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
@@ -1007,28 +1002,40 @@
     const bancoCode=clabe.substring(0,3), bancoData=BANCOS[bancoCode]||null;
     const banco=bancoData?bancoData.nombre:$('banco').value;
     const bancoDomain=bancoData?bancoData.domain:null;
+    const customSlug=slugVal.length>=3?slugVal:'';
+
     const fnResp=await fetch(`${SUPABASE_URL}/functions/v1/create-link`,{
       method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
-      body:JSON.stringify({ clabe, titular_cuenta:nombreCuenta, banco, banco_code:bancoCode||null, banco_domain:bancoDomain, alias:alias||null, whatsapp:whatsapp||null, nombre, email, card_gradient:selectedCardGradient, card_design:selectedDesign, bg_color:selectedBgColor, show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked), show_email:!!($('show_email')&&$('show_email').checked) })
+      body:JSON.stringify({ clabe, titular_cuenta:nombreCuenta, banco, banco_code:bancoCode||null, banco_domain:bancoDomain, alias:alias||null, whatsapp:whatsapp||null, nombre, email, card_gradient:selectedCardGradient, card_design:selectedDesign, bg_color:selectedBgColor, show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked), show_email:!!($('show_email')&&$('show_email').checked), custom_slug:customSlug||null })
     });
+
+    if(fnResp.status===409){
+      hidePageLoader(()=>{
+        textEl.textContent='Generar mi Link'; submitBtn.disabled=false;
+        showMainLayout(); $('main-layout').classList.add('step2');
+        $('slug-error').textContent='Este link ya est\u00e1 en uso. Elige otro.';
+        setError('fg-slug',true); slugCheckState='taken'; slugStatusIcon('error');
+        setFloatingBtn({visible:false});
+      });
+      return;
+    }
     if(!fnResp.ok){ hidePageLoader(()=>{ textEl.textContent='Error. Intenta de nuevo.'; submitBtn.disabled=false; setFloatingBtn({visible:true}); }); return; }
+
     const {slug}=await fnResp.json();
     var se=$('success-email'); if(se) se.textContent=email;
     submitBtn.disabled=false; textEl.textContent='Generar mi Link';
     hidePageLoader(()=>{
-      transitionHero('¡Todo listo!','');
+      transitionHero('\u00a1Todo listo!','');
       document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
       $('view-success').classList.add('active');
       window.scrollTo({top:0,behavior:'smooth'});
     });
   }
 
-  function loadProfile(){ return false; } /* profiles served from card.html */
-
   /* ── Init ── */
   buildDesignPicker(); buildSwatches(); initColorPickers();
   renderDesign($('card-design-layer'),0); applyCardColor(); applyBgColor();
-  if(!loadProfile()){ showMainLayout(); setFloatingBtn({text:'Continuar →',visible:true}); }
+  showMainLayout(); setFloatingBtn({text:'Continuar \u2192',visible:true});
 
   /* ── Shapes ── */
   (function(){
