@@ -162,7 +162,7 @@
     .clabe-wrap { position: relative; }
     .clabe-verified { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none; pointer-events: none; }
     .clabe-checking-ring { position: absolute; right: 10px; top: 50%; width: 16px; height: 16px; display: none; pointer-events: none; }
-    @keyframes spin { from { transform: translateY(-50%) rotate(0deg); } to { transform: translateY(-50%) rotate(360deg); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .clabe-checking-ring.visible { display: block; animation: spin 0.7s linear infinite; }
     .banco-wrap.detected .banco-icon { display: block; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
