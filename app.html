@@ -163,16 +163,16 @@
     .live-card{width:330px;aspect-ratio:1/1.2;border-radius:14px;position:relative;z-index:1;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.08);transition:background .3s;background:linear-gradient(135deg,#004d38,#00c896);cursor:default;user-select:none;}
     .card-design-layer{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;overflow:hidden;}
     .lc-inner{position:relative;z-index:1;height:100%;padding:20px 22px 24px;display:flex;flex-direction:column;justify-content:space-between;}
-    .lc-top{display:flex;align-items:center;justify-content:space-between;}
+    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
     /* Logo square — inside card top-left */
     .lc-logo-sq{width:96px;height:96px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
     .lc-logo-sq.visible{display:block;}
     .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
-    .lc-logo-dot img{height:14px;width:auto;display:block;opacity:.75;}
+    .lc-logo-dot{position:absolute;top:0;right:0;}.lc-logo-dot img{height:14px;width:auto;display:block;opacity:.75;}
     .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:24px;padding:7px 16px 7px 8px;margin-bottom:4px;align-self:flex-start;}
     .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.15);display:none;}
     .lc-bank-name{font-size:16px;font-weight:600;opacity:.92;}
-    .lc-middle{text-align:left;flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-evenly;padding:14px 0;}
+    .lc-middle{text-align:left;flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-evenly;padding:6px 0;}
     .lc-group{display:flex;flex-direction:column;align-items:flex-start;gap:1px;}
     .lc-section-label,.lc-clabe-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;opacity:.55;font-weight:600;}
     .lc-clabe{font-size:18px;font-weight:600;letter-spacing:.04em;font-family:"Inter",sans-serif;line-height:1.3;white-space:nowrap;}
@@ -180,7 +180,7 @@
     .lc-copy-btn{background:none;border:none;padding:3px;cursor:pointer;display:flex;align-items:center;opacity:.5;transition:opacity .2s;flex-shrink:0;}
     .lc-copy-btn:hover{opacity:1;}
     .lc-name{font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:"Inter",sans-serif;white-space:nowrap;transition:font-size .15s;}
-    .lc-negocio-name{font-size:14px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-family:"Inter",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-top:-6px;}
+    .lc-negocio-name{font-size:14px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-family:"Inter",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-top:0;}
     .lc-alias{font-size:12px;opacity:.6;letter-spacing:2.5px;text-transform:uppercase;font-family:"Inter",sans-serif;font-weight:700;}
     .live-card.light-text{color:#fff;}
     .live-card.dark-text{color:#1a1a1a;}
@@ -348,7 +348,6 @@
 
   <!-- HERO (hidden until type selected) -->
   <div class="app-hero" id="app-hero" style="display:none;">
-    <button class="type-back visible" id="type-back-btn" onclick="goBackToType()">&#8592; Volver</button>
     <h1 id="app-hero-title">Empieza aqu&#237;</h1>
     <p id="app-hero-sub">Ingresa tus datos y personaliza tu perfil.</p>
   </div>
@@ -357,6 +356,7 @@
     <div class="left-col" id="left-col">
       <!-- PANEL 1 -->
       <div class="left-panel" id="panel-step1">
+        <button class="step2-back" id="type-back-btn" onclick="goBackToType()" style="display:none;">&#8592; Volver</button>
         <div class="card">
           <div class="card-header"><div class="n26-bar"></div><h1>Datos de la cuenta</h1><p>Comparte tus datos bancarios de forma r&#225;pida y segura.</p></div>
           <div class="security-notice">
@@ -552,7 +552,7 @@
               <div class="form-row" style="margin-bottom:10px;">
                 <div class="field" style="margin-bottom:0;">
                   <label>Municipio / Ciudad <span class="req">*</span></label>
-                  <select id="ciudad-fiscal"><option value="">Cargando...</option></select>
+                  <input type="text" id="ciudad-fiscal" placeholder="Ej. Cuauht&#233;moc"/>
                 </div>
                 <div class="field" style="margin-bottom:0;">
                   <label>Estado</label>
@@ -721,7 +721,7 @@ let profileType='personal'; // 'personal' | 'negocios'
 function selectType(type) {
   profileType=type;
   $('view-type').style.display='none';
-  if($('type-back-btn'))$('type-back-btn').classList.add('visible');
+  if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
   $('app-hero').style.display='';
   $('app-hero-title').textContent=type==='personal'?'Empieza aquí':'Perfil de negocio';
   $('app-hero-sub').textContent=type==='personal'?'Ingresa tus datos y personaliza tu perfil.':'Datos bancarios y empresariales en un link.';
@@ -729,7 +729,7 @@ function selectType(type) {
   setFloatingBtn({text:'Continuar →',visible:true});
 }
 function goBackToType() {
-  // Show type selector again from step1
+  if($('type-back-btn'))$('type-back-btn').style.display='none';
   $('view-type').style.display='flex';
   $('app-hero').style.display='none';
   $('main-layout').classList.remove('active');
@@ -772,6 +772,7 @@ function goToStep2(){
   $('step2-banco').textContent=bancoData?bancoData.nombre:'Banco no identificado';
   $('color-editor').classList.add('fade-out');
   setFloatingBtn({visible:false});
+  if($('type-back-btn'))$('type-back-btn').style.display='none';
   const isNeg=profileType==='negocios';
   transitionHero('Último paso',isNeg?'Completa los datos del administrador del perfil del negocio.':'Completa tu información y crea tu link personal.');
   transitionLeftPanel('panel-step1','panel-step2',()=>{
@@ -780,11 +781,16 @@ function goToStep2(){
     $('fg-nombre-negocio').style.display=isNeg?'':'none';
     $('fg-logo').style.display=isNeg?'':'none';
     const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
+    // Reset fiscal toggle to OFF every time step2 is entered
+    const sfCb=$('show_fiscal');if(sfCb){sfCb.checked=false;}
+    const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');
+    updateContactPreview();
     window.scrollTo({top:0,behavior:'smooth'});
   });
 }
 function backToStep1(){
   $('color-editor').classList.remove('fade-out');
+  if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
   transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
   transitionLeftPanel('panel-step2','panel-step1',()=>{currentStep=1;$('main-layout').classList.remove('step2');setFloatingBtn({text:'Continuar →',visible:true});window.scrollTo({top:0,behavior:'smooth'});});
 }
@@ -878,50 +884,30 @@ function onCpInput(){
 }
 async function lookupCP(cp){
   const spinner=$('cp-spinner');spinner.classList.add('visible');$('fg-cp').classList.remove('has-error');
+  const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),8000); // 8s timeout
   try{
-    // Primary: sepomex.io — free, returns municipio + estado + colonias correctly
-    const resp=await fetch(`https://sepomex.icalialabs.com/api/v1/zip_codes?zip_code=${cp}`);
+    const resp=await fetch(`https://api.zippopotam.us/mx/${cp}`,{signal:ctrl.signal});
+    clearTimeout(tid);
     spinner.classList.remove('visible');
-    if(resp.ok){
-      const data=await resp.json();
-      const zips=data.zip_codes;
-      if(zips&&zips.length){
-        // Estado — read-only
-        $('estado-fiscal').value=MX_STATES_BY_NAME[zips[0].d_estado]||zips[0].d_estado||'';
-        // Municipios dropdown (unique)
-        const municipios=[...new Set(zips.map(z=>z.d_mnpio).filter(Boolean))].sort();
-        const ciudadSel=$('ciudad-fiscal');
-        ciudadSel.innerHTML='<option value="">Selecciona municipio</option>'+
-          municipios.map(m=>`<option value="${m}">${m}</option>`).join('');
-        if(municipios.length===1) ciudadSel.value=municipios[0];
-        // Colonias dropdown (unique asentamiento name)
-        const colonias=[...new Set(zips.map(z=>z.d_asenta).filter(Boolean))].sort();
-        const colSel=$('colonia-fiscal');
-        colSel.innerHTML='<option value="">Selecciona tu colonia</option>'+
-          colonias.map(c=>`<option value="${c}">${c}</option>`).join('')+
-          '<option value="__otra__">Otra colonia&#8230;</option>';
-        colSel.onchange=function(){$('colonia-otra-wrap').style.display=this.value==='__otra__'?'block':'none';};
-        $('cp-autofill-row').style.display='block';
-        return;
-      }
-    }
-    // Fallback: zippopotam (for estado + colonias, no municipio)
-    const resp2=await fetch(`https://api.zippopotam.us/mx/${cp}`);
-    if(!resp2.ok){showCpError();return;}
-    const d=await resp2.json();
+    if(!resp.ok){showCpError();return;}
+    const d=await resp.json();
     if(!d.places||!d.places.length){showCpError();return;}
+    // Estado — proper accented name via abbreviation map
     const abbr=d.places[0]['state abbreviation'];
-    $('estado-fiscal').value=MX_STATES[abbr]||d.places[0]['state'];
-    const ciudadSel=$('ciudad-fiscal');
-    ciudadSel.innerHTML='<option value="">No disponible — escribe</option>';
-    const colonias=[...new Set(d.places.map(p=>p['place name']))].sort();
+    $('estado-fiscal').value=MX_STATES[abbr]||d.places[0]['state']||'';
+    // Ciudad — text input, user types municipality manually
+    const ciudadInp=$('ciudad-fiscal');
+    if(ciudadInp){ciudadInp.value='';ciudadInp.placeholder='Ej. Cuauhtémoc';}
+    // Colonias dropdown — zippopotam place names ARE the colonias for MX
+    const colonias=[...new Set(d.places.map(p=>p['place name']).filter(Boolean))].sort();
     const colSel=$('colonia-fiscal');
     colSel.innerHTML='<option value="">Selecciona tu colonia</option>'+
-      colonias.map(c=>`<option value="${c}">${c}</option>`).join('')+
-      '<option value="__otra__">Otra colonia&#8230;</option>';
+      colonias.map(col=>`<option value="${col}">${col}</option>`).join('')+
+      '<option value="__otra__">Otra colonia…</option>';
     colSel.onchange=function(){$('colonia-otra-wrap').style.display=this.value==='__otra__'?'block':'none';};
     $('cp-autofill-row').style.display='block';
   }catch(e){
+    clearTimeout(tid);
     spinner.classList.remove('visible');
     showCpError();
   }
