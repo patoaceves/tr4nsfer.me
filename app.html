@@ -3,257 +3,1473 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="robots" content="noindex, nofollow"/>
   <title>tr4nsfer.me</title>
   <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="apple-touch-icon" href="favicon.png"/>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    :root{--teal:#00c896;--bg:#000;--muted:rgba(255,255,255,0.45);--text:#fff;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 48px;}
-    .geo-shape{position:absolute;bottom:-60px;pointer-events:none;animation:riseShape linear infinite;}
-    @keyframes riseShape{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}88%{opacity:.6}100%{transform:translateY(-110vh) rotate(360deg);opacity:0}}
-    @media(max-width:600px){body{justify-content:flex-start;padding-top:48px;}}
+    :root{
+      --bg:#000;--surface:#111;--surface2:#191919;
+      --teal:#00c896;--teal-dark:#00a87a;--teal-dim:rgba(0,200,150,.09);--teal-border:rgba(0,200,150,.20);
+      --text:#f0f0f0;--text-soft:#c8c8c8;--muted:#888;--muted2:#333;--dim:#444;
+      --border:rgba(255,255,255,.07);--border2:#272727;--input-bg:#0c0c0c;--error:#f04040;--r:14px;
+    }
+    html,body{min-height:100%;}
+    body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+    .shapes{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .geo-shape{position:absolute;bottom:-100px;animation:riseShape linear infinite;}
+    .geo-square{border:1px solid rgba(0,200,150,.18);}
+    .geo-square.filled{background:rgba(0,200,150,.06);}
+    .geo-triangle{line-height:0;}
+    @keyframes riseShape{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}88%{opacity:.65}100%{transform:translateY(-110vh) rotate(360deg);opacity:0}}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-    @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
-    @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(.4,0,.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(.4,0,.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(.4,0,.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-    @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes successFadeIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    /* HEADER */
+    header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+    .logo{display:inline-flex;align-items:center;text-decoration:none;}
+    .logo img{height:28px;width:auto;display:block;}
+    nav{display:flex;align-items:center;gap:36px;}
+    .nav-links{display:flex;align-items:center;gap:28px;}
+    nav a{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s;}
+    nav a:hover{color:var(--text);}
+    .btn-nav{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;background:var(--teal);color:#000;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
+    .btn-nav:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5),0 16px 48px rgba(0,200,150,.25);}
+    @media(max-width:860px){header{padding:0 24px;}.nav-links{display:none;}}
+    /* PAGE */
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:100px 20px 60px;}
+    /* TYPE SELECTOR */
+    #view-type{width:100%;display:none;flex-direction:column;align-items:center;justify-content:center;min-height:72vh;padding:0 0 48px;animation:fadeUp .4s ease both;}
+    #view-type.active{display:flex;}
+    .type-hero{text-align:center;margin-bottom:36px;}
+    .type-hero h1{font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px;}
+    .type-hero p{font-size:15px;color:var(--muted);}
+    .type-back{display:none;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--text-soft);cursor:pointer;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:999px;font-family:"Inter",sans-serif;padding:9px 18px;margin-bottom:28px;transition:background .18s,transform .1s;align-self:flex-start;}
+    .type-back:hover{background:#222;border-color:#333;transform:translateY(-1px);}
+    .type-back.visible{display:inline-flex;}
+    .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:560px;}
+    .type-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:32px 24px 28px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;text-align:center;}
+    .type-card:hover{border-color:rgba(0,200,150,.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,200,150,.08);}
+    .type-card-icon{margin-bottom:14px;display:flex;justify-content:center;}
+    .type-card-title{font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.02em;}
+    .type-card-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+    @media(max-width:500px){.type-grid{grid-template-columns:1fr;max-width:100%;}}
+    /* HERO */
+    .app-hero{width:100%;text-align:center;padding:48px 20px 44px;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(0,200,150,.08) 0%,transparent 70%);animation:fadeUp .4s ease both;transition:opacity .28s ease,transform .28s ease;display:flex;flex-direction:column;align-items:center;}
+    .app-hero.hero-exit{opacity:0;transform:translateY(-8px);pointer-events:none;}
+    .app-hero.hero-enter{opacity:0;transform:translateY(8px);}
+    .app-hero h1{font-size:clamp(34px,4.5vw,56px);font-weight:900;letter-spacing:-2px;line-height:1.1;margin-bottom:14px;}
+    .app-hero p{font-size:16px;color:var(--muted);line-height:1.6;}
+    /* VIEWS */
+    .view{display:none;width:100%;}
+    .view.active{display:flex;flex-direction:column;align-items:center;}
+    /* GRID */
+    #main-layout{display:none;width:100%;max-width:960px;animation:fadeUp .4s ease .08s both;}
+    #main-layout.active{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"left right";gap:24px;align-items:start;}
+    #main-layout.step2.active{grid-template-areas:"left right" "foot right";grid-template-rows:auto auto;}
+    .left-col{grid-area:left;position:relative;min-height:0;}
+    .right-col{grid-area:right;position:sticky;top:32px;display:flex;flex-direction:column;gap:16px;}
+    .step2-footer{grid-area:foot;display:none;}
+    #main-layout.step2>.step2-footer{display:block;}
+    .left-panel{width:100%;transition:opacity .3s ease,transform .3s ease;}
+    .left-panel.exit-left{position:absolute;top:0;left:0;width:100%;opacity:0;transform:translateX(-18px);pointer-events:none;}
+    .left-panel.hidden{display:none;}
+    .left-panel.enter-right{opacity:0;transform:translateX(18px);}
+    @media(max-width:700px){
+      #main-layout.active,#main-layout.step2.active{grid-template-columns:1fr;grid-template-areas:"left" "right" "foot";max-width:100%;gap:6px;}
+      .right-col{position:static;}
+      #main-layout.step2 .color-editor{display:none;}
+      .page{padding:80px 14px 100px;}
+      .app-hero{padding:32px 16px 28px;}
+      .app-hero h1{font-size:30px;letter-spacing:-1.2px;}
+      .card{padding:18px 16px;}
+      .card-frame{padding:28px 16px 24px;}
+      .live-card{width:min(300px,88vw);}
+      .contact-preview{width:min(300px,88vw);}
+      .form-row{grid-template-columns:1fr;}
+      #floating-btn-wrap{justify-content:stretch;}
+      #floating-btn{width:100%;}
+    }
+    /* CARD */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px 26px 24px;box-shadow:0 0 0 1px rgba(0,200,150,.03),0 20px 60px rgba(0,0,0,.55);}
+    .card-header{margin-bottom:22px;}
+    .n26-bar{width:22px;height:2.5px;background:var(--teal);border-radius:2px;margin-bottom:14px;box-shadow:0 0 8px rgba(0,200,150,.4);}
+    .card-header h1{font-size:17px;font-weight:600;margin-bottom:4px;letter-spacing:-.025em;}
+    .card-header p{font-size:12px;color:var(--muted);line-height:1.6;}
+    /* FORM */
+    .field{margin-bottom:13px;}
+    label{display:block;font-size:10.5px;font-weight:500;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+    label .req{color:var(--teal);margin-left:1px;opacity:.8;}
+    label .opt{color:var(--muted2);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;margin-left:4px;}
+    input[type="text"],input[type="tel"],input[type="email"]{width:100%;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;color:var(--text-soft);font-size:13.5px;font-family:"Inter",sans-serif;padding:10px 12px;transition:border-color .18s,box-shadow .18s;appearance:none;outline:none;letter-spacing:-.01em;}
+    input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    input::placeholder{color:#222;}
+    input[readonly]{cursor:default;}
+    input[readonly]:focus{border-color:var(--border2);box-shadow:none;}
+    select{width:100%;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;color:var(--text-soft);font-size:13px;font-family:"Inter",sans-serif;padding:10px 12px;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .18s;cursor:pointer;}
+    select:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .field-error{font-size:10.5px;color:var(--error);display:none;margin-top:4px;}
+    .has-error input,.has-error select{border-color:var(--error)!important;box-shadow:0 0 0 3px rgba(240,64,64,.08)!important;}
+    .has-error .field-error{display:block;}
+    .field-label-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .field-label-row label{margin-bottom:0;}
+    /* Fix: consent rows should NOT be uppercase */
+    .consent-row{text-transform:none!important;letter-spacing:0!important;font-weight:400!important;font-size:11.5px!important;}
+    /* CLABE */
+    .banco-wrap{position:relative;}
+    .banco-wrap input{padding-right:40px;}
+    .banco-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:4px;object-fit:contain;display:none;background:var(--surface2);}
+    .banco-wrap.detected input{color:var(--teal);border-color:var(--teal-border);}
+    #clabe.complete{color:var(--teal);border-color:var(--teal-border);box-shadow:0 0 0 3px var(--teal-dim);}
+    .clabe-wrap{position:relative;}
+    .clabe-verified{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:none;pointer-events:none;}
+    .clabe-checking-ring{position:absolute;right:10px;top:50%;margin-top:-8px;width:16px;height:16px;display:none;pointer-events:none;}
+    .clabe-checking-ring.visible{display:block;animation:spin .7s linear infinite;}
+    .banco-wrap.detected .banco-icon{display:block;}
+    /* SLUG */
+    .slug-wrap{display:flex;align-items:stretch;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;overflow:hidden;transition:border-color .18s,box-shadow .18s;}
+    .slug-wrap:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    .slug-prefix{display:flex;align-items:center;padding:10px 8px 10px 12px;font-size:11.5px;color:var(--muted);white-space:nowrap;flex-shrink:0;user-select:none;}
+    .slug-wrap input{flex:1;background:transparent;border:none;border-radius:0;padding:10px 8px 10px 0;font-size:13.5px;color:var(--text-soft);font-family:"Inter",sans-serif;outline:none;min-width:0;}
+    .slug-wrap input:focus{border-color:transparent;box-shadow:none;}
+    .slug-status{display:flex;align-items:center;padding-right:10px;flex-shrink:0;}
+    .has-error .slug-wrap{border-color:var(--error)!important;box-shadow:0 0 0 3px rgba(240,64,64,.08)!important;}
+    /* LOGO UPLOAD */
+    .logo-upload-area{display:none;margin-top:8px;}
+    .logo-upload-area.visible{display:block;}
+    .logo-dropzone{border:1.5px dashed var(--border2);border-radius:9px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .18s,background .18s;}
+    .logo-dropzone:hover{border-color:var(--teal-border);background:var(--teal-dim);}
+    .logo-dz-square{width:96px;height:96px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .logo-dz-square img{width:100%;height:100%;object-fit:cover;display:none;}
+    .razon-social-input{text-transform:uppercase!important;}
+    .logo-dz-text{font-size:12px;color:var(--muted);line-height:1.5;}
+    .logo-dz-text strong{color:var(--teal);font-weight:600;display:block;margin-bottom:1px;}
+    /* FISCAL FIELDS */
+    .fiscal-fields{overflow:hidden;max-height:0;transition:max-height .4s ease,opacity .3s ease;opacity:0;pointer-events:none;}
+    .fiscal-fields.visible{max-height:1100px;opacity:1;pointer-events:auto;}
+    .fiscal-divider{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:16px 0 12px;padding-top:14px;border-top:1px solid var(--border);}
+    .cp-spinner{display:none;}
+    .cp-spinner.visible{display:block;animation:spin .7s linear infinite;}
+    .rfc-hint{font-size:10px;color:var(--muted);margin-top:4px;display:none;}
+    .rfc-hint.visible{display:block;}
+    .rfc-invalid{color:var(--error);}
+    /* LIVE CARD FRAME */
+    .card-frame{width:100%;padding:52px 28px 48px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:#000;transition:background .4s;border:1px solid rgba(255,255,255,.18);box-shadow:0 20px 60px rgba(0,0,0,.55);position:relative;overflow:hidden;}
+    .card-frame-stack{display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;z-index:1;}
+    .card-icon-shape{position:absolute;bottom:-60px;pointer-events:none;animation:riseShape linear infinite;z-index:0;}
+    .live-card{width:330px;aspect-ratio:1/1.2;border-radius:14px;position:relative;z-index:1;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.08);transition:background .3s;background:linear-gradient(135deg,#004d38,#00c896);cursor:default;user-select:none;}
+    .card-design-layer{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;overflow:hidden;}
+    .lc-inner{position:relative;z-index:1;height:100%;padding:20px 22px 24px;display:flex;flex-direction:column;justify-content:space-between;}
+    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
+    /* Logo square — inside card top-left */
+    .lc-logo-sq{width:96px;height:96px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
+    .lc-logo-sq.visible{display:block;}
+    .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
+    .lc-logo-dot{position:absolute;top:0;right:0;}.lc-logo-dot img{height:14px;width:auto;display:block;opacity:.75;}
+    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.40);border-radius:24px;padding:7px 16px 7px 8px;margin-bottom:4px;align-self:flex-start;}
+    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.95);padding:2px;display:none;}
+    .lc-bank-name{font-size:16px;font-weight:600;opacity:.92;}
+    .lc-middle{text-align:left;flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-evenly;padding:6px 0;}
+    .lc-group{display:flex;flex-direction:column;align-items:flex-start;gap:1px;}
+    .lc-section-label,.lc-clabe-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;opacity:.55;font-weight:600;}
+    .lc-clabe{font-size:18px;font-weight:600;letter-spacing:.04em;font-family:"Inter",sans-serif;line-height:1.3;white-space:nowrap;}
+    .lc-copy-row{display:flex;align-items:center;gap:6px;}
+    .lc-copy-btn{background:none;border:none;padding:3px;cursor:pointer;display:flex;align-items:center;opacity:.5;transition:opacity .2s;flex-shrink:0;}
+    .lc-copy-btn:hover{opacity:1;}
+    .lc-name{font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:"Inter",sans-serif;white-space:nowrap;transition:font-size .15s;}
+    .lc-negocio-name{font-size:14px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-family:"Inter",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-top:0;}
+    .lc-alias{font-size:12px;opacity:.6;letter-spacing:2.5px;text-transform:uppercase;font-family:"Inter",sans-serif;font-weight:700;}
+    .live-card.light-text{color:#fff;}
+    .live-card.dark-text{color:#1a1a1a;}
+    /* COLOR EDITOR */
+    .color-editor{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 18px 16px;transition:opacity .3s ease,transform .3s ease,max-height .35s ease;overflow:hidden;max-height:560px;}
+    .color-editor.fade-out{opacity:0;transform:translateY(-8px);max-height:0;padding-top:0;padding-bottom:0;border-color:transparent;pointer-events:none;}
+    .color-editor-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:16px;}
+    .color-section{margin-bottom:16px;}
+    .color-section:last-child{margin-bottom:0;}
+    .color-section-label{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:9px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;}
+    .design-picker{display:flex;gap:9px;flex-wrap:wrap;}
+    .design-thumb-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;}
+    .design-thumb{width:54px;height:60px;border-radius:6px;cursor:pointer;border:2px solid transparent;overflow:hidden;position:relative;background:linear-gradient(135deg,#004d38,#00c896);transition:transform .15s,border-color .15s;}
+    .design-thumb:hover{transform:scale(1.1);}
+    .design-thumb.active{border-color:#fff;}
+    .design-thumb-label{font-size:7.5px;color:var(--muted);letter-spacing:.04em;text-align:center;}
+    .swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+    .swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
+    .swatch:hover{transform:scale(1.12);}
+    .swatch.active{border-color:#fff;}
+    .swatch-add{width:26px;height:26px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--surface2)!important;border:1.5px dashed var(--muted2)!important;color:var(--muted);flex-shrink:0;transition:transform .15s,border-color .15s,color .15s;}
+    .swatch-add:hover{color:var(--text);border-color:var(--dim)!important;transform:scale(1.12);}
+    .swatch-add.active{border-color:#fff!important;color:#fff;}
+    .native-color-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none;border:none;padding:0;}
+    /* CONTACT PREVIEW */
+    .contact-preview{display:flex;flex-direction:column;gap:10px;width:330px;padding:0;position:relative;z-index:2;}
+    .cp-row{display:flex;align-items:center;justify-content:space-between;background:var(--cp-row-bg,rgba(0,200,150,.12));border:1px solid var(--cp-row-border,rgba(0,200,150,.25));border-radius:14px;padding:14px 16px;transition:border-color .3s,background .3s;}
+    .cp-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
+    .cp-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);}
+    .cp-value{font-size:14px;font-weight:600;color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
+    .cp-copy{background:rgba(255,255,255,.08);color:var(--cp-accent,var(--teal));border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;font-family:"Inter",sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s,color .25s;}
+    .cp-copy:hover{background:var(--teal-dim);border-color:var(--teal-border);}
+    .cp-copy.copied{color:var(--muted);}
+    .card-frame.bg-light .cp-label{color:rgba(0,0,0,.45);}
+    .card-frame.bg-light .cp-value{color:rgba(0,0,0,.88);}
+    .card-frame.bg-light .cp-copy{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.14);}
+    /* TOGGLES */
+    .show-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+    .show-toggle input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
+    .show-toggle-track{width:38px;height:22px;border-radius:11px;background:var(--muted2);border:1px solid rgba(255,255,255,.1);position:relative;transition:background .18s;flex-shrink:0;}
+    .show-toggle-thumb{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .18s;}
+    .show-toggle input:checked~.show-toggle-track{background:var(--teal);border-color:var(--teal);}
+    .show-toggle input:checked~.show-toggle-track .show-toggle-thumb{transform:translateX(16px);}
+    .show-toggle-label{font-size:11px;font-weight:600;color:var(--muted);transition:color .18s;text-transform:none!important;letter-spacing:0!important;}
+    .show-toggle:has(input:checked) .show-toggle-label{color:var(--teal);}
+    /* WA */
+    .wa-input-wrap{display:flex;gap:8px;align-items:stretch;}
+    .wa-country-select{background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;color:var(--text-soft);font-size:13px;font-family:"Inter",sans-serif;padding:10px 8px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .18s;flex-shrink:0;width:90px;text-align:center;}
+    .wa-country-select:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    .wa-input-wrap input{flex:1;}
+    /* BUTTONS */
+    .btn{width:100%;background:var(--teal);color:#000;border:none;border-radius:9px;padding:12px 18px;font-size:13.5px;font-weight:600;font-family:"Inter",sans-serif;cursor:pointer;letter-spacing:-.01em;transition:background .18s,transform .1s,box-shadow .18s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5),0 16px 48px rgba(0,200,150,.25);}
+    .btn:active{transform:scale(.98);}
+    .btn:disabled{opacity:.38;cursor:not-allowed;box-shadow:none;}
+    .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:12.5px;padding:11px 18px;margin-top:8px;}
+    .btn-outline:hover{border-color:var(--muted2);color:var(--text-soft);background:transparent;box-shadow:none;}
+    .btn-copy{background:var(--surface2);color:var(--teal);border:1px solid var(--border2);padding:7px 12px;font-size:11px;font-weight:500;width:auto;margin-top:0;border-radius:7px;flex-shrink:0;}
+    .btn-copy:hover{background:var(--teal-dim);border-color:var(--teal-border);box-shadow:none;}
+    .btn-copy.copied{color:var(--muted);}
+    #floating-btn-wrap{display:flex;justify-content:flex-end;padding:16px 12px;margin:-16px -12px;transition:opacity .25s;overflow:visible;}
+    #floating-btn-wrap.hidden{opacity:0;pointer-events:none;}
+    #floating-btn{background:var(--teal);color:#000;border:none;border-radius:999px;padding:14px 28px;font-size:14px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;letter-spacing:-.01em;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;transition:background .18s,transform .12s,box-shadow .2s;}
+    #floating-btn:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5),0 16px 48px rgba(0,200,150,.25);}
+    #floating-btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-submit-form{width:100%;background:var(--teal);color:#000;border:none;border-radius:999px;padding:14px 24px;font-size:14px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:20px;transition:transform .1s,box-shadow .18s;box-shadow:0 2px 12px rgba(0,200,150,.25);}
+    .btn-submit-form:hover{background:#00daa6!important;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5),0 16px 48px rgba(0,200,150,.25);}
+    .btn-submit-form:disabled{opacity:.4;cursor:not-allowed;}
+    /* STEP 2 */
+    .step2-back{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--text-soft);cursor:pointer;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:999px;font-family:"Inter",sans-serif;padding:11px 20px;margin-bottom:16px;transition:background .18s,transform .1s;}
+    .step2-back:hover{background:#222;border-color:#333;transform:translateY(-1px);}
+    .step2-badge{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .step2-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);flex-shrink:0;}
+    .step2-badge-text{font-size:12px;color:var(--text-soft);font-weight:500;}
+    .step2-badge-sub{font-size:10.5px;color:var(--muted);margin-top:1px;}
+    .security-notice{display:flex;align-items:flex-start;gap:8px;background:rgba(0,200,150,.05);border:1px solid rgba(0,200,150,.18);border-radius:10px;padding:11px 13px;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.55;margin-bottom:18px;}
+    .security-notice svg{flex-shrink:0;margin-top:1px;}
+    .consent-block{margin-top:8px;display:flex;flex-direction:column;gap:14px;}
+    .consent-row{display:flex;align-items:flex-start;gap:10px;cursor:pointer;position:relative;flex-wrap:wrap;}
+    .consent-row input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
+    .consent-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);background:var(--input-bg);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;}
+    .consent-check svg{opacity:0;transition:opacity .15s;}
+    .consent-row input:checked~.consent-check{background:var(--teal);border-color:var(--teal);}
+    .consent-row input:checked~.consent-check svg{opacity:1;}
+    .consent-row.has-error .consent-check{border-color:var(--error);}
+    .consent-row.has-error .field-error{display:block;}
+    .consent-row .field-error{position:absolute;bottom:-16px;left:28px;}
+    .consent-text{font-size:11.5px;color:rgba(255,255,255,.5);line-height:1.55;flex:1;}
+    .consent-link{color:var(--teal);text-decoration:none;opacity:.85;}
+    .consent-link:hover{opacity:1;text-decoration:underline;}
+    /* SUCCESS */
+    #view-success.active{animation:successFadeIn .45s cubic-bezier(.22,1,.36,1) both;}
+    .success-qr-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+    .success-qr-wrap canvas{display:block;border-radius:14px;}
+    .success-qr-logo{position:absolute;width:44px;height:44px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:5px;}
+    .success-qr-logo img{width:100%;height:auto;display:block;}
+    .success-link-box{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--teal-border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+    .success-link-text{flex:1;padding:10px 12px;font-size:13px;font-weight:600;color:var(--teal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;letter-spacing:-.01em;}
+    .success-link-actions{display:flex;flex-shrink:0;border-left:1px solid var(--border2);}
+    .success-link-btn{background:transparent;border:none;cursor:pointer;padding:10px 12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;gap:5px;}
+    .success-link-btn:hover{background:var(--surface);color:var(--text);}
+    .success-link-btn+.success-link-btn{border-left:1px solid var(--border2);}
+    .success-icon{width:56px;height:56px;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+    /* FOOTER */
+    footer{position:relative;z-index:1;width:100%;border-top:1px solid var(--border);padding:64px 48px 40px;}
+    .footer-inner{max-width:1100px;margin:0 auto 48px;}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;}
+    .footer-tagline{font-size:13px;color:var(--muted);line-height:1.65;max-width:250px;margin-top:12px;}
+    .footer-col h4{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim);margin-bottom:18px;}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:11px;}
+    .footer-col ul li a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .footer-col ul li a:hover{color:var(--text);}
+    .footer-col ul li a.ft-cta{color:var(--teal);font-weight:600;}
+    .footer-bottom{padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .footer-copy{font-size:12px;color:var(--dim);}
+    @media(max-width:860px){.footer-grid{grid-template-columns:1fr;gap:32px}footer{padding:48px 24px 32px}.footer-bottom{flex-direction:column;gap:8px;text-align:center}}
+
+    .icon-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+    .icon-chip{width:100%;aspect-ratio:1;border-radius:8px;border:1.5px solid var(--border2);background:var(--input-bg);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:border-color .18s,background .18s;}
+    .icon-chip:hover{border-color:var(--teal-border);background:var(--teal-dim);}
+    .icon-chip.active{border-color:var(--teal)!important;background:var(--teal-dim)!important;}
+    .icon-chip.dark-icon{background:#e8e8e8!important;}
+    .icon-chip.dark-icon:hover{background:#d0d0d0!important;}
+    .icon-chip.dark-icon.active{background:#c8e8e0!important;}
+    .icon-chip-lbl{font-size:8px;color:var(--muted);text-align:center;line-height:1.2;}
+    .icon-chip.dark-icon .icon-chip-lbl{color:#444;}
+    /* PAGE LOADER */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:none;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
+    #page-loader.active{display:flex;}
     #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
     .pl-svg{width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,.38));opacity:0;animation:plCycle 2.1s linear infinite;}
     .pl-stroke-horiz{stroke-dasharray:737;stroke-dashoffset:737;animation:plHoriz 2.1s linear infinite;}
     .pl-stroke-diag{stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag 2.1s linear infinite;}
     .pl-stroke-vert{stroke-dasharray:750;stroke-dashoffset:750;animation:plVert 2.1s linear infinite;}
     .pl-dot{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear infinite;}
-    .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
-    .state-title{font-size:15px;font-weight:600;color:var(--muted);}
-    .state-sub{font-size:13px;color:rgba(255,255,255,.3);}
-    #state-profile{display:none;width:100%;flex-direction:column;align-items:center;animation:fadeInUp .4s ease both;}
-    .card-wrap{width:100%;max-width:340px;}
-    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.1);cursor:default;}
-    .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
-    .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:20px 22px 24px;}
-    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
-    .lc-logo-sq{width:96px;height:96px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
-    .lc-logo-sq.visible{display:block;}
-    .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
-    .lc-top-logo{height:14px;width:auto;display:block;opacity:.8;position:absolute;top:0;right:0;}
-    .lc-middle{display:flex;flex-direction:column;flex:1;justify-content:space-evenly;padding:14px 0;}
-    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.40);border-radius:24px;padding:7px 16px 7px 8px;align-self:flex-start;}
-    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.95);padding:2px;display:none;}
-    .lc-bank-name{font-size:16px;font-weight:600;opacity:.92;}
-    .lc-group{display:flex;flex-direction:column;gap:4px;}
-    .lc-section-label,.lc-clabe-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;opacity:.55;font-weight:600;}
-    .lc-clabe{font-size:18px;font-weight:600;letter-spacing:.04em;font-family:'Inter',sans-serif;line-height:1.3;white-space:nowrap;}
-    .lc-copy-row{display:flex;align-items:center;gap:8px;}
-    .lc-copy-btn{background:none;border:none;cursor:pointer;padding:4px;opacity:.5;transition:opacity .15s;display:flex;align-items:center;}
-    .lc-copy-btn:hover{opacity:1;}
-    .lc-name{font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;}
-    .lc-negocio-name{font-size:14px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .lc-bottom{display:flex;justify-content:space-between;align-items:flex-end;}
-    .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.6);}
-    .live-card.light-text{color:#fff;}
-    .live-card.dark-text{color:#1a1a1a;}
-    .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
-    .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,.12));border:1px solid var(--card-row-border,rgba(0,200,150,.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
-    .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
-    .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
-    .action-value{font-size:14px;font-weight:600;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
-    .btn-action{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;flex-shrink:0;}
-    .btn-action:hover{background:rgba(255,255,255,.14);}
-    .btn-action.copied{color:var(--muted);}
-    .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
-    .branding-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
-    .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:.55;transition:opacity .2s;}
-    .branding a:hover{opacity:1;}
-    .branding img{height:12px;width:auto;}
-    .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;}
-    .branding-cta:hover{color:rgba(0,200,150,.8);}
-    .fiscal-overlay{position:fixed;inset:0;z-index:200;background:var(--fiscal-overlay-bg,rgba(0,0,0,.75));backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
-    .fiscal-overlay.visible{display:flex;}
-    .fiscal-modal{background:var(--fiscal-modal-bg,#111);border:1px solid var(--fiscal-modal-border,rgba(255,255,255,.1));border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;}
-    .fiscal-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-    .fiscal-modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--fiscal-modal-title-color,#f0f0f0);}
-    .fiscal-close{background:none;border:none;cursor:pointer;color:var(--fiscal-close-color,rgba(255,255,255,.4));padding:4px;transition:color .15s;display:flex;align-items:center;}
-    .fiscal-close:hover{color:var(--fiscal-value-color,#fff);}
-    .fiscal-row{padding:10px 12px;background:var(--fiscal-row-bg,rgba(255,255,255,.04));border:1px solid var(--fiscal-row-border,rgba(255,255,255,.07));border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-    .fiscal-row:last-of-type{margin-bottom:0;}
-    .fiscal-row-inner{flex:1;min-width:0;}
-    .fiscal-row-label{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--fiscal-label-color,rgba(255,255,255,.35));margin-bottom:3px;}
-    .fiscal-row-value{font-size:13px;font-weight:500;color:var(--fiscal-value-color,rgba(255,255,255,.88));line-height:1.4;word-break:break-word;}
-    .fiscal-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px;color:rgba(255,255,255,.4);font-size:13px;}
-    .fiscal-err{padding:16px;text-align:center;color:#f04040;font-size:13px;}
-    .btn-fiscal-copy{background:var(--fiscal-row-bg,rgba(255,255,255,.08));border:1px solid var(--fiscal-row-border,rgba(255,255,255,.12));color:var(--card-accent,#00c896);border-radius:7px;padding:5px 11px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s;}
-    .btn-fiscal-copy.copied{color:var(--fiscal-label-color,rgba(255,255,255,.35));}
-    .fiscal-expiry{font-size:10px;color:var(--fiscal-label-color,rgba(255,255,255,.25));text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--fiscal-row-border,rgba(255,255,255,.07));}
-    .spin-ring{display:inline-block;width:16px;height:16px;animation:spin .7s linear infinite;}
-
-    /* Light background adaptations */
-    body.bg-light { --muted: rgba(0,0,0,0.45); --text: #1a1a1a; }
-    body.bg-light .action-label { color: rgba(0,0,0,0.45); }
-    body.bg-light .action-value { color: rgba(0,0,0,0.88); }
-    body.bg-light .btn-action { background:rgba(0,0,0,0.06); border-color:rgba(0,0,0,0.14); }
-    body.bg-light .branding-label { color: rgba(0,0,0,0.25); }
-    body.bg-light .branding a { opacity: .6; }
-    body.bg-light .branding-cta { color: rgba(0,0,0,0.35); }
-    body.bg-light .branding-cta:hover { color: rgba(0,130,80,.8); }
-    body.bg-light .state-title { color: rgba(0,0,0,0.5); }
-    body.bg-light .state-sub { color: rgba(0,0,0,0.35); }
-    @media(max-width:400px){.live-card{border-radius:18px;}.lc-clabe{font-size:17px;}.lc-name{font-size:16px;}}
+    @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
+    @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(.4,0,.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(.4,0,.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(.4,0,.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
   </style>
 </head>
 <body>
-  <div id="shapes" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;" aria-hidden="true"></div>
-  <div id="page-loader">
-    <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
-      <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
-      <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
-      <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
-    </svg>
+<div id="page-loader">
+  <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
+    <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
+    <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
+    <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
+  </svg>
+</div>
+<div class="shapes" id="shapes" aria-hidden="true"></div>
+<header>
+  <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+  <nav>
+    <div class="nav-links"><a href="index.html">Inicio</a><a href="index.html#pricing">Pricing</a><a href="index.html#ayuda">Ayuda</a></div>
+    <a href="app.html" class="btn-nav">Crear mi Link</a>
+  </nav>
+</header>
+<div class="page">
+
+  <!-- TYPE SELECTOR -->
+  <div id="view-type" class="active">
+    <div class="type-hero">
+      <h1>&#191;Qu&#233; tipo de perfil?</h1>
+      <p>Elige el que mejor describe tu uso.</p>
+    </div>
+    <div class="type-grid">
+      <div class="type-card" onclick="selectType('personal')">
+        <div class="type-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#00c896" stroke-width="1.8"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="type-card-title">Personal</div>
+        <div class="type-card-desc">Comparte tu CLABE para recibir transferencias SPEI.</div>
+      </div>
+      <div class="type-card" onclick="selectType('negocios')">
+        <div class="type-card-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="15" rx="2" stroke="#00c896" stroke-width="1.8"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#00c896" stroke-width="1.8"/><path d="M12 12v4M10 14h4" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="type-card-title">Negocio</div>
+        <div class="type-card-desc">Logo, nombre comercial y datos fiscales para facturaci&#243;n.</div>
+      </div>
+    </div>
   </div>
-  <div id="state-error" style="position:relative;z-index:1;" class="state" style="display:none;">
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/></svg>
-    <div class="state-title">Perfil no encontrado</div>
-    <div class="state-sub">Este link puede haber expirado o no existe.</div>
+
+  <!-- HERO (hidden until type selected) -->
+  <div class="app-hero" id="app-hero" style="display:none;">
+    <h1 id="app-hero-title">Empieza aqu&#237;</h1>
+    <p id="app-hero-sub">Ingresa tus datos y personaliza tu perfil.</p>
   </div>
-  <div id="state-profile" style="position:relative;z-index:1;">
-    <div class="card-wrap">
-      <div class="live-card light-text" id="live-card">
-        <div class="card-design-layer" id="card-design-layer"></div>
-        <div class="lc-inner">
-          <div class="lc-top">
-            <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt="Logo"/></div>
-            <img class="lc-top-logo" id="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
+
+  <div id="main-layout">
+    <div class="left-col" id="left-col">
+      <!-- PANEL 1 -->
+      <div class="left-panel" id="panel-step1">
+        <button class="step2-back" id="type-back-btn" onclick="goBackToType()" style="display:none;">&#8592; Volver</button>
+        <div class="card">
+          <div class="card-header"><div class="n26-bar"></div><h1>Datos de la cuenta</h1><p>Comparte tus datos bancarios de forma r&#225;pida y segura.</p></div>
+          <div class="security-notice">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="#00c896" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#00c896" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Tu informaci&#243;n est&#225; cifrada y es 100% confidencial.</span>
           </div>
-          <div class="lc-middle">
-            <div class="lc-group" id="lc-negocio-group" style="display:none;">
-              <div class="lc-negocio-name" id="lc-negocio-name"></div>
+          <div class="field" id="fg-nombre-cuenta">
+            <label>Titular de la cuenta <span class="req">*</span></label>
+            <input type="text" id="nombre-cuenta" placeholder="Ej. Pagos Freelance" maxlength="30" oninput="updateCard()"/>
+            <span class="field-error">Ingresa un nombre para esta cuenta.</span>
+          </div>
+          <div class="field" id="fg-clabe">
+            <label>CLABE interbancaria <span class="req">*</span></label>
+            <div class="clabe-wrap">
+              <input type="tel" id="clabe" placeholder="18 d&#237;gitos" maxlength="22" inputmode="numeric" oninput="onClabeInput()" onpaste="setTimeout(onClabeInput,0)"/>
+              <svg class="clabe-verified" id="clabe-verified" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg class="clabe-checking-ring" id="clabe-checking-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
             </div>
-            <div class="lc-bank" id="lc-bank">
-              <img class="lc-bank-icon" id="lc-bank-icon" src="" alt=""/>
-              <span class="lc-bank-name" id="lc-bank-name">&#8212;</span>
-            </div>
-            <div class="lc-group">
-              <div class="lc-clabe-label">CLABE</div>
-              <div class="lc-copy-row">
-                <div class="lc-clabe" id="lc-clabe"></div>
-                <button class="lc-copy-btn" id="card-copy-clabe" title="Copiar CLABE">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-              </div>
-            </div>
-            <div class="lc-group">
-              <div class="lc-section-label">TITULAR DE LA CUENTA</div>
-              <div class="lc-copy-row">
-                <div class="lc-name" id="lc-name"></div>
-                <button class="lc-copy-btn" id="card-copy-nombre" title="Copiar nombre">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-              </div>
+            <span class="field-error" id="clabe-error-msg">La CLABE debe tener exactamente 18 d&#237;gitos.</span>
+          </div>
+          <div class="field" id="fg-banco">
+            <label>Banco</label>
+            <div class="banco-wrap" id="banco-wrap">
+              <input type="text" id="banco" placeholder="Se detecta al ingresar tu CLABE" readonly/>
+              <img id="banco-icon" class="banco-icon" src="" alt=""/>
             </div>
           </div>
-          <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
+          <div class="field">
+            <label>Alias <span class="opt">&#8212; opcional</span></label>
+            <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios&#8230;" oninput="updateCard()"/>
+          </div>
         </div>
       </div>
+
+      <!-- PANEL 2 -->
+      <div class="left-panel hidden" id="panel-step2">
+        <button class="step2-back" onclick="backToStep1()">&#8592; Volver</button>
+        <div class="step2-badge">
+          <div class="step2-badge-dot"></div>
+          <div><div class="step2-badge-text" id="step2-nombre-cuenta">&#8212;</div><div class="step2-badge-sub" id="step2-banco">&#8212;</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="n26-bar"></div><h1 id="step2-card-title">Informaci&#243;n personal</h1><p id="step2-card-subtitle">Completa tus datos para activar tu perfil.</p></div>
+          <!-- NOMBRE -->
+          <div class="field" id="fg-nombre">
+            <label>Nombre completo <span class="req">*</span></label>
+            <input type="text" id="nombre" placeholder="Ej. Mar&#237;a Garc&#237;a L&#243;pez" autocomplete="name" oninput="if(this.value.trim().length>=3) $('fg-nombre').classList.remove('has-error')"/>
+            <span class="field-error">Ingresa tu nombre completo.</span>
+          </div>
+          <!-- EMAIL -->
+          <div class="field" id="fg-email">
+            <div class="field-label-row">
+              <label>Correo electr&#243;nico <span class="req">*</span></label>
+              <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
+                <input type="checkbox" id="show_email"/>
+                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+                <span class="show-toggle-label">Agregar</span>
+              </label>
+            </div>
+            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview();onEmailInput()" onblur="onEmailBlur()"/>
+            <span class="field-error">Ingresa un correo v&#225;lido.</span>
+          </div>
+          <!-- WHATSAPP -->
+          <div class="field" id="fg-whatsapp">
+            <div class="field-label-row">
+              <label>WhatsApp <span class="opt">&#8212; opcional</span></label>
+              <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)">
+                <input type="checkbox" id="show_whatsapp"/>
+                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+                <span class="show-toggle-label">Agregar</span>
+              </label>
+            </div>
+            <div class="wa-input-wrap">
+              <select id="wa-country" class="wa-country-select" onchange="onWaInput()">
+                <option value="+52" data-digits="10" selected>&#127474;&#127485; +52</option>
+                <option value="+1" data-digits="10">&#127482;&#127480; +1</option>
+                <option value="+34" data-digits="9">&#127466;&#127480; +34</option>
+                <option value="+57" data-digits="10">&#127464;&#127476; +57</option>
+                <option value="+54" data-digits="10">&#127462;&#127479; +54</option>
+                <option value="+56" data-digits="9">&#127464;&#127473; +56</option>
+                <option value="+55" data-digits="11">&#127463;&#127479; +55</option>
+              </select>
+              <input type="tel" id="whatsapp" placeholder="N&#250;mero" maxlength="15" inputmode="numeric" oninput="onWaInput()"/>
+            </div>
+            <span class="field-error" id="wa-error">Ingresa un n&#250;mero v&#225;lido.</span>
+          </div>
+
+          <!-- TU LINK — below WhatsApp, above negocio section -->
+          <div class="field" id="fg-slug" style="margin-top:4px;">
+            <label>Tu link <span class="opt">&#8212; opcional</span></label>
+            <div class="slug-wrap" id="slug-wrap">
+              <span class="slug-prefix">tr4nsfer.me/</span>
+              <input type="text" id="slug-custom" placeholder="tu-nombre" maxlength="20" inputmode="url" autocomplete="off" spellcheck="false" oninput="onSlugInput()"/>
+              <div class="slug-status" id="slug-status"></div>
+            </div>
+            <span class="field-error" id="slug-error">Solo letras, n&#250;meros y guiones. M&#237;nimo 3 caracteres.</span>
+          </div>
+
+
+          <!-- NEGOCIO SECTION DIVIDER (shown only for negocio type) -->
+          <div id="negocio-section-divider" style="display:none;margin-top:12px;padding-top:18px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Informaci&#243;n del negocio</div>
+          </div>
+
+          <!-- NOMBRE NEGOCIO (negocios only) -->
+          <div class="field" id="fg-nombre-negocio" style="display:none;">
+            <div class="field-label-row">
+              <label>Nombre del negocio <span class="opt">&#8212; opcional</span></label>
+              <label class="show-toggle">
+                <input type="checkbox" id="show_nombre_negocio" onchange="onNombreNegocioToggle()"/>
+                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+                <span class="show-toggle-label">Agregar</span>
+              </label>
+            </div>
+            <div id="nombre-negocio-input-wrap" style="display:none;">
+              <input type="text" id="nombre-negocio" placeholder="Ej. Mi Empresa SA de CV" maxlength="40" oninput="updateNombreNegocioPreview()"/>
+            </div>
+          </div>
+
+          <!-- LOGO (negocios only) -->
+          <div class="field" id="fg-logo" style="display:none;">
+            <div class="field-label-row">
+              <label>Logo <span class="opt">&#8212; opcional</span></label>
+              <label class="show-toggle">
+                <input type="checkbox" id="show_logo" onchange="onLogoToggle()"/>
+                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+                <span class="show-toggle-label">Agregar</span>
+              </label>
+            </div>
+            <div class="logo-upload-area" id="logo-upload-area">
+              <div class="logo-dropzone" onclick="$('logo-file').click()">
+                <div class="logo-dz-square" id="logo-dz-square">
+                  <img id="logo-thumb" src="" alt=""/>
+                  <svg id="logo-plus-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="logo-dz-text"><strong>Sube tu logo</strong>PNG o JPG &middot; Cuadrado recomendado</div>
+              </div>
+              <input type="file" id="logo-file" accept="image/*" style="display:none;" onchange="onLogoFile(this)"/>
+            </div>
+          </div>
+
+
+          <!-- DATOS FISCALES TOGGLE -->
+          <div class="field" id="fg-fiscal-toggle">
+            <div class="field-label-row">
+              <label>Datos fiscales <span class="opt">&#8212; opcional</span></label>
+              <label class="show-toggle">
+                <input type="checkbox" id="show_fiscal" onchange="onFiscalToggle()"/>
+                <span class="show-toggle-track"><span class="show-toggle-thumb"></span></span>
+                <span class="show-toggle-label">Agregar</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- FISCAL FIELDS -->
+          <div class="fiscal-fields" id="fiscal-fields">
+            <div class="field" id="fg-razon-social">
+              <label>Raz&#243;n social <span class="req">*</span></label>
+              <input type="text" id="razon-social" placeholder="Ej. EMPRESA SA DE CV" autocomplete="organization" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
+              <span class="field-error">Ingresa la raz&#243;n social.</span>
+            </div>
+            <div class="field" id="fg-rfc">
+              <label>RFC <span class="req">*</span></label>
+              <input type="text" id="rfc" placeholder="Ej. EMP850101AB1" maxlength="13" oninput="onRfcInput()" style="text-transform:uppercase;"/>
+              <span class="field-error" id="rfc-error">Ingresa el RFC.</span>
+            </div>
+            <div class="field" id="fg-regimen">
+              <label>R&#233;gimen fiscal <span class="req">*</span></label>
+              <select id="regimen-fiscal">
+                <option value="">Selecciona un r&#233;gimen</option>
+                <option value="601">601 &mdash; General de Ley Personas Morales</option>
+                <option value="612">612 &mdash; Personas F&#237;sicas con Actividades Empresariales</option>
+                <option value="621">621 &mdash; Incorporaci&#243;n Fiscal</option>
+                <option value="626">626 &mdash; RESICO</option>
+                <option value="605">605 &mdash; Sueldos y Salarios</option>
+                <option value="606">606 &mdash; Arrendamiento</option>
+                <option value="608">608 &mdash; Dem&#225;s ingresos</option>
+                <option value="616">616 &mdash; Sin obligaciones fiscales</option>
+                <option value="622">622 &mdash; Actividades Agr&#237;colas, Ganaderas, Silv&#237;colas</option>
+                <option value="625">625 &mdash; Plataformas Tecnol&#243;gicas</option>
+                <option value="603">603 &mdash; Personas Morales sin Fines de Lucro</option>
+              </select>
+              <span class="field-error" id="regimen-error">Selecciona un r&#233;gimen fiscal.</span>
+            </div>
+            <div class="field" id="fg-cp">
+              <label>C&#243;digo postal <span class="req">*</span></label>
+              <div style="position:relative;">
+                <input type="tel" id="cp-fiscal" placeholder="Ej. 06600" maxlength="5" inputmode="numeric" oninput="onCpInput()"/>
+                <svg id="cp-spinner" class="cp-spinner" viewBox="0 0 16 16" fill="none" style="position:absolute;right:10px;top:50%;margin-top:-8px;width:16px;height:16px;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <span class="field-error" id="cp-error">C&#243;digo postal no encontrado.</span>
+            </div>
+            <div id="cp-autofill-row" style="display:none;">
+              <div class="form-row" style="margin-bottom:10px;">
+                <div class="field" style="margin-bottom:0;">
+                  <label>Municipio / Ciudad <span class="req">*</span></label>
+                  <input type="text" id="ciudad-fiscal" placeholder="EJ. CUAUHTÉMOC" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
+                </div>
+                <div class="field" style="margin-bottom:0;">
+                  <label>Estado</label>
+                  <input type="text" id="estado-fiscal" readonly placeholder="AUTO-DETECTADO" style="text-transform:uppercase;"/>
+                </div>
+              </div>
+              <div class="field" id="fg-colonia" style="margin-bottom:10px;">
+                <label>Colonia <span class="req">*</span></label>
+                <select id="colonia-fiscal"><option value="">Selecciona tu colonia</option></select>
+              </div>
+              <div id="colonia-otra-wrap" style="display:none;margin-bottom:10px;">
+                <input type="text" id="colonia-otra" placeholder="ESCRIBE TU COLONIA" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
+              </div>
+              <div class="field" id="fg-calle">
+                <label>Calle y n&#250;mero <span class="req">*</span></label>
+                <input type="text" id="calle-fiscal" placeholder="EJ. AV. INSURGENTES SUR 123" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/>
+                <span class="field-error">Ingresa la calle y n&#250;mero.</span>
+              </div>
+            </div>
+          </div><!-- /fiscal-fields -->
+
+      </div><!-- /left-col-panel -->
+    </div><!-- /panel-step2 -->
+    </div><!-- /left-col -->
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+      <div class="card-frame" id="card-frame">
+        <div class="card-frame-stack">
+          <div class="live-card light-text" id="live-card">
+            <div class="card-design-layer" id="card-design-layer"></div>
+            <div class="lc-inner">
+              <div class="lc-top">
+                <!-- Logo square top-left (business only) -->
+                <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt=""/></div>
+                <span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span>
+              </div>
+              <div class="lc-middle">
+                <!-- Nombre negocio (business only) -->
+                <div class="lc-group" id="lc-negocio-group" style="display:none;">
+                  <div class="lc-negocio-name" id="lc-negocio-val"></div>
+                </div>
+                <div class="lc-bank" id="lc-bank" style="display:none;">
+                  <img class="lc-bank-icon" id="lc-bank-icon" src="" alt=""/>
+                  <span class="lc-bank-name" id="lc-bank-name">&#8212;</span>
+                </div>
+                <div class="lc-group" id="lc-clabe-group" style="display:none;">
+                  <div class="lc-clabe-label">CLABE</div>
+                  <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                </div>
+                <div class="lc-group" id="lc-nombre-group" style="display:none;">
+                  <div class="lc-section-label">TITULAR DE LA CUENTA</div>
+                  <div class="lc-copy-row"><div class="lc-name" id="lc-nombre-val"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-nombre-val');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                </div>
+              </div>
+              <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
+            </div>
+          </div>
+          <div class="contact-preview" id="contact-preview" style="display:none;">
+            <div class="cp-row" id="cp-wa" style="display:none;"><div class="cp-row-left"><div class="cp-label">WhatsApp</div><div class="cp-value" id="cp-wa-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-wa-text',this)">Copiar</button></div>
+            <div class="cp-row" id="cp-email" style="display:none;"><div class="cp-row-left"><div class="cp-label">Correo electr&#243;nico</div><div class="cp-value" id="cp-email-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-email-text',this)">Copiar</button></div>
+            <div class="cp-row" id="cp-fiscal-row" style="display:none;"><div class="cp-row-left"><div class="cp-label">Datos fiscales</div><div class="cp-value" style="color:rgba(255,255,255,.5);font-size:12px;">RFC &#183; R&#233;gimen &#183; Direcci&#243;n</div></div><button class="cp-copy" style="pointer-events:none;">Ver &#8594;</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="color-editor" id="color-editor">
+        <div class="color-editor-title">Personaliza tu tarjeta</div>
+        <div class="color-section"><div class="color-section-label">Dise&#241;o</div><div class="design-picker" id="design-picker"></div></div>
+        <div class="color-section"><div class="color-section-label">Color de tarjeta</div><div class="swatches" id="card-swatches"></div><input type="color" id="native-color-card" class="native-color-input" value="#8b5cf6"></div>
+        <div class="color-section"><div class="color-section-label">Fondo</div><div class="swatches" id="bg-swatches"></div><input type="color" id="native-color-bg" class="native-color-input" value="#000000"></div>
+        <div class="color-section" id="icon-editor-section" style="display:none;">
+          <div style="display:flex;align-items:center;gap:6px;"><div class="color-section-label">Ícono</div><span style="font-size:9px;color:var(--muted2);font-weight:400;text-transform:none;letter-spacing:0;">— opcional</span></div>
+          <div style="display:flex;gap:8px;margin-top:8px;position:relative;">
+            <!-- Icon picker button -->
+            <div id="icon-picker-btn" onclick="toggleIconDropdown()" style="flex:1;height:38px;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:pointer;transition:border-color .18s;user-select:none;">
+              <div id="icon-btn-preview" style="display:flex;align-items:center;gap:8px;">
+                <span id="icon-btn-icon" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;"></span>
+                <span id="icon-btn-label" style="font-size:11.5px;color:var(--muted);">Seleccionar</span>
+              </div>
+              <svg id="icon-btn-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;transition:transform .18s;"><path d="M6 9l6 6 6-6" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <!-- Color picker button -->
+            <div id="icon-color-btn" onclick="toggleIconColorDropdown()" style="width:38px;height:38px;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .18s;flex-shrink:0;">
+              <div id="icon-color-preview" style="width:20px;height:20px;border-radius:5px;background:#fff;border:1.5px solid rgba(255,255,255,.3);"></div>
+            </div>
+          </div>
+          <!-- Icon dropdown -->
+          <div id="icon-dropdown" style="display:none;margin-top:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:11px;padding:10px;z-index:10;position:relative;">
+            <div id="icon-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;"></div>
+          </div>
+          <!-- Color dropdown -->
+          <div id="icon-color-dropdown" style="display:none;margin-top:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:11px;padding:10px;z-index:10;position:relative;">
+            <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;" id="icon-color-swatches">
+              <div class="swatch active" data-icolor="rgba(255,255,255,1)" style="background:#fff;border:2px solid rgba(255,255,255,.5);" title="Blanco"></div>
+              <div class="swatch" data-icolor="rgba(0,200,150,0.9)" style="background:#00c896;" title="Teal"></div>
+              <div class="swatch" data-icolor="rgba(255,255,255,0.25)" style="background:rgba(255,255,255,0.25);border:1.5px dashed rgba(255,255,255,0.4);" title="Translúcido"></div>
+              <div class="swatch" data-icolor="rgba(0,0,0,0.85)" style="background:#111;border:1.5px solid #444;" title="Negro"></div>
+              <div class="swatch" data-icolor="rgba(255,180,0,0.9)" style="background:#FFB400;" title="Dorado"></div>
+              <div class="swatch" data-icolor="rgba(200,100,255,0.9)" style="background:#C864FF;" title="Morado"></div>
+              <div class="swatch-add" id="icon-color-custom-btn" title="Color personalizado" onclick="$('native-color-icon').click()" style="position:relative;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                <input type="color" id="native-color-icon" class="native-color-input" value="#ffffff" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;border:none;padding:0;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="floating-btn-wrap">
+        <button id="floating-btn" onclick="floatingBtnClick()"><span id="floating-btn-text">Continuar &#8594;</span></button>
+      </div>
     </div>
-    <div class="actions" id="actions" style="display:none;">
-      <div class="action-row" id="row-wa" style="display:none;">
-        <div class="action-row-left"><div class="action-label">WhatsApp</div><div class="action-value" id="act-wa-text">&#8212;</div></div>
-        <button class="btn-action" onclick="copyAction('act-wa-text',this,'rawWa')">Copiar</button>
+
+    <!-- STEP 2 FOOTER — direct child of #main-layout for grid-area:foot -->
+    <div class="step2-footer" id="step2-footer">
+      <div class="consent-block">
+        <label class="consent-row" id="fg-consent1">
+          <input type="checkbox" id="consent1" onchange="if(this.checked) $('fg-consent1').classList.remove('has-error')"/>
+          <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="consent-text">Entiendo que al generar mi perfil, mis datos de dep&#243;sito ser&#225;n visibles para cualquier persona que acceda al link.</span>
+          <span class="field-error">Debes aceptar para continuar.</span>
+        </label>
+        <label class="consent-row" id="fg-consent2">
+          <input type="checkbox" id="consent2" onchange="if(this.checked) $('fg-consent2').classList.remove('has-error')"/>
+          <span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="consent-text">He le&#237;do y acepto los <a href="#" class="consent-link">T&#233;rminos y Condiciones</a> y la <a href="#" class="consent-link">Pol&#237;tica de Privacidad</a>.</span>
+          <span class="field-error">Debes aceptar para continuar.</span>
+        </label>
       </div>
-      <div class="action-row" id="row-email" style="display:none;">
-        <div class="action-row-left"><div class="action-label">Correo electr&#243;nico</div><div class="action-value" id="act-email-text">&#8212;</div></div>
-        <button class="btn-action" onclick="copyAction('act-email-text',this)">Copiar</button>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:16px;padding:10px 14px;border-radius:10px;background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.16);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+        <span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);">AES-256-GCM</strong> antes de guardarse.</span>
       </div>
-      <div class="action-row" id="row-fiscal" style="display:none;">
-        <div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="opacity:.55;font-size:12px;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div>
-        <button class="btn-action" onclick="openFiscalModal()">Ver &#8594;</button>
-      </div>
+      <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="btn-text">Generar mi Link</span>
+      </button>
     </div>
-    <div class="branding">
-      <div class="branding-label">Powered by</div>
-      <a href="/" target="_blank"><img id="branding-logo" src="logo-white.png" alt="tr4nsfer.me"/></a>
-      <a href="/app" target="_blank" class="branding-cta">Crea el tuyo <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div><!-- /main-layout -->
+
+  <!-- SUCCESS -->
+  <div id="view-success" class="view">
+    <div class="card" style="text-align:center;max-width:420px;">
+      <div class="success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h2 style="font-size:1.15rem;margin-bottom:6px;font-weight:700;letter-spacing:-.03em;">&#161;Tu link est&#225; listo!</h2>
+      <p style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:20px;">También lo enviamos a <strong id="success-email" style="color:var(--text-soft);font-weight:600;"></strong>.</p>
+      <!-- Link box -->
+      <div class="success-link-box">
+        <a id="success-link-text" class="success-link-text" href="#" target="_blank">tr4nsfer.me/...</a>
+        <div class="success-link-actions">
+          <button class="success-link-btn" id="success-copy-btn" onclick="successCopyLink()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Copiar
+          </button>
+          <button class="success-link-btn" onclick="successVisitLink()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="15 3 21 3 21 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Visitar
+          </button>
+        </div>
+      </div>
+      <!-- QR -->
+      <div class="success-qr-wrap">
+        <canvas id="success-qr-canvas"></canvas>
+        <div class="success-qr-logo"><img src="logo-white.png" alt="tr4nsfer.me"/></div>
+      </div>
+      <p style="font-size:10.5px;color:var(--muted);margin-bottom:20px;">Escanea para abrir tu link directamente</p>
+      <!-- Download QR -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <button class="btn btn-outline" id="success-dl-qr" onclick="downloadQR()" style="margin-top:0;font-size:12px;padding:10px 12px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          QR (.png)
+        </button>
+        <button class="btn btn-outline" id="success-dl-pdf" onclick="downloadPDF()" style="margin-top:0;font-size:12px;padding:10px 12px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          PDF (.pdf)
+        </button>
+      </div>
+      <!-- keep the old button hidden for backward compat -->
+      <button class="btn btn-outline" id="success-dl-qr-hidden" onclick="downloadQR()" style="display:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Descargar QR</button>
+      <button class="btn btn-outline" onclick="resetToStep1()" style="margin-top:0;">+ Crear otro link</button>
     </div>
   </div>
-  <div class="fiscal-overlay" id="fiscal-overlay" onclick="onOverlayClick(event)">
-    <div class="fiscal-modal">
-      <div class="fiscal-modal-hdr">
-        <div class="fiscal-modal-title">Datos fiscales</div>
-        <button class="fiscal-close" onclick="closeFiscalModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-      </div>
-      <div id="fiscal-body"></div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me" style="height:28px;"/></a><p class="footer-tagline">Gratis &middot; Seguro &middot; Sin fricci&#243;n</p></div>
+      <div class="footer-col"><h4>Men&#250;</h4><ul><li><a href="index.html">Inicio</a></li><li><a href="index.html#pricing">Pricing</a></li><li><a href="index.html#ayuda">Ayuda</a></li><li><a href="app.html" class="ft-cta">Crear mi Link &rarr;</a></li></ul></div>
+      <div class="footer-col"><h4>Legal</h4><ul><li><a href="#">T&#233;rminos</a></li><li><a href="#">Pol&#237;tica de Privacidad</a></li></ul></div>
     </div>
   </div>
+  <div class="footer-bottom"><span class="footer-copy">tr4nsfer.me &copy; 2026</span><span class="footer-copy">Hecho en M&#233;xico &#127474;&#127485;</span></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+const _sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const $=id=>document.getElementById(id);
 
-const INDUSTRY_ICONS=[
-  {id:'restaurante',svg:'<path d="M7 2 L7 22"/><path d="M5 2 L5 8 Q7 12 9 8 L9 2"/><path d="M15 2 L15 22"/><path d="M15 2 Q18 4 18 10 L15 12"/>'},
-  {id:'comercio',svg:'<path d="M2 5 L5.5 5 Q6.5 5 7 7 L9.5 16 Q10 17 11 17 L20 17"/><path d="M7 7 L21 7 L19.5 14 L9.5 14 Z"/><circle cx="10.5" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/>'},
-  {id:'salud',svg:'<path d="M10 5 L10 10 L5 10 L5 14 L10 14 L10 19 L14 19 L14 14 L19 14 L19 10 L14 10 L14 5 Z"/>'},
-  {id:'construccion',svg:'<path d="M14.5 2.5 C12 2.5 9.8 4.5 9.8 7.2 C9.8 8 10.1 8.8 10.6 9.4 L3.7 16.3 C3.2 16.8 3.2 17.7 3.7 18.2 C4.2 18.7 5.1 18.7 5.6 18.2 L12.5 11.3 C13.1 11.8 13.8 12.1 14.5 12.1 C17.4 12.1 19.5 9.9 19.5 7.2 C19.5 6.4 19.3 5.6 19 5 L17 7.2 L15.1 7.2 L15.1 5.3 L17.3 3.1 C16.5 2.7 15.6 2.5 14.5 2.5 Z"/>'},
-  {id:'tecnologia',svg:'<path d="M5 8.5 Q5 7.5 6 7.5 L18 7.5 Q19 7.5 19 8.5 L19 17.5 Q19 18.5 18 18.5 L6 18.5 Q5 18.5 5 17.5 Z"/><path d="M4 12 L2.5 12"/><path d="M20 12 L21.5 12"/><path d="M12 5 L12 7.5"/><circle cx="12" cy="4.5" r="1.2"/><circle cx="8.5" cy="12" r="1.5"/><circle cx="15.5" cy="12" r="1.5"/><path d="M8 15.5 L10 15.5 L11 14.5 L13 16.5 L14 15.5 L16 15.5"/>'},
-  {id:'belleza',svg:'<circle cx="15.5" cy="10" r="5"/><path d="M15.5 15 L15.5 20"/><path d="M12.5 20 L18.5 20"/><path d="M4 10.5 L7.5 10.5 L7.5 17 Q7.5 19.5 5.75 19.5 Q4 19.5 4 17 Z"/><path d="M4 10.5 L4 7 Q4.5 5.5 5.75 5 Q7 5.5 7.5 7 L7.5 10.5"/>'},
-  {id:'logistica',svg:'<path d="M1 5.5 L13.5 5.5 L13.5 15.5 L1 15.5 Z"/><path d="M13.5 9 L13.5 15.5 L22 15.5 L22 11.5 L18.5 8 L13.5 8"/><circle cx="5" cy="19" r="2.8"/><circle cx="18" cy="19" r="2.8"/>'},
-  {id:'educacion',svg:'<path d="M12 3 L22.5 9 L12 15 L1.5 9 Z"/><path d="M6 11.5 L6 17 Q6 21.5 12 21.5 Q18 21.5 18 17 L18 11.5"/><path d="M22.5 9 L22.5 17"/><path d="M21 17 L22.5 19 L24 17"/>'},
-  {id:'finanzas',svg:'<path d="M2 22 L22 22"/><path d="M3 10.5 L21 10.5"/><path d="M3 10.5 L12 4.5 L21 10.5"/><path d="M6.5 10.5 L6.5 20"/><path d="M12 10.5 L12 20"/><path d="M17.5 10.5 L17.5 20"/><path d="M3 20 L21 20"/>'},
-  {id:'servicios',svg:'<circle cx="12" cy="12" r="9.5"/><circle cx="9.5" cy="9.5" r="1.3"/><circle cx="14.5" cy="9.5" r="1.3"/><path d="M8 13.5 Q12 17.5 16 13.5"/>'},
-  {id:'barberia',svg:'<path d="M9.5 3 L14.5 3 Q15.5 3 15.5 4 L15.5 21 Q15.5 22 14.5 22 L9.5 22 Q8.5 22 8.5 21 L8.5 4 Q8.5 3 9.5 3 Z"/><path d="M8.5 7 Q12 9 15.5 11"/><path d="M8.5 12 Q12 14 15.5 16"/><path d="M8.5 17 Q12 19 15.5 21"/><path d="M8 3 L16 3"/><path d="M8 22 L16 22"/><circle cx="12" cy="1.8" r="1.5"/>'},
-  {id:'pagos',svg:'<path d="M3 5 L21 5 Q22.5 5 22.5 6.5 L22.5 17.5 Q22.5 19 21 19 L3 19 Q1.5 19 1.5 17.5 L1.5 6.5 Q1.5 5 3 5 Z"/><path d="M12 7 L12 17"/><path d="M14.5 9.5 C14.5 7.5 9.5 7.5 9.5 9.5 C9.5 11.5 14.5 11.5 14.5 13.5 C14.5 15.5 9.5 15.5 9.5 13.5"/>'},
-];
-function iconSVG(icon,size,stroke,sw){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><g stroke="'+(stroke||'rgba(255,255,255,0.9)')+'" stroke-width="'+(sw||0.85)+'" stroke-linecap="round" stroke-linejoin="round">'+icon.svg+'</g></svg>';}
+const BANCOS={'133':{nombre:'ACTINVER',domain:'actinver.com'},'062':{nombre:'AFIRME',domain:'afirme.com'},'721':{nombre:'albo',domain:'albo.mx'},'706':{nombre:'ARCUS FI',domain:'arcusfi.com'},'127':{nombre:'BANCO AZTECA',domain:'bancoazteca.com.mx'},'030':{nombre:'BAJÍO',domain:'bb.com.mx'},'002':{nombre:'BANAMEX',domain:'banamex.com'},'154':{nombre:'BANCO COVALTO',domain:'covalto.com'},'006':{nombre:'BANCOMEXT',domain:'bancomext.com'},'137':{nombre:'BANCOPPEL',domain:'bancoppel.com'},'152':{nombre:'BANCREA',domain:'bancrea.com'},'019':{nombre:'BANJERCITO',domain:'banjercito.com.mx'},'147':{nombre:'BANKAOOL',domain:'bankaool.com'},'106':{nombre:'BANK OF AMERICA',domain:'bankofamerica.com'},'009':{nombre:'BANOBRAS',domain:'banobras.gob.mx'},'072':{nombre:'BANORTE',domain:'banorte.com'},'058':{nombre:'BANREGIO',domain:'banregio.com'},'060':{nombre:'BANSI',domain:'bansi.com.mx'},'129':{nombre:'BARCLAYS',domain:'barclays.com.mx'},'012':{nombre:'BBVA MEXICO',domain:'bbva.mx'},'112':{nombre:'BMONEX',domain:'monex.com.mx'},'677':{nombre:'CAJA POP MEXICANA',domain:'cajaPopMexicana.coop'},'715':{nombre:'CASHI',domain:'cashi.mx'},'631':{nombre:'CI BOLSA',domain:'cibolsa.com'},'124':{nombre:'CITI MEXICO',domain:'citibanamex.com'},'130':{nombre:'COMPARTAMOS',domain:'compartamos.mx'},'140':{nombre:'CONSUBANCO',domain:'consubanco.com'},'723':{nombre:'Cuenca',domain:'cuenca.com'},'616':{nombre:'FINAMEX',domain:'finamex.com.mx'},'634':{nombre:'FINCOMUN',domain:'fincomun.com.mx'},'699':{nombre:'FONDEADORA',domain:'fondeadora.com'},'601':{nombre:'GBM',domain:'gbm.com.mx'},'167':{nombre:'HEY BANCO',domain:'heybanco.com'},'021':{nombre:'HSBC',domain:'hsbc.com.mx'},'036':{nombre:'INBURSA',domain:'inbursa.com'},'136':{nombre:'INTERCAM BANCO',domain:'intercam.com.mx'},'059':{nombre:'INVEX',domain:'invex.com'},'110':{nombre:'JP MORGAN',domain:'jpmorgan.com'},'128':{nombre:'KAPITAL',domain:'kapital.mx'},'661':{nombre:'KLAR',domain:'klar.mx'},'653':{nombre:'KUSPIT',domain:'kuspit.com'},'670':{nombre:'LIBERTAD',domain:'libertad.com.mx'},'602':{nombre:'MASARI',domain:'masari.com.mx'},'722':{nombre:'MERCADO PAGO',domain:'mercadopago.com.mx'},'042':{nombre:'MIFEL',domain:'mifel.com'},'600':{nombre:'MONEXCB',domain:'monex.com.mx'},'132':{nombre:'MULTIVA',domain:'multiva.com.mx'},'135':{nombre:'NAFIN',domain:'nafin.com'},'638':{nombre:'NU MEXICO',domain:'nu.com.mx'},'710':{nombre:'NVIO',domain:'nvio.mx'},'148':{nombre:'PAGATODO',domain:'pagatodo.com'},'620':{nombre:'PROFUTURO',domain:'profuturo.com.mx'},'156':{nombre:'SABADELL',domain:'sabadell.mx'},'014':{nombre:'SANTANDER',domain:'santander.com.mx'},'044':{nombre:'SCOTIABANK',domain:'scotiabank.com.mx'},'728':{nombre:'SPIN BY OXXO',domain:'spinbyoxxo.com.mx'},'646':{nombre:'STP',domain:'stp.mx'},'703':{nombre:'TESORED',domain:'tesored.com'},'138':{nombre:'UALA',domain:'ualabee.com'},'617':{nombre:'VALMEX',domain:'valmex.com.mx'},'605':{nombre:'VALUE',domain:'value.mx'},'113':{nombre:'VE POR MAS',domain:'bx.com.mx'},'141':{nombre:'VOLKSWAGEN',domain:'vwfs.mx'},'846':{nombre:'STP',domain:'stp.mx'}};
 const favicon=d=>`https://www.google.com/s2/favicons?domain=${d}&sz=32`;
-const CARD_DESIGNS=[
-  {id:'diagonal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,36 0,78" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,24" fill="rgba(255,255,255,0.07)"/><polygon points="0,82 100,38 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-  {id:'aurora',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`},
-  {id:'espiral',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,100 Q50,49 100,36" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,100 Q60,62 100,52" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,100 Q36,33 100,18" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`},
-  {id:'cristal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,28 0,20" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,30" fill="rgba(255,255,255,0.08)"/><polygon points="38,28 78,30 100,12 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,20 38,28 22,62 0,52" fill="rgba(255,255,255,0.06)"/><polygon points="38,28 78,30 68,78 22,62" fill="rgba(255,255,255,0.04)"/><polygon points="0,82 22,62 68,78 100,96 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-  {id:'topografico',render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`},
-  {id:'solido',render:()=>``},
+const BANCO_GRADIENTS={
+  '012':'linear-gradient(135deg,#003882,#1564C0)',
+  '072':'linear-gradient(135deg,#8B0000,#CC0000)',
+  '014':'linear-gradient(135deg,#990000,#CC0000)',
+  '021':'linear-gradient(135deg,#9B0A12,#DB0011)',
+  '002':'linear-gradient(135deg,#002B75,#004BBF)',
+  '124':'linear-gradient(135deg,#002B75,#004BBF)',
+  '044':'linear-gradient(135deg,#C8202F,#E8002C)',
+  '058':'linear-gradient(135deg,#C45500,#E87722)',
+  '661':'linear-gradient(135deg,#0A0A0A,#1F1F1F)',
+  '638':'linear-gradient(135deg,#5B0BA0,#A435E0)',
+  '722':'linear-gradient(135deg,#007AB8,#00BFE8)',
+  '127':'linear-gradient(135deg,#B86800,#D4A000)',
+  '167':'linear-gradient(135deg,#C04D00,#E87800)',
+  '036':'linear-gradient(135deg,#002D6A,#004BB5)',
+  '030':'linear-gradient(135deg,#003F8A,#005BBF)',
+  '042':'linear-gradient(135deg,#004A9E,#006FD6)',
+  '128':'linear-gradient(135deg,#1A237E,#2E4099)',
+  '721':'linear-gradient(135deg,#5B0E91,#9B34E0)',
+  '699':'linear-gradient(135deg,#0A0F1E,#1A2540)',
+  '723':'linear-gradient(135deg,#0A1628,#1A2F4A)',
+  '728':'linear-gradient(135deg,#B03020,#E04030)',
+  '062':'linear-gradient(135deg,#6B0000,#990000)',
+  '006':'linear-gradient(135deg,#003087,#0052A5)',
+  '019':'linear-gradient(135deg,#1B5E20,#2E7D32)',
+  '059':'linear-gradient(135deg,#1A3A6B,#2455A0)',
+  '132':'linear-gradient(135deg,#1A237E,#283593)',
+  '110':'linear-gradient(135deg,#1A1A1A,#2A2A2A)',
+  '129':'linear-gradient(135deg,#1A237E,#283593)',
+  '113':'linear-gradient(135deg,#003087,#005BBF)',
+  '060':'linear-gradient(135deg,#1A3A6B,#2455A0)',
+  '140':'linear-gradient(135deg,#C04500,#E06500)',
+  '153':'linear-gradient(135deg,#0A1628,#1A2F4A)',
+  '706':'linear-gradient(135deg,#0A1628,#1A2F4A)',
+};
+const INDUSTRY_ICONS=[
+  {id:'restaurante',label:'Restaurante',color:'#E8593C',svg:'<path d="M7 2 L7 22"/><path d="M5 2 L5 8 Q7 12 9 8 L9 2"/><path d="M15 2 L15 22"/><path d="M15 2 Q18 4 18 10 L15 12"/>'},
+  {id:'comercio',label:'Comercio',color:'#3B8BD4',svg:'<path d="M2 5 L5.5 5 Q6.5 5 7 7 L9.5 16 Q10 17 11 17 L20 17"/><path d="M7 7 L21 7 L19.5 14 L9.5 14 Z"/><circle cx="10.5" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/>'},
+  {id:'salud',label:'Salud',color:'#1D9E75',svg:'<path d="M10 5 L10 10 L5 10 L5 14 L10 14 L10 19 L14 19 L14 14 L19 14 L19 10 L14 10 L14 5 Z"/>'},
+  {id:'construccion',label:'Construcción',color:'#BA7517',svg:'<path d="M14.5 2.5 C12 2.5 9.8 4.5 9.8 7.2 C9.8 8 10.1 8.8 10.6 9.4 L3.7 16.3 C3.2 16.8 3.2 17.7 3.7 18.2 C4.2 18.7 5.1 18.7 5.6 18.2 L12.5 11.3 C13.1 11.8 13.8 12.1 14.5 12.1 C17.4 12.1 19.5 9.9 19.5 7.2 C19.5 6.4 19.3 5.6 19 5 L17 7.2 L15.1 7.2 L15.1 5.3 L17.3 3.1 C16.5 2.7 15.6 2.5 14.5 2.5 Z"/>'},
+  {id:'tecnologia',label:'Tecnología',color:'#534AB7',svg:'<path d="M5 8.5 Q5 7.5 6 7.5 L18 7.5 Q19 7.5 19 8.5 L19 17.5 Q19 18.5 18 18.5 L6 18.5 Q5 18.5 5 17.5 Z"/><path d="M4 12 L2.5 12"/><path d="M20 12 L21.5 12"/><path d="M12 5 L12 7.5"/><circle cx="12" cy="4.5" r="1.2"/><circle cx="8.5" cy="12" r="1.5"/><circle cx="15.5" cy="12" r="1.5"/><path d="M8 15.5 L10 15.5 L11 14.5 L13 16.5 L14 15.5 L16 15.5"/>'},
+  {id:'belleza',label:'Belleza',color:'#D4537E',svg:'<circle cx="15.5" cy="10" r="5"/><path d="M15.5 15 L15.5 20"/><path d="M12.5 20 L18.5 20"/><path d="M4 10.5 L7.5 10.5 L7.5 17 Q7.5 19.5 5.75 19.5 Q4 19.5 4 17 Z"/><path d="M4 10.5 L4 7 Q4.5 5.5 5.75 5 Q7 5.5 7.5 7 L7.5 10.5"/>'},
+  {id:'logistica',label:'Logística',color:'#885511',svg:'<path d="M1 5.5 L13.5 5.5 L13.5 15.5 L1 15.5 Z"/><path d="M13.5 9 L13.5 15.5 L22 15.5 L22 11.5 L18.5 8 L13.5 8"/><circle cx="5" cy="19" r="2.8"/><circle cx="18" cy="19" r="2.8"/>'},
+  {id:'educacion',label:'Educación',color:'#0F6E56',svg:'<path d="M12 3 L22.5 9 L12 15 L1.5 9 Z"/><path d="M6 11.5 L6 17 Q6 21.5 12 21.5 Q18 21.5 18 17 L18 11.5"/><path d="M22.5 9 L22.5 17"/><path d="M21 17 L22.5 19 L24 17"/>'},
+  {id:'finanzas',label:'Finanzas',color:'#3B8BD4',svg:'<path d="M2 22 L22 22"/><path d="M3 10.5 L21 10.5"/><path d="M3 10.5 L12 4.5 L21 10.5"/><path d="M6.5 10.5 L6.5 20"/><path d="M12 10.5 L12 20"/><path d="M17.5 10.5 L17.5 20"/><path d="M3 20 L21 20"/>'},
+  {id:'servicios',label:'Servicios',color:'#534AB7',svg:'<circle cx="12" cy="12" r="9.5"/><circle cx="9.5" cy="9.5" r="1.3"/><circle cx="14.5" cy="9.5" r="1.3"/><path d="M8 13.5 Q12 17.5 16 13.5"/>'},
+  {id:'barberia',label:'Barbería',color:'#D4537E',svg:'<path d="M9.5 3 L14.5 3 Q15.5 3 15.5 4 L15.5 21 Q15.5 22 14.5 22 L9.5 22 Q8.5 22 8.5 21 L8.5 4 Q8.5 3 9.5 3 Z"/><path d="M8.5 7 Q12 9 15.5 11"/><path d="M8.5 12 Q12 14 15.5 16"/><path d="M8.5 17 Q12 19 15.5 21"/><path d="M8 3 L16 3"/><path d="M8 22 L16 22"/><circle cx="12" cy="1.8" r="1.5"/>'},
+  {id:'pagos',label:'Pagos',color:'#1D9E75',svg:'<path d="M3 5 L21 5 Q22.5 5 22.5 6.5 L22.5 17.5 Q22.5 19 21 19 L3 19 Q1.5 19 1.5 17.5 L1.5 6.5 Q1.5 5 3 5 Z"/><path d="M12 7 L12 17"/><path d="M14.5 9.5 C14.5 7.5 9.5 7.5 9.5 9.5 C9.5 11.5 14.5 11.5 14.5 13.5 C14.5 15.5 9.5 15.5 9.5 13.5"/>'},
 ];
-const CARD_PRESETS=[{value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a'},{value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000'},{value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a'},{value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96'},{value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb'},{value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a'}];
-const CCM={'linear-gradient(135deg,#004d38,#00c896)':{rgb:'0,200,150',accent:'#00c896'},'linear-gradient(135deg,#0d0d0d,#1f1f1f)':{rgb:'200,200,200',accent:'#aaaaaa'},'linear-gradient(135deg,#7a2050,#e8719a)':{rgb:'232,113,154',accent:'#e8719a'},'linear-gradient(135deg,#0f3460,#1a6fb5)':{rgb:'26,111,181',accent:'#00c896'},'linear-gradient(135deg,#2d1b69,#8b5cf6)':{rgb:'139,92,246',accent:'#8b5cf6'},'linear-gradient(135deg,#7c2d12,#f97316)':{rgb:'249,115,22',accent:'#f97316'}};
-const LADAS_2D=new Set(['55','56','81','33','99']);
-function fmtWA(d){if(!d)return '';const l2=d.substring(0,2);if(LADAS_2D.has(l2))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(p=>p).join(' ');return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(p=>p).join(' ');}
-function fmt(c){return c.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
-function copyAction(textId,btn,rawAttr){const el=document.getElementById(textId);if(!el)return;const val=rawAttr&&el.dataset[rawAttr]?el.dataset[rawAttr]:el.textContent.trim();navigator.clipboard.writeText(val).then(()=>{btn.textContent='\u2713 Copiado';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000);});}
-function getCardColorVars(cg){if(CCM[cg])return CCM[cg];const m=cg.match(/#[0-9a-fA-F]{6}/g),e=m?m[m.length-1]:'#00c896';const r=parseInt(e.slice(1,3),16),g=parseInt(e.slice(3,5),16),b=parseInt(e.slice(5,7),16);return{rgb:`${r},${g},${b}`,accent:e};}
-let currentSlug='';
-const REGIMEN_LABELS={'601':'General de Ley PM','612':'Actividades Empresariales','621':'Incorporaci\u00f3n Fiscal','626':'RESICO','605':'Sueldos y Salarios','606':'Arrendamiento','608':'D\u00e9mas ingresos','616':'Sin obligaciones fiscales','622':'Act. Agr\u00edc., Ganaderas','625':'Plataformas Tecnol\u00f3gicas','603':'PM sin Fines de Lucro'};
-function openFiscalModal(){$('fiscal-overlay').classList.add('visible');$('fiscal-body').innerHTML='<div class="fiscal-loading"><svg class="spin-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>Verificando acceso\u2026</div>';loadFiscalData();}
-function closeFiscalModal(){$('fiscal-overlay').classList.remove('visible');}
-function onOverlayClick(e){if(e.target===$('fiscal-overlay'))closeFiscalModal();}
-async function loadFiscalData(){
+function iconSVG(icon,size,stroke,sw){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="'+(stroke||'currentColor')+'" stroke-width="'+(sw||1.5)+'" stroke-linecap="round" stroke-linejoin="round">'+icon.svg+'</g></svg>';}
+
+/* Mexican state abbreviation → proper name with accents */
+const MX_STATES={'DIF':'Ciudad de México','AGS':'Aguascalientes','BC':'Baja California','BCS':'Baja California Sur','CAM':'Campeche','CHP':'Chiapas','CHH':'Chihuahua','COA':'Coahuila','COL':'Colima','DUR':'Durango','GTO':'Guanajuato','GRO':'Guerrero','HID':'Hidalgo','JAL':'Jalisco','MEX':'Estado de México','MIC':'Michoacán','MOR':'Morelos','NAY':'Nayarit','NLE':'Nuevo León','OAX':'Oaxaca','PUE':'Puebla','QRO':'Querétaro','ROO':'Quintana Roo','SLP':'San Luis Potosí','SIN':'Sinaloa','SON':'Sonora','TAB':'Tabasco','TAM':'Tamaulipas','TLX':'Tlaxcala','VER':'Veracruz','YUC':'Yucatán','ZAC':'Zacatecas'};
+/* sepomex returns full name — normalize to accented version */
+const MX_STATES_BY_NAME={'Ciudad de Mexico':'Ciudad de México','Nuevo Leon':'Nuevo León','Michoacan':'Michoacán','Queretaro':'Querétaro','San Luis Potosi':'San Luis Potosí','Yucatan':'Yucatán','Mexico':'Estado de México','Jalisco':'Jalisco','Veracruz de Ignacio de la Llave':'Veracruz','Coahuila de Zaragoza':'Coahuila','Michoacán de Ocampo':'Michoacán'};
+
+const CARD_DESIGNS=[
+  {id:'diagonal',label:'Diagonal',render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,58 0,125" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,38" fill="rgba(255,255,255,0.07)"/><polygon points="0,130 100,60 100,159 0,159" fill="rgba(255,255,255,0.05)"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 54,0 54,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="0,49 54,23 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`},
+  {id:'aurora',label:'Aurora',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="at-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#at-a)"/><rect width="100%" height="100%" fill="url(#at-b)"/></svg>`},
+  {id:'espiral',label:'Espiral',render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q27,29 54,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q31,37 54,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/></svg>`},
+  {id:'cristal',label:'Cristal',render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,38 0,28" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,42" fill="rgba(255,255,255,0.08)"/><polygon points="38,38 78,42 100,15 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,28 38,38 22,85 0,72" fill="rgba(255,255,255,0.06)"/><polygon points="38,38 78,42 68,105 22,85" fill="rgba(255,255,255,0.04)"/><polygon points="0,120 22,85 68,105 100,130 100,159 0,159" fill="rgba(255,255,255,0.05)"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 30,0 20,20 0,15" fill="rgba(255,255,255,0.13)"/><polygon points="30,0 54,0 42,22" fill="rgba(255,255,255,0.08)"/><polygon points="20,20 42,22 54,8 54,0 30,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,42 20,20 42,22 54,36 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`},
+  {id:'topografico',label:'Topo',render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/></svg>`},
+  {id:'solido',label:'Sólido',render:()=>``,thumbRender:()=>``},
+];
+const CARD_PRESETS=[{label:'Verde',value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a'},{label:'Negro',value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000'},{label:'Rosa',value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a'},{label:'Azul',value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96'},{label:'Morado',value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb'},{label:'Cobre',value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a'}];
+const BG_PRESETS=[{label:'Negro',value:'#000000'},{label:'Blanco',value:'#ffffff'},{label:'Marca',value:'#003d2e'}];
+const SOLID_MAP={'linear-gradient(135deg,#004d38,#00c896)':'0,200,150','linear-gradient(135deg,#0d0d0d,#1f1f1f)':'200,200,200','linear-gradient(135deg,#7a2050,#e8719a)':'232,113,154','linear-gradient(135deg,#0f3460,#1a6fb5)':'26,111,181','linear-gradient(135deg,#2d1b69,#8b5cf6)':'139,92,246','linear-gradient(135deg,#7c2d12,#f97316)':'249,115,22'};
+const ACCENT_MAP={'linear-gradient(135deg,#004d38,#00c896)':'#00c896','linear-gradient(135deg,#0d0d0d,#1f1f1f)':'#aaaaaa','linear-gradient(135deg,#7a2050,#e8719a)':'#e8719a','linear-gradient(135deg,#0f3460,#1a6fb5)':'#00c896','linear-gradient(135deg,#2d1b69,#8b5cf6)':'#8b5cf6','linear-gradient(135deg,#7c2d12,#f97316)':'#f97316'};
+
+let selectedDesign=0,selectedCardGradient='linear-gradient(135deg,#004d38,#00c896)',selectedBgColor='#000000',currentStep=1;
+let selectedIconId=null,selectedIconColor='rgba(255,255,255,1)',userPickedColor=false;
+let clabeCheckState='idle',clabeCheckTimer=null;
+let slugCheckState='idle',slugCheckTimer=null;
+let cpLookupTimer=null;
+let logoBase64=null;
+let profileType='personal'; // 'personal' | 'negocios'
+
+/* ── PROFILE TYPE SELECTOR ── */
+function selectType(type) {
+  profileType=type;
+  $('view-type').style.display='none';
+  if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
+  $('app-hero').style.display='';
+  $('app-hero-title').textContent=type==='personal'?'Empieza aquí':'Perfil de negocio';
+  $('app-hero-sub').textContent=type==='personal'?'Ingresa tus datos y personaliza tu perfil.':'Datos bancarios y empresariales en un link.';
+  // Show/hide icon section in color editor based on type
+  const iconSec=$('icon-editor-section');
+  if(iconSec)iconSec.style.display=type==='negocios'?'block':'none';
+  showMainLayout();
+  setFloatingBtn({text:'Continuar →',visible:true});
+}
+function goBackToType() {
+  if($('type-back-btn'))$('type-back-btn').style.display='none';
+  $('view-type').style.display='flex';
+  $('app-hero').style.display='none';
+  $('main-layout').classList.remove('active');
+  $('main-layout').style.display='none';
+  setFloatingBtn({visible:false});
+  // Also reset if in step2
+  if(currentStep===2){
+    currentStep=1;
+    $('main-layout').classList.remove('step2');
+    $('panel-step2').classList.add('hidden');
+    $('panel-step1').classList.remove('hidden','exit-left');
+    $('panel-step1').style.opacity='';$('panel-step1').style.transform='';
+    $('color-editor').classList.remove('fade-out');
+  }
+}
+
+/* ── HELPERS ── */
+function setFloatingBtn({text,disabled,visible}){const wrap=$('floating-btn-wrap'),btn=$('floating-btn'),textEl=$('floating-btn-text');if(visible===false)wrap.classList.add('hidden');else wrap.classList.remove('hidden');if(text!==undefined)textEl.textContent=text;if(disabled!==undefined)btn.disabled=disabled;}
+function floatingBtnClick(){if(currentStep===1)goToStep2();}
+function showMainLayout(){$('main-layout').style.display='';$('main-layout').classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));setFloatingBtn({visible:true});}
+function hideMainLayout(){$('main-layout').classList.remove('active');$('main-layout').style.display='none';setFloatingBtn({visible:false});}
+
+function transitionLeftPanel(fromId,toId,onSwap){
+  const fromEl=$(fromId),toEl=$(toId);
+  fromEl.classList.add('exit-left');
+  setTimeout(()=>{fromEl.classList.add('hidden');fromEl.classList.remove('exit-left');toEl.classList.remove('hidden');toEl.classList.add('enter-right');if(onSwap)onSwap();toEl.getBoundingClientRect();toEl.style.transition='opacity .3s ease,transform .3s ease';toEl.classList.remove('enter-right');setTimeout(()=>{toEl.style.transition='';},320);},280);
+}
+function transitionHero(title,subtitle){const hero=$('app-hero');hero.classList.add('hero-exit');setTimeout(()=>{$('app-hero-title').textContent=title;$('app-hero-sub').textContent=subtitle;hero.classList.remove('hero-exit');hero.classList.add('hero-enter');hero.getBoundingClientRect();hero.style.transition='opacity .28s ease,transform .28s ease';hero.classList.remove('hero-enter');setTimeout(()=>{hero.style.transition='';},300);},290);}
+
+function goToStep2(){
+  const nombreCuenta=$('nombre-cuenta').value.trim(),clabe=$('clabe').value.replace(/\D/g,'');
+  let ok=true;
+  if(setError('fg-nombre-cuenta',nombreCuenta.length<2))ok=false;
+  if(clabe.length!==18){setError('fg-clabe',true);$('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';ok=false;}
+  if(clabeCheckState==='exists'){setError('fg-clabe',true);ok=false;}
+  if(clabeCheckState==='checking')return;
+  if(!ok)return;
+  const bancoCode=clabe.substring(0,3),bancoData=BANCOS[bancoCode];
+  $('step2-nombre-cuenta').textContent=nombreCuenta+($('alias').value.trim()?' · '+$('alias').value.trim():'');
+  $('step2-banco').textContent=bancoData?bancoData.nombre:'Banco no identificado';
+  $('color-editor').classList.add('fade-out');
+  setFloatingBtn({visible:false});
+  if($('type-back-btn'))$('type-back-btn').style.display='none';
+  const isNeg=profileType==='negocios';
+  transitionHero('Último paso',isNeg?'Completa los datos del administrador del perfil del negocio.':'Completa tu información y crea tu link personal.');
+  transitionLeftPanel('panel-step1','panel-step2',()=>{
+    currentStep=2;$('main-layout').classList.add('step2');
+    if($('step2-card-title'))$('step2-card-title').textContent=isNeg?'Información del negocio':'Información personal';
+    if($('step2-card-subtitle'))$('step2-card-subtitle').textContent=isNeg?'Completa los datos de tu negocio para activar tu perfil.':'Completa tus datos para activar tu perfil.';
+    $('fg-nombre-negocio').style.display=isNeg?'':'none';
+    $('fg-logo').style.display=isNeg?'':'none';
+    const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
+    // For negocio: rename nombre field to business name, hide the optional nombre-negocio toggle
+    const lbNombre=document.querySelector('#fg-nombre label');
+    const inpNombre=$('nombre');
+    if(isNeg){
+      if(lbNombre)lbNombre.childNodes[0].textContent='Nombre del negocio ';
+      if(inpNombre){inpNombre.placeholder='Ej. Taquería El Güero SA de CV';inpNombre.style.textTransform='uppercase';inpNombre.oninput=function(){this.value=this.value.toUpperCase();if(this.value.trim().length>=2)$('fg-nombre').classList.remove('has-error');};}
+      document.querySelector('#fg-nombre .field-error').textContent='Ingresa el nombre del negocio.';
+      // Hide optional negocio name toggle (nombre IS the business name now)
+      $('fg-nombre-negocio').style.display='none';
+      // Hide negocio section divider since all fields are business
+      if(div)div.style.display='none';
+    } else {
+      if(lbNombre)lbNombre.childNodes[0].textContent='Nombre completo ';
+      if(inpNombre){inpNombre.placeholder='Ej. María García López';inpNombre.style.textTransform='';inpNombre.oninput=function(){if(this.value.trim().length>=3)$('fg-nombre').classList.remove('has-error');};}
+      document.querySelector('#fg-nombre .field-error').textContent='Ingresa tu nombre completo.';
+    }
+    // Reset fiscal toggle to OFF every time step2 is entered
+    const sfCb=$('show_fiscal');if(sfCb){sfCb.checked=false;}
+    const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');
+    updateContactPreview();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
+function backToStep1(){
+  $('color-editor').classList.remove('fade-out');
+  selectedIconId=null;selectedIconColor='rgba(255,255,255,1)';updateCardIcon(null);
+  if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
+  transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
+  transitionLeftPanel('panel-step2','panel-step1',()=>{currentStep=1;$('main-layout').classList.remove('step2');setFloatingBtn({text:'Continuar →',visible:true});window.scrollTo({top:0,behavior:'smooth'});});
+}
+function resetToStep1(){
+  currentStep=1;clabeCheckState='idle';slugCheckState='idle';logoBase64=null;
+  $('color-editor').classList.remove('fade-out');
+  $('panel-step2').classList.add('hidden');$('panel-step1').classList.remove('hidden','exit-left');
+  $('panel-step1').style.opacity='';$('panel-step1').style.transform='';
+  // Re-show type selector
+  $('view-type').style.display='flex';$('app-hero').style.display='none';
+  $('main-layout').classList.remove('active','step2');
+  $('main-layout').style.display='none';
+  setFloatingBtn({visible:false});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+
+function autoSetBankColor(code){
+  if(userPickedColor) return;
+  const grad=BANCO_GRADIENTS[code];
+  if(!grad) return;
+  selectedCardGradient=grad;
+  document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
+  applyCardColor();
+}
+/* ── CARD PREVIEW ── */
+function updateCard(){
+  const nombre=$('nombre-cuenta').value.trim(),alias=$('alias').value.trim(),clabe=$('clabe').value.replace(/\D/g,'');
+  const nGroup=$('lc-nombre-group'),nEl=$('lc-nombre-val');
+  if(nombre){const u=nombre.toUpperCase();nEl.textContent=u;nEl.style.fontSize=u.length>25?'14px':'';nGroup.style.display='flex';}else nGroup.style.display='none';
+  $('lc-alias').textContent=alias?alias.toUpperCase():'';
+  const cg=$('lc-clabe-group');
+  if(clabe.length>=1){const p=clabe.padEnd(18,'·');$('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18);cg.style.display='flex';}else cg.style.display='none';
+}
+
+/* ── NOMBRE NEGOCIO ── */
+function onNombreNegocioToggle(){
+  const checked=$('show_nombre_negocio').checked;
+  $('nombre-negocio-input-wrap').style.display=checked?'block':'none';
+  if(!checked){$('nombre-negocio').value='';$('lc-negocio-group').style.display='none';}
+}
+function updateNombreNegocioPreview(){
+  const val=$('nombre-negocio').value.trim();
+  if(val&&$('show_nombre_negocio').checked){$('lc-negocio-val').textContent=val.toUpperCase();$('lc-negocio-group').style.display='flex';}else $('lc-negocio-group').style.display='none';
+}
+
+/* ── CLABE CHECK ── */
+async function checkClabeExists(clabe){
+  clabeCheckState='checking';
+  const ring=$('clabe-checking-ring'),ver=$('clabe-verified');
+  ring.classList.add('visible');if(ver)ver.style.display='none';
+  try{const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-clabe`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe})});const data=await resp.json();ring.classList.remove('visible');if(data.exists){clabeCheckState='exists';$('clabe-error-msg').textContent='Esta CLABE ya tiene un perfil registrado.';setError('fg-clabe',true);if(ver)ver.style.display='none';}else{clabeCheckState='ok';setError('fg-clabe',false);if(ver)ver.style.display='block';}}catch(e){clabeCheckState='idle';ring.classList.remove('visible');}
+}
+function onClabeInput(){
+  const input=$('clabe');input.value=input.value.replace(/[\D\s]/g,'').substring(0,18);const len=input.value.length;input.classList.toggle('complete',len===18);
+  clabeCheckState='idle';const ring=$('clabe-checking-ring'),ver=$('clabe-verified');ring.classList.remove('visible');if(ver)ver.style.display='none';$('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';
+  if(len===18){$('fg-clabe').classList.remove('has-error');clearTimeout(clabeCheckTimer);clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500);}
+  const code=input.value.substring(0,3),wrap=$('banco-wrap'),bancoInput=$('banco'),iconEl=$('banco-icon'),lcBank=$('lc-bank');
+  if(code.length===3&&BANCOS[code]){const b=BANCOS[code];bancoInput.value=b.nombre;iconEl.src=favicon(b.domain);iconEl.alt=b.nombre;wrap.classList.add('detected');$('lc-bank-icon').src=favicon(b.domain);$('lc-bank-icon').style.display='block';$('lc-bank-name').textContent=b.nombre;lcBank.style.display='flex';autoSetBankColor(code);}
+  else{bancoInput.value='';iconEl.src='';wrap.classList.remove('detected');lcBank.style.display='none';}
+  updateCard();
+}
+
+/* ── RFC VALIDATION ── */
+function validateRFC(rfc){return /^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/.test(rfc.toUpperCase().trim());}
+function onRfcInput(){
+  const inp=$('rfc');let v=inp.value.toUpperCase().replace(/[^A-ZÑ&0-9]/g,'').substring(0,13);inp.value=v;
+  const fg=$('fg-rfc'),errMsg=$('rfc-error');
+  if(v.length===0){fg.classList.remove('has-error');return;}
+  if(v.length<13){fg.classList.remove('has-error');return;} // still typing
+  if(!validateRFC(v)){errMsg.textContent='RFC inválido — verifica el formato';setError('fg-rfc',true);}
+  else{fg.classList.remove('has-error');}
+}
+
+/* ── LOGO TOGGLE ── */
+function onLogoToggle(){
+  const checked=$('show_logo').checked;$('logo-upload-area').classList.toggle('visible',checked);
+  if(!checked){logoBase64=null;$('lc-logo-sq').classList.remove('visible');$('lc-logo-img').src='';$('logo-thumb').style.display='none';$('logo-thumb').src='';$('logo-plus-icon').style.display='block';}
+  updateContactPreview();
+}
+function onLogoFile(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    logoBase64=e.target.result;
+    const thumb=$('logo-thumb');thumb.src=logoBase64;thumb.style.display='block';$('logo-plus-icon').style.display='none';
+    $('lc-logo-img').src=logoBase64;$('lc-logo-sq').classList.add('visible');
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── FISCAL TOGGLE ── */
+function onFiscalToggle(){const checked=$('show_fiscal').checked;$('fiscal-fields').classList.toggle('visible',checked);updateContactPreview();}
+
+/* ── CP LOOKUP ── */
+function onCpInput(){
+  const inp=$('cp-fiscal');inp.value=inp.value.replace(/\D/g,'').substring(0,5);
+  if(inp.value.length<5){$('cp-autofill-row').style.display='none';$('estado-fiscal').value='';return;}
+  clearTimeout(cpLookupTimer);cpLookupTimer=setTimeout(()=>lookupCP(inp.value),500);
+}
+async function lookupCP(cp){
+  const spinner=$('cp-spinner');spinner.classList.add('visible');$('fg-cp').classList.remove('has-error');
+  const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),8000); // 8s timeout
   try{
-    const tr=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-token`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({slug:currentSlug})});
-    if(!tr.ok)throw new Error('No se pudo obtener acceso.');
-    const {token,error:te}=await tr.json();if(te||!token)throw new Error(te||'Token inv\u00e1lido');
-    const dr=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-data`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({token})});
-    if(!dr.ok)throw new Error('Error al obtener datos.');
-    const fd=await dr.json();if(fd.error)throw new Error(fd.error);
-    // Field order: razon_social, RFC, regimen, calle, colonia, ciudad, estado, CP
-    const rows=[
-      [fd.razon_social,'Razón social'],
-      [fd.rfc,'RFC'],
-      [fd.regimen_fiscal?(REGIMEN_LABELS[fd.regimen_fiscal]||fd.regimen_fiscal)+' ('+fd.regimen_fiscal+')':null,'Régimen fiscal'],
-      [fd.calle_fiscal,'Calle y número'],
-      [fd.colonia_fiscal,'Colonia'],
-      [fd.ciudad_fiscal,'Ciudad'],
-      [fd.estado_fiscal,'Estado'],
-      [fd.cp_fiscal,'Código postal'],
-    ].filter(r=>r[0]);
-    $('fiscal-body').innerHTML=rows.map(function(r,i){
-      return '<div class="fiscal-row"><div class="fiscal-row-inner"><div class="fiscal-row-label">'+r[1]+'</div><div class="fiscal-row-value">'+r[0]+'</div></div><button class="btn-fiscal-copy" id="fcb'+i+'">Copiar</button></div>';
-    }).join('')+'<div class="fiscal-expiry">&#x1F512; Datos cifrados &middot; Esta sesi&oacute;n expira en 15 min</div>';
-    rows.forEach(function(r,i){var b=document.getElementById('fcb'+i);if(b)b.setAttribute('data-copy',r[0]);});
+    const resp=await fetch(`https://api.zippopotam.us/mx/${cp}`,{signal:ctrl.signal});
+    clearTimeout(tid);
+    spinner.classList.remove('visible');
+    if(!resp.ok){showCpError();return;}
+    const d=await resp.json();
+    if(!d.places||!d.places.length){showCpError();return;}
+    // Estado — proper accented name via abbreviation map
+    const abbr=d.places[0]['state abbreviation'];
+    $('estado-fiscal').value=(MX_STATES[abbr]||d.places[0]['state']||'').toUpperCase();
+    // Ciudad — text input, user types municipality manually
+    const ciudadInp=$('ciudad-fiscal');
+    if(ciudadInp){ciudadInp.value='';ciudadInp.placeholder='Ej. Cuauhtémoc';}
+    // Colonias dropdown — zippopotam place names ARE the colonias for MX
+    const colonias=[...new Set(d.places.map(p=>p['place name']).filter(Boolean))].sort();
+    const colSel=$('colonia-fiscal');
+    colSel.innerHTML='<option value="">Selecciona tu colonia</option>'+
+      colonias.map(col=>`<option value="${col.toUpperCase()}">${col.toUpperCase()}</option>`).join('')+
+      '<option value="__otra__">OTRA COLONIA…</option>';
+    colSel.onchange=function(){$('colonia-otra-wrap').style.display=this.value==='__otra__'?'block':'none';};
+    $('cp-autofill-row').style.display='block';
+  }catch(e){
+    clearTimeout(tid);
+    spinner.classList.remove('visible');
+    showCpError();
+  }
+}
+function showCpError(){$('fg-cp').classList.add('has-error');$('cp-error').textContent='C\u00f3digo postal no encontrado.';}
+
+/* ── SLUG ── */
+function slugStatusIcon(type){const st=$('slug-status');if(type==='checking')st.innerHTML='<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="animation:spin .7s linear infinite;display:block;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>';else if(type==='ok')st.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:block;"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';else if(type==='error')st.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>';else st.innerHTML='';}
+async function checkSlugAvailable(slug){
+  if(!slug||slug.length<3)return;
+  slugCheckState='checking';slugStatusIcon('checking');
+  try{
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-slug`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({slug})});
+    if(!resp.ok){slugCheckState='idle';slugStatusIcon('');return;}
+    const data=await resp.json();
+    if(data.available){slugCheckState='ok';slugStatusIcon('ok');$('fg-slug').classList.remove('has-error');}
+    else{slugCheckState='taken';slugStatusIcon('error');$('slug-error').textContent='Este link ya está en uso. Elige otro.';setError('fg-slug',true);}
+  }catch(e){slugCheckState='idle';slugStatusIcon('');}}
+function onSlugInput(){const inp=$('slug-custom');const pos=inp.selectionStart;let val=inp.value.toLowerCase().replace(/ /g,'-').replace(/[^a-z0-9-]/g,'');if(inp.value!==val){inp.value=val;try{inp.setSelectionRange(pos,pos);}catch(e){}}slugCheckState='idle';slugStatusIcon('');$('fg-slug').classList.remove('has-error');clearTimeout(slugCheckTimer);if(val.length>=3&&/^[a-z0-9-]{3,20}$/.test(val))slugCheckTimer=setTimeout(()=>checkSlugAvailable(val),600);}
+
+/* ── WA / EMAIL ── */
+const LADAS_2D=new Set(['55','56','81','33','99']);
+function fmtWA(d){if(!d)return '';if(LADAS_2D.has(d.substring(0,2)))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(p=>p).join(' ');return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(p=>p).join(' ');}
+function onWaInput(){var inp=$('whatsapp'),sel=$('wa-country');var max=sel?parseInt(sel.options[sel.selectedIndex].dataset.digits||'10'):10;var raw=inp.value.replace(/\D/g,'').substring(0,max);inp.dataset.raw=raw;var cc=sel?sel.value:'+52';inp.value=(cc==='+52')?fmtWA(raw):raw;var l=inp.value.length;inp.setSelectionRange(l,l);var fg=$('fg-whatsapp');if(fg){if(raw.length===0||raw.length===max)fg.classList.remove('has-error');else fg.classList.add('has-error');}updateContactPreview();}
+function onEmailInput(){var fg=$('fg-email'),val=$('email').value.trim();if(!val){fg.classList.remove('has-error');return;}/\S+@\S+\.\S+/.test(val)?fg.classList.remove('has-error'):fg.classList.add('has-error');}
+function onEmailBlur(){var fg=$('fg-email'),val=$('email').value.trim();if(!val)return;!/\S+@\S+\.\S+/.test(val)?fg.classList.add('has-error'):fg.classList.remove('has-error');}
+
+/* ── CONTACT PREVIEW ── */
+function updateContactPreview(){
+  var sel=$('wa-country'),cc=sel?sel.value:'+52';
+  var waInp=$('whatsapp'),waRaw=waInp?(waInp.dataset.raw||waInp.value.replace(/\D/g,'')):'';
+  var emVal=$('email')?$('email').value.trim():'';
+  var showWa=$('show_whatsapp')&&$('show_whatsapp').checked&&waRaw.length>0;
+  var showEm=$('show_email')&&$('show_email').checked&&emVal.length>0;
+  var showFiscal=$('show_fiscal')&&$('show_fiscal').checked;
+  var cpWa=$('cp-wa'),cpEm=$('cp-email'),cpFiscal=$('cp-fiscal-row'),cp=$('contact-preview');
+  if(!cpWa||!cpEm||!cp)return;
+  if(showWa){$('cp-wa-text').textContent=(cc==='+52'?(cc+' '+fmtWA(waRaw)):(cc+' '+waRaw));cpWa.style.display='flex';}else cpWa.style.display='none';
+  if(showEm){$('cp-email-text').textContent=emVal;cpEm.style.display='flex';}else cpEm.style.display='none';
+  if(cpFiscal)cpFiscal.style.display=showFiscal?'flex':'none';
+  cp.style.display=(showWa||showEm||showFiscal)?'flex':'none';
+}
+function cpCopy(id,btn){var val=$(id)?$(id).textContent.trim():'';if(!val||val==='—')return;navigator.clipboard.writeText(val).then(()=>{btn.textContent='✓ Copiado';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},1800);});}
+function setError(fgId,show){const fg=$(fgId);if(!fg)return show;show?fg.classList.add('has-error'):fg.classList.remove('has-error');return show;}
+
+/* ── SUBMIT ── */
+async function submitForm(){
+  const nombre=$('nombre').value.trim(),email=$('email').value.trim();
+  let ok=true;
+  if(setError('fg-nombre',nombre.length<3))ok=false;
+  if(setError('fg-email',!email||!/\S+@\S+\.\S+/.test(email)))ok=false;
+  var waRawCheck=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
+  var waSel=$('wa-country');var waMax=waSel?parseInt(waSel.options[waSel.selectedIndex].dataset.digits||'10'):10;
+  if(waRawCheck.length>0&&waRawCheck.length!==waMax){setError('fg-whatsapp',true);ok=false;}
+  const showFiscal=$('show_fiscal')&&$('show_fiscal').checked;
+  if(showFiscal){
+    if(setError('fg-razon-social',$('razon-social').value.trim().length<2))ok=false;
+    const rfcVal=$('rfc').value.trim();
+    if(!rfcVal||!validateRFC(rfcVal)){$('rfc-error').textContent='RFC inválido.';setError('fg-rfc',true);ok=false;}
+    if(setError('fg-regimen',!$('regimen-fiscal').value)){$('regimen-error').textContent='Selecciona un régimen fiscal.';ok=false;}
+    if(setError('fg-cp',$('cp-fiscal').value.length!==5))ok=false;
+  }
+  const slugVal=$('slug-custom').value.trim();
+  if(slugVal.length>0&&slugVal.length<3){$('slug-error').textContent='Mínimo 3 caracteres.';setError('fg-slug',true);ok=false;}
+  if(slugCheckState==='taken'||slugCheckState==='invalid')ok=false;
+  if(slugCheckState==='checking')return;
+  const c1=$('fg-consent1'),c2=$('fg-consent2');
+  if(!$('consent1').checked){c1.classList.add('has-error');ok=false;}else c1.classList.remove('has-error');
+  if(!$('consent2').checked){c2.classList.add('has-error');ok=false;}else c2.classList.remove('has-error');
+  if(!ok)return;
+  setFloatingBtn({visible:false});
+  const submitBtn=$('submit-btn'),textEl=$('btn-text');
+  submitBtn.disabled=true;textEl.textContent='Generando…';
+  hideMainLayout();showPageLoader();
+  const nombreCuenta=$('nombre-cuenta').value.trim(),clabe=$('clabe').value.replace(/\D/g,'');
+  const alias=$('alias').value.trim();
+  const waRaw=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
+  const waCountry=$('wa-country')?$('wa-country').value.replace('+',''):'52';
+  const whatsapp=waRaw?(waCountry+waRaw):'';
+  const bancoCode=clabe.substring(0,3),bancoData=BANCOS[bancoCode]||null;
+  const banco=bancoData?bancoData.nombre:$('banco').value;
+  const bancoDomain=bancoData?bancoData.domain:null;
+  const customSlug=slugVal.length>=3?slugVal:'';
+  // Colonia value
+  let coloniaVal='';
+  const colSel=$('colonia-fiscal');
+  if(colSel){coloniaVal=colSel.value==='__otra__'?($('colonia-otra')?$('colonia-otra').value.trim():''):colSel.value;}
+  const fiscalData=showFiscal?{
+    razon_social:$('razon-social').value.trim(),
+    rfc:$('rfc').value.trim(),
+    regimen_fiscal:$('regimen-fiscal').value,
+    cp_fiscal:$('cp-fiscal').value,
+    ciudad_fiscal:$('ciudad-fiscal')?$('ciudad-fiscal').value.trim():'',
+    estado_fiscal:$('estado-fiscal').value.trim(),
+    colonia_fiscal:coloniaVal,
+    calle_fiscal:$('calle-fiscal')?$('calle-fiscal').value.trim():'',
+  }:null;
+  const nombreNegocio=profileType==='negocios'?$('nombre').value.trim():null;
+  const fnResp=await fetch(`${SUPABASE_URL}/functions/v1/create-link`,{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
+    body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked),custom_slug:customSlug||null,profile_type:profileType,nombre_negocio:nombreNegocio,logo_url:logoBase64||null,icon_id:selectedIconId||null,has_fiscal:showFiscal,...(fiscalData||{})})
+  });
+  if(fnResp.status===409){hidePageLoader(()=>{textEl.textContent='Generar mi Link';submitBtn.disabled=false;showMainLayout();$('main-layout').classList.add('step2');$('slug-error').textContent='Este link ya está en uso. Elige otro.';setError('fg-slug',true);slugCheckState='taken';slugStatusIcon('error');setFloatingBtn({visible:false});});return;}
+  if(!fnResp.ok){hidePageLoader(()=>{textEl.textContent='Error. Intenta de nuevo.';submitBtn.disabled=false;setFloatingBtn({visible:true});});return;}
+  const {slug}=await fnResp.json();
+  submitBtn.disabled=false;textEl.textContent='Generar mi Link';
+  hidePageLoader(()=>{transitionHero('¡Todo listo!','');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$('view-success').classList.add('active');const cardData={gradient:selectedCardGradient,bgColor:selectedBgColor,profileType:profileType,nombreNegocio:nombreNegocio,nombre:nombre,iconId:selectedIconId,iconColor:selectedIconColor};
+    showSuccess(slug,email,cardData);
+    sendEmailWithQR(slug,email,cardData);window.scrollTo({top:0,behavior:'smooth'});});
+}
+
+/* ── DESIGN / COLOR ── */
+function renderDesign(el,idx){if(!el)return;el.innerHTML=CARD_DESIGNS[idx].render();}
+function buildDesignPicker(){const picker=$('design-picker');CARD_DESIGNS.forEach((d,i)=>{const wrap=document.createElement('div');wrap.className='design-thumb-wrap';const thumb=document.createElement('div');thumb.className='design-thumb'+(i===0?' active':'');thumb.style.background=selectedCardGradient;thumb.innerHTML=d.thumbRender();thumb.onclick=()=>{selectedDesign=i;document.querySelectorAll('.design-thumb').forEach(t=>t.classList.remove('active'));thumb.classList.add('active');renderDesign($('card-design-layer'),i);applyCardColor();};const lbl=document.createElement('div');lbl.className='design-thumb-label';lbl.textContent=d.label;wrap.appendChild(thumb);wrap.appendChild(lbl);picker.appendChild(wrap);});}
+function buildSwatches(){
+  const cw=$('card-swatches'),bw=$('bg-swatches');
+  CARD_PRESETS.forEach((p,i)=>{const sw=document.createElement('div');sw.className='swatch'+(i===0?' active':'');sw.style.background=p.solid||p.value;if(p.label==='Negro')sw.style.border='1px solid #444';sw.title=p.label;sw.onclick=()=>{userPickedColor=true;document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));sw.classList.add('active');selectedCardGradient=p.value;applyCardColor();};cw.appendChild(sw);});
+  const addCard=document.createElement('div');addCard.className='swatch-add';addCard.title='Color personalizado';addCard.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';addCard.onclick=()=>{userPickedColor=true;document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));addCard.classList.add('active');$('native-color-card').click();};cw.appendChild(addCard);
+  BG_PRESETS.forEach((p,i)=>{const sw=document.createElement('div');sw.className='swatch'+(i===0?' active':'');sw.style.background=p.value;sw.style.border=p.value==='#000000'?'1px solid #2a2a2a':p.value==='#ffffff'?'1px solid #ccc':'1px solid #005c44';sw.title=p.label;sw.onclick=()=>{document.querySelectorAll('#bg-swatches .swatch,#bg-swatches .swatch-add').forEach(s=>s.classList.remove('active'));sw.classList.add('active');selectedBgColor=p.value;applyBgColor();};bw.appendChild(sw);});
+  const addBg=document.createElement('div');addBg.className='swatch-add';addBg.title='Fondo personalizado';addBg.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';addBg.onclick=()=>{document.querySelectorAll('#bg-swatches .swatch,#bg-swatches .swatch-add').forEach(s=>s.classList.remove('active'));addBg.classList.add('active');$('native-color-bg').click();};bw.appendChild(addBg);
+}
+function initColorPickers(){
+  $('native-color-card').addEventListener('input',()=>{userPickedColor=true;const val=$('native-color-card').value;const r=parseInt(val.slice(1,3),16),g=parseInt(val.slice(3,5),16),b=parseInt(val.slice(5,7),16);const dark='#'+[r,g,b].map(c=>Math.floor(c*.35).toString(16).padStart(2,'0')).join('');selectedCardGradient=`linear-gradient(135deg,${dark},${val})`;applyCardColor();});
+  $('native-color-bg').addEventListener('input',()=>{selectedBgColor=$('native-color-bg').value;applyBgColor();});
+  const nci=$('native-color-icon');
+  if(nci)nci.addEventListener('input',function(){
+    const val=nci.value;
+    const r=parseInt(val.slice(1,3),16),g=parseInt(val.slice(3,5),16),b=parseInt(val.slice(5,7),16);
+    selectedIconColor=`rgba(${r},${g},${b},1)`;
+    // Update custom btn background
+    const btn=$('icon-color-custom-btn');
+    if(btn){btn.style.background=val;btn.classList.add('active');btn.style.border='2px solid #fff';}
+    // Deactivate other swatches
+    document.querySelectorAll('#icon-color-swatches .swatch').forEach(function(s){s.classList.remove('active');});
+    // Update preview
+    const preview=$('icon-color-preview');if(preview)preview.style.background=val;
+    // Re-render chips
+    var needsWhiteBg=isDarkIconColor(selectedIconColor);
+    document.querySelectorAll('.icon-chip[data-icon-id]').forEach(function(ch){
+      var ico=INDUSTRY_ICONS.find(function(i){return i.id===ch.dataset.iconId;});
+      if(ico){ch.innerHTML=iconSVG(ico,22,selectedIconColor,1.5)+'<span class="icon-chip-lbl">'+ico.label+'</span>';ch.classList.toggle('dark-icon',needsWhiteBg);}
+    });
+    if(selectedIconId)updateCardIcon(selectedIconId);
+  });
+}
+function getCardColorVars(g){if(SOLID_MAP[g])return{rgb:SOLID_MAP[g],accent:ACCENT_MAP[g]};const m=g.match(/#[0-9a-fA-F]{6}/g),e=m?m[m.length-1]:'#00c896';const r=parseInt(e.slice(1,3),16),gr=parseInt(e.slice(3,5),16),b=parseInt(e.slice(5,7),16);return{rgb:`${r},${gr},${b}`,accent:e};}
+function applyCardColor(){const card=$('live-card');const bg=selectedCardGradient;card.style.background=bg;document.querySelectorAll('.design-thumb').forEach((t,i)=>{t.style.background=selectedCardGradient;});const hx=bg.match(/#([0-9a-f]{6})/i);if(hx){const n=parseInt(hx[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}const{rgb,accent}=getCardColorVars(selectedCardGradient);const frame=$('card-frame');frame.style.setProperty('--cp-row-bg','rgba('+rgb+',.14)');frame.style.setProperty('--cp-row-border','rgba('+rgb+',.30)');frame.style.setProperty('--cp-accent',accent);}
+function applyBgColor(){const frame=$('card-frame');frame.style.background=selectedBgColor;const hex=selectedBgColor.replace('#','');const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);const lum=(0.299*r+0.587*g+0.114*b)/255;frame.classList.toggle('bg-light',lum>=.5);}
+
+
+/* ── INDUSTRY ICON ── */
+// onIconToggle removed — icon section is always visible in color editor for negocio
+function isDarkIconColor(col){
+  // Returns true if icon color is dark and needs a white chip background
+  if(!col)return false;
+  var m=col.match(/rgba?\((\d+),(\d+),(\d+)/);
+  if(!m)return false;
+  var lum=(0.299*+m[1]+0.587*+m[2]+0.114*+m[3])/255;
+  return lum<0.25;
+}
+function toggleIconDropdown(){
+  var d=$('icon-dropdown'),cd=$('icon-color-dropdown');
+  var open=d.style.display==='block';
+  if(cd)cd.style.display='none';
+  d.style.display=open?'none':'block';
+  var caret=$('icon-btn-caret');if(caret)caret.style.transform=open?'':'rotate(180deg)';
+}
+function toggleIconColorDropdown(){
+  var d=$('icon-color-dropdown'),id=$('icon-dropdown');
+  var open=d.style.display==='block';
+  if(id)id.style.display='none';
+  var caret=$('icon-btn-caret');if(caret)caret.style.transform='';
+  d.style.display=open?'none':'block';
+}
+function buildIconPicker(){
+  // Color swatches
+  document.querySelectorAll('[data-icolor]').forEach(function(sw){
+    sw.addEventListener('click',function(){
+      document.querySelectorAll('[data-icolor]').forEach(function(s){s.classList.remove('active');});
+      sw.classList.add('active');
+      selectedIconColor=sw.dataset.icolor;
+      var preview=$('icon-color-preview');if(preview)preview.style.background=sw.style.background;
+      // Re-render all chips with new color + adjust bg for dark colors
+      var needsWhiteBg=isDarkIconColor(selectedIconColor);
+      document.querySelectorAll('.icon-chip[data-icon-id]').forEach(function(ch){
+        var ico=INDUSTRY_ICONS.find(function(i){return i.id===ch.dataset.iconId;});
+        if(ico){
+          ch.innerHTML=iconSVG(ico,22,selectedIconColor,1.5)+'<span class="icon-chip-lbl">'+ico.label+'</span>';
+          ch.classList.toggle('dark-icon',needsWhiteBg);
+        }
+      });
+      if(selectedIconId)updateCardIcon(selectedIconId);
+      setTimeout(function(){$('icon-color-dropdown').style.display='none';},220);
+    });
+  });
+  // Icon chips
+  const grid=$('icon-grid');if(!grid)return;
+  INDUSTRY_ICONS.forEach(function(icon){
+    const chip=document.createElement('div');
+    chip.className='icon-chip';
+    chip.dataset.iconId=icon.id;
+    chip.innerHTML=iconSVG(icon,22,'rgba(255,255,255,0.85)',1.5)+'<span class="icon-chip-lbl">'+icon.label+'</span>';
+    chip.onclick=function(){
+      if(selectedIconId===icon.id){
+        // Deselect
+        selectedIconId=null;updateCardIcon(null);
+        document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});
+        $('icon-btn-label').textContent='Seleccionar';
+        $('icon-btn-icon').innerHTML='';
+        $('icon-dropdown').style.display='none';
+        $('icon-btn-caret').style.transform='';
+      } else {
+        document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});
+        chip.classList.add('active');
+        selectedIconId=icon.id;
+        updateCardIcon(icon.id);
+        $('icon-btn-label').textContent=icon.label;
+        $('icon-btn-icon').innerHTML=iconSVG(icon,16,selectedIconColor||'rgba(255,255,255,0.85)',1.5);
+        $('icon-dropdown').style.display='none';
+        $('icon-btn-caret').style.transform='';
+      }
+    };
+    grid.appendChild(chip);
+  });
+}
+var _iconShapeEls=[];
+function updateCardIcon(iconId){
+  // Remove previous icon shapes from card-frame
+  _iconShapeEls.forEach(function(el){if(el.parentNode)el.parentNode.removeChild(el);});
+  _iconShapeEls=[];
+  if(!iconId)return;
+  const icon=INDUSTRY_ICONS.find(function(i){return i.id===iconId;});if(!icon)return;
+  const frame=document.getElementById('card-frame');if(!frame)return;
+  const col=selectedIconColor||'rgba(255,255,255,1)';
+  const N=10;
+  for(var i=0;i<N;i++){
+    var sz=Math.round(16+Math.random()*28);
+    var left=(i*(90/N)+2+Math.random()*7).toFixed(2);
+    var dur=(13+(i%5)*2.2+Math.random()*4).toFixed(1);
+    var del=(-(i*(dur/N))-Math.random()*4).toFixed(1);
+    var el=document.createElement('div');
+    el.className='card-icon-shape';
+    el.style.cssText='left:'+left+'%;animation-duration:'+dur+'s;animation-delay:'+del+'s;width:'+sz+'px;height:'+sz+'px;';
+    el.innerHTML=iconSVG(icon,sz,col,0.75);
+    frame.appendChild(el);
+    _iconShapeEls.push(el);
+  }
+}
+
+/* ── SUCCESS ── */
+var _successSlug='',_successCardData={};
+function showSuccess(slug,email,cardData){
+  _successSlug=slug;
+  _successCardData=cardData||{};
+  const url='https://tr4nsfer.me/'+slug;
+  var se=$('success-email');if(se)se.textContent=email;
+  var lt=$('success-link-text');if(lt){lt.textContent='tr4nsfer.me/'+slug;lt.href=url;}
+  // Generate QR — retry up to 10 times waiting for lib
+  var attempts=0;
+  function tryQR(){
+    var canvas=$('success-qr-canvas');if(!canvas)return;
+    if(typeof QRCode!=='undefined'){
+      canvas.width=200;canvas.height=200;
+      QRCode.toCanvas(canvas,url,{width:200,margin:2,color:{dark:'#000000',light:'#ffffff'},errorCorrectionLevel:'H'},function(err){if(err)console.error('QR error',err);});
+    } else if(attempts++<10){
+      setTimeout(tryQR,200);
+    }
+  }
+  tryQR();
+}
+function successCopyLink(){
+  const url='https://tr4nsfer.me/'+_successSlug;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=$('success-copy-btn');if(!btn)return;
+    const old=btn.innerHTML;btn.innerHTML='✓ Copiado';
+    setTimeout(()=>{btn.innerHTML=old;},2000);
+  });
+}
+function successVisitLink(){
+  window.open('https://tr4nsfer.me/'+_successSlug,'_blank');
+}
+function downloadQR(){
+  var canvas=$('success-qr-canvas');
+  if(!canvas||!canvas.width){alert('El código QR aún se está generando, espera un momento.');return;}
+  try{
+    var link=document.createElement('a');
+    link.download='tr4nsfer-me-qr-'+_successSlug+'.png';
+    link.href=canvas.toDataURL('image/png');
+    document.body.appendChild(link);link.click();document.body.removeChild(link);
+  }catch(e){console.error('QR download error',e);}
+}
+
+async function sendEmailWithQR(slug,email,cardData){
+  try{
+    const canvas=$('success-qr-canvas');
+    const qrDataUrl=canvas?canvas.toDataURL('image/png'):'';
+    await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'},
+      body:JSON.stringify({
+        slug,email,
+        nombre:cardData.nombre||'',
+        profile_type:cardData.profileType||'personal',
+        nombre_negocio:cardData.nombreNegocio||null,
+        card_gradient:cardData.gradient,
+        bg_color:cardData.bgColor,
+        qr_data_url:qrDataUrl,
+      })
+    });
+  }catch(e){console.warn('Email send failed:',e);}
+}
+
+async function downloadPDF(){
+  const canvas=$('success-qr-canvas');
+  if(!canvas||typeof window.jspdf==='undefined'&&typeof jspdf==='undefined'&&typeof window.jsPDF==='undefined'){
+    alert('Generando PDF…');return;
+  }
+  const jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;if(!jsPDF){alert('PDF no disponible, intenta de nuevo.');return;}
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:[85,120]});
+  const W=85,H=120;
+  // Background: parse card gradient first color
+  const grad=_successCardData.gradient||'linear-gradient(135deg,#004d38,#00c896)';
+  const hexes=grad.match(/#([0-9a-fA-F]{6})/g)||['#004d38','#00c896'];
+  const c1=hexes[0]||'#004d38',c2=hexes[hexes.length-1]||'#00c896';
+  // Fill background with gradient simulation (two rects)
+  const r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
+  const r2=parseInt(c2.slice(1,3),16),g2=parseInt(c2.slice(3,5),16),b2=parseInt(c2.slice(5,7),16);
+  // Simple gradient: 8 horizontal bands
+  for(var bi=0;bi<8;bi++){
+    var t=bi/7;
+    var r=Math.round(r1+(r2-r1)*t),g=Math.round(g1+(g2-g1)*t),b=Math.round(b1+(b2-b1)*t);
+    doc.setFillColor(r,g,b);
+    doc.rect(0,bi*(H/8),W,H/8+1,'F');
+  }
+  // Card: white rounded rect in center
+  doc.setFillColor(255,255,255,0.12);
+  doc.setDrawColor(255,255,255);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(8,8,W-16,H-16,5,5,'FD');
+  // Nombre negocio or nombre
+  const displayName=(_successCardData.profileType==='negocios'&&_successCardData.nombreNegocio)
+    ?_successCardData.nombreNegocio:(_successCardData.nombre||'');
+  if(displayName){
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(10);
+    doc.setFont('helvetica','bold');
+    var lines=doc.splitTextToSize(displayName.toUpperCase(),(W-24));
+    doc.text(lines,W/2,20,{align:'center'});
+  }
+  // "Escanea para ver mis datos bancarios"
+  doc.setFontSize(7);
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(255,255,255,0.75);
+  doc.text('Escanea para ver mis datos bancarios',W/2,displayName?28:20,{align:'center'});
+  // QR
+  const qrY=displayName?32:26;
+  const qrSize=50;
+  const qrX=(W-qrSize)/2;
+  // Use already-rendered QR canvas if available
+  var mainCanvas=$('success-qr-canvas');
+  var qrImg=mainCanvas&&mainCanvas.width?mainCanvas.toDataURL('image/png'):null;
+  if(!qrImg){alert('El QR no está listo. Espera un momento.');return;}
+  // White bg for QR
+  doc.setFillColor(255,255,255);
+  doc.roundedRect(qrX-2,qrY-2,qrSize+4,qrSize+4,3,3,'F');
+  doc.addImage(qrImg,'PNG',qrX,qrY,qrSize,qrSize);
+  // tr4nsfer.me logo text at bottom
+  doc.setFontSize(9);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(255,255,255);
+  doc.text('tr4nsfer.me',W/2,qrY+qrSize+10,{align:'center'});
+  doc.setFontSize(6.5);
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(255,255,255,0.6);
+  doc.text('tr4nsfer.me/'+_successSlug,W/2,qrY+qrSize+16,{align:'center'});
+  doc.save('tr4nsfer-me-'+_successSlug+'.pdf');
+}
+/* ── INIT ── */
+buildDesignPicker();buildSwatches();initColorPickers();buildIconPicker();
+renderDesign($('card-design-layer'),0);applyCardColor();applyBgColor();
+// Show type selector only — everything else hidden
+$('app-hero').style.display='none';
+$('main-layout').style.display='none'; // extra safety until selectType is called
+
+/* ── SHAPES ── */
+(function(){const c=document.getElementById('shapes'),N=22,TF='rgba(0,200,150,.07)',TS='rgba(0,200,150,.20)';const t=[];for(let i=0;i<N;i++)t.push(i%2===0?'square':'triangle');for(let i=t.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[t[i],t[j]]=[t[j],t[i]];}const cW=100/N;for(let i=0;i<N;i++){const isSq=t[i]==='square',fill=Math.random()>.5;const left=cW*i+cW*.15+Math.random()*cW*.7,size=14+Math.abs(Math.sin(i*1.3))*44+Math.random()*10;const dur=12+(i%5)*2.4+Math.random()*4,del=-(i*(dur/N))-Math.random()*4;const el=document.createElement('div');el.className='geo-shape '+(isSq?'geo-square':'geo-triangle');if(isSq&&fill)el.classList.add('filled');const base=`left:${left.toFixed(2)}%;animation-duration:${dur.toFixed(1)}s;animation-delay:${del.toFixed(1)}s;`;if(isSq){el.style.cssText=base+`width:${Math.round(size)}px;height:${Math.round(size)}px;border-radius:${Math.random()>.55?'3px':'0'};`;}else{const s=Math.round(size),pts=['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'][i%4];el.style.cssText=base+`width:${s}px;height:${s}px;`;el.innerHTML=`<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="${pts}" fill="${fill?TF:'none'}" stroke="${fill?'none':TS}" stroke-width="${fill?'0':'3'}" stroke-linejoin="round"/></svg>`;}c.appendChild(el);}})();
+
+
+/* ── PAGE LOADER ── */
+(function(){var loader=document.getElementById('page-loader');if(!loader)return;var _done=false,_dismissed=false,_onDone=null;function restartAnim(){var els=loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');els.forEach(el=>el.style.animation='none');loader.offsetHeight;els.forEach(el=>el.style.animation='');}loader.querySelector('.pl-svg').addEventListener('animationiteration',function(e){if(e.animationName!=='plCycle'||_dismissed)return;if(_done){_dismissed=true;loader.classList.add('hide');setTimeout(()=>{loader.classList.remove('active','hide');_done=false;_dismissed=false;if(_onDone){var cb=_onDone;_onDone=null;cb();}},380);}});window.showPageLoader=()=>{_done=false;_dismissed=false;_onDone=null;loader.classList.remove('hide');loader.classList.add('active');restartAnim();};window.hidePageLoader=cb=>{_onDone=cb||null;_done=true;};})();
+</script>
+</body>
+</html>
