@@ -76,7 +76,6 @@
     .branding img{height:12px;width:auto;}
     .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;}
     .branding-cta:hover{color:rgba(0,200,150,.8);}
-    /* Light background adaptations */
     body.bg-light{--muted:rgba(0,0,0,0.45);--text:#1a1a1a;}
     body.bg-light .action-label{color:rgba(0,0,0,0.45);}
     body.bg-light .action-value{color:rgba(0,0,0,0.88);}
@@ -84,7 +83,6 @@
     body.bg-light .branding-label{color:rgba(0,0,0,0.25);}
     body.bg-light .branding a{opacity:.6;}
     body.bg-light .branding-cta{color:rgba(0,0,0,0.35);}
-    /* Fiscal modal */
     .fiscal-overlay{position:fixed;inset:0;z-index:200;background:var(--fiscal-overlay-bg,rgba(0,0,0,.75));backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
     .fiscal-overlay.visible{display:flex;}
     .fiscal-modal{background:var(--fiscal-modal-bg,#111);border:1px solid var(--fiscal-modal-border,rgba(255,255,255,.1));border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;position:relative;overflow:hidden;}
@@ -236,7 +234,10 @@ function copyFiscalRow(btn){var val=btn.getAttribute('data-copy')||'';navigator.
 function openFiscalModal(){
   var fdl=$('fiscal-design-layer');
   if(fdl&&typeof _currentCardDesign!=='undefined'){fdl.innerHTML=CARD_DESIGNS[_currentCardDesign].render();}
-  $('fiscal-overlay').classList.add('visible');$('fiscal-body').innerHTML='<div class="fiscal-loading"><svg class="spin-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>Verificando acceso\u2026</div>';loadFiscalData();}
+  $('fiscal-overlay').classList.add('visible');
+  $('fiscal-body').innerHTML='<div class="fiscal-loading"><svg class="spin-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>Verificando acceso\u2026</div>';
+  loadFiscalData();
+}
 function closeFiscalModal(){$('fiscal-overlay').classList.remove('visible');}
 function onOverlayClick(e){if(e.target===$('fiscal-overlay'))closeFiscalModal();}
 async function loadFiscalData(){
@@ -273,7 +274,6 @@ function renderProfile(d){
   var cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
   var preset=CARD_PRESETS.find(function(p){return p.value===cg;});
   card.style.background=(isSolido&&preset)?preset.solid:cg;
-  // Background color + light/dark detection
   var bgHex=(d.bg_color||'#000000').replace('#','').padEnd(6,'0');
   var bgR=parseInt(bgHex.substring(0,2),16)||0;
   var bgG=parseInt(bgHex.substring(2,4),16)||0;
@@ -281,19 +281,15 @@ function renderProfile(d){
   var isLightBg=(0.299*bgR+0.587*bgG+0.114*bgB)/255>=0.5;
   document.body.classList.toggle('bg-light',isLightBg);
   document.body.style.background=d.bg_color||'#000';
-  // Logo: swap to dark when light background (falls back gracefully if logo-black.png missing)
   var logoSrc=isLightBg?'logo.png':'logo-white.png';
   var lcLogo=$('lc-top-logo');if(lcLogo)lcLogo.src=logoSrc;
   var brLogo=$('branding-logo');if(brLogo)brLogo.src=logoSrc;
-  // Card color vars
   var cv=getCardColorVars(cg);
-  // Action value color matches bg
   var avColor=isLightBg?'rgba(0,0,0,.88)':'rgba(255,255,255,.92)';
   document.documentElement.style.setProperty('--action-value-color',avColor);
   document.documentElement.style.setProperty('--card-row-bg','rgba('+cv.rgb+',.14)');
   document.documentElement.style.setProperty('--card-row-border','rgba('+cv.rgb+',.30)');
   document.documentElement.style.setProperty('--card-accent',cv.accent);
-  // Fiscal modal theme: overlay uses bg_color, modal uses card color
   var oR=bgR,oG=bgG,oB=bgB;
   document.documentElement.style.setProperty('--fiscal-overlay-bg','rgba('+oR+','+oG+','+oB+',.88)');
   var cgHexes=cg.match(/#([0-9a-fA-F]{6})/g)||['#111111'];
@@ -309,7 +305,6 @@ function renderProfile(d){
   document.documentElement.style.setProperty('--fiscal-value-color',mLight?'rgba(0,0,0,.85)':'rgba(255,255,255,.88)');
   document.documentElement.style.setProperty('--fiscal-close-color',mLight?'rgba(0,0,0,.4)':'rgba(255,255,255,.4)');
   document.documentElement.style.setProperty('--fiscal-title-color',mLight?'#1a1a1a':'#f0f0f0');
-  // Card light/dark text
   var m=((isSolido&&preset)?preset.solid:cg).match(/#([0-9a-f]{6})/i);
   if(m){var n=parseInt(m[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}
   $('card-design-layer').innerHTML=CARD_DESIGNS[di].render();
@@ -326,7 +321,6 @@ function renderProfile(d){
   if(d.email&&d.show_email!==false){$('act-email-text').textContent=d.email;$('row-email').style.display='flex';any=true;}
   if(d.has_fiscal){$('row-fiscal').style.display='flex';any=true;}
   if(any)$('actions').style.display='flex';
-  // Floating industry icons in background
   if(d.icon_id){
     var iconData=INDUSTRY_ICONS.find(function(i){return i.id===d.icon_id;});
     if(iconData){
