@@ -162,6 +162,7 @@
     /* LIVE CARD FRAME */
     .card-frame{width:100%;padding:52px 28px 48px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:#000;transition:background .4s;border:1px solid rgba(255,255,255,.18);box-shadow:0 20px 60px rgba(0,0,0,.55);position:relative;overflow:hidden;}
     .card-frame-stack{display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;z-index:1;}
+    .contact-preview{position:relative;z-index:2;}
     .card-icon-shape{position:absolute;bottom:-60px;pointer-events:none;animation:riseShape linear infinite;z-index:0;}
     .live-card{width:330px;aspect-ratio:1/1.2;border-radius:14px;position:relative;z-index:1;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.08);transition:background .3s;background:linear-gradient(135deg,#004d38,#00c896);cursor:default;user-select:none;}
     .card-design-layer{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;overflow:hidden;}
@@ -209,7 +210,7 @@
     .swatch-add.active{border-color:#fff!important;color:#fff;}
     .native-color-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none;border:none;padding:0;}
     /* CONTACT PREVIEW */
-    .contact-preview{display:flex;flex-direction:column;gap:10px;width:330px;padding:0;position:relative;z-index:2;}
+    .contact-preview{display:flex;flex-direction:column;gap:10px;width:330px;padding:0;position:relative;z-index:3;}
     .cp-row{display:flex;align-items:center;justify-content:space-between;background:var(--cp-row-bg,rgba(0,200,150,.12));border:1px solid var(--cp-row-border,rgba(0,200,150,.25));border-radius:14px;padding:14px 16px;transition:border-color .3s,background .3s;}
     .cp-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
     .cp-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);}
