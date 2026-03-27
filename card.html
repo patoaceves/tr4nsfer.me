@@ -15,7 +15,7 @@
     *{margin:0;padding:0;box-sizing:border-box;}
     :root{--teal:#00c896;--bg:#000;--muted:rgba(255,255,255,0.45);--text:#fff;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 48px;}
-    .geo-shape{position:fixed;bottom:-60px;pointer-events:none;animation:riseShape linear infinite;}
+    .geo-shape{position:absolute;bottom:-60px;pointer-events:none;animation:riseShape linear infinite;}
     @keyframes riseShape{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}88%{opacity:.6}100%{transform:translateY(-110vh) rotate(360deg);opacity:0}}
     @media(max-width:600px){body{justify-content:flex-start;padding-top:48px;}}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -61,7 +61,7 @@
     .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.6);}
     .live-card.light-text{color:#fff;}
     .live-card.dark-text{color:#1a1a1a;}
-    .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+    .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
     .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,.12));border:1px solid var(--card-row-border,rgba(0,200,150,.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
     .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
     .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
@@ -69,28 +69,43 @@
     .btn-action{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;flex-shrink:0;}
     .btn-action:hover{background:rgba(255,255,255,.14);}
     .btn-action.copied{color:var(--muted);}
-    .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+    .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
     .branding-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
     .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:.55;transition:opacity .2s;}
     .branding a:hover{opacity:1;}
     .branding img{height:12px;width:auto;}
     .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;}
     .branding-cta:hover{color:rgba(0,200,150,.8);}
-    .fiscal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
+    .fiscal-overlay{position:fixed;inset:0;z-index:200;background:var(--fiscal-overlay-bg,rgba(0,0,0,.75));backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
     .fiscal-overlay.visible{display:flex;}
-    .fiscal-modal{background:#111;border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;}
+    .fiscal-modal{background:var(--fiscal-modal-bg,#111);border:1px solid var(--fiscal-modal-border,rgba(255,255,255,.1));border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;}
     .fiscal-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-    .fiscal-modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;}
-    .fiscal-close{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);padding:4px;transition:color .15s;display:flex;align-items:center;}
-    .fiscal-close:hover{color:#fff;}
-    .fiscal-row{padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;margin-bottom:8px;}
+    .fiscal-modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--fiscal-modal-title-color,#f0f0f0);}
+    .fiscal-close{background:none;border:none;cursor:pointer;color:var(--fiscal-close-color,rgba(255,255,255,.4));padding:4px;transition:color .15s;display:flex;align-items:center;}
+    .fiscal-close:hover{color:var(--fiscal-value-color,#fff);}
+    .fiscal-row{padding:10px 12px;background:var(--fiscal-row-bg,rgba(255,255,255,.04));border:1px solid var(--fiscal-row-border,rgba(255,255,255,.07));border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
     .fiscal-row:last-of-type{margin-bottom:0;}
-    .fiscal-row-label{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:3px;}
-    .fiscal-row-value{font-size:13px;font-weight:500;color:rgba(255,255,255,.88);line-height:1.4;word-break:break-word;}
+    .fiscal-row-inner{flex:1;min-width:0;}
+    .fiscal-row-label{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--fiscal-label-color,rgba(255,255,255,.35));margin-bottom:3px;}
+    .fiscal-row-value{font-size:13px;font-weight:500;color:var(--fiscal-value-color,rgba(255,255,255,.88));line-height:1.4;word-break:break-word;}
     .fiscal-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px;color:rgba(255,255,255,.4);font-size:13px;}
     .fiscal-err{padding:16px;text-align:center;color:#f04040;font-size:13px;}
-    .fiscal-expiry{font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);}
+    .btn-fiscal-copy{background:var(--fiscal-row-bg,rgba(255,255,255,.08));border:1px solid var(--fiscal-row-border,rgba(255,255,255,.12));color:var(--card-accent,#00c896);border-radius:7px;padding:5px 11px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s;}
+    .btn-fiscal-copy.copied{color:var(--fiscal-label-color,rgba(255,255,255,.35));}
+    .fiscal-expiry{font-size:10px;color:var(--fiscal-label-color,rgba(255,255,255,.25));text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--fiscal-row-border,rgba(255,255,255,.07));}
     .spin-ring{display:inline-block;width:16px;height:16px;animation:spin .7s linear infinite;}
+
+    /* Light background adaptations */
+    body.bg-light { --muted: rgba(0,0,0,0.45); --text: #1a1a1a; }
+    body.bg-light .action-label { color: rgba(0,0,0,0.45); }
+    body.bg-light .action-value { color: rgba(0,0,0,0.88); }
+    body.bg-light .btn-action { background:rgba(0,0,0,0.06); border-color:rgba(0,0,0,0.14); }
+    body.bg-light .branding-label { color: rgba(0,0,0,0.25); }
+    body.bg-light .branding a { opacity: .6; }
+    body.bg-light .branding-cta { color: rgba(0,0,0,0.35); }
+    body.bg-light .branding-cta:hover { color: rgba(0,130,80,.8); }
+    body.bg-light .state-title { color: rgba(0,0,0,0.5); }
+    body.bg-light .state-sub { color: rgba(0,0,0,0.35); }
     @media(max-width:400px){.live-card{border-radius:18px;}.lc-clabe{font-size:17px;}.lc-name{font-size:16px;}}
   </style>
 </head>
@@ -116,7 +131,7 @@
         <div class="lc-inner">
           <div class="lc-top">
             <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt="Logo"/></div>
-            <img class="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
+            <img class="lc-top-logo" id="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
           </div>
           <div class="lc-middle">
             <div class="lc-group" id="lc-negocio-group" style="display:none;">
@@ -159,13 +174,13 @@
         <button class="btn-action" onclick="copyAction('act-email-text',this)">Copiar</button>
       </div>
       <div class="action-row" id="row-fiscal" style="display:none;">
-        <div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="color:rgba(255,255,255,.5);font-size:12px;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div>
+        <div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="opacity:.55;font-size:12px;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div>
         <button class="btn-action" onclick="openFiscalModal()">Ver &#8594;</button>
       </div>
     </div>
     <div class="branding">
       <div class="branding-label">Powered by</div>
-      <a href="/" target="_blank"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+      <a href="/" target="_blank"><img id="branding-logo" src="logo-white.png" alt="tr4nsfer.me"/></a>
       <a href="/app" target="_blank" class="branding-cta">Crea el tuyo <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
   </div>
@@ -227,9 +242,23 @@ async function loadFiscalData(){
     const dr=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-data`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({token})});
     if(!dr.ok)throw new Error('Error al obtener datos.');
     const fd=await dr.json();if(fd.error)throw new Error(fd.error);
-    const rows=[[fd.razon_social,'Raz\u00f3n social'],[fd.rfc,'RFC'],[fd.regimen_fiscal?(REGIMEN_LABELS[fd.regimen_fiscal]||fd.regimen_fiscal)+' ('+fd.regimen_fiscal+')':null,'R\u00e9gimen fiscal'],[[fd.cp_fiscal,fd.ciudad_fiscal,fd.estado_fiscal].filter(Boolean).join(' \u00b7 ')||null,'C.P. / Ciudad / Estado'],[fd.colonia_fiscal,'Colonia'],[fd.calle_fiscal,'Calle y n\u00famero']].filter(r=>r[0]);
-    $('fiscal-body').innerHTML=rows.map(r=>`<div class="fiscal-row"><div class="fiscal-row-label">${r[1]}</div><div class="fiscal-row-value">${r[0]}</div></div>`).join('')+'<div class="fiscal-expiry">\uD83D\uDD12 Datos cifrados \u00b7 Esta sesi\u00f3n expira en 15 min</div>';
+    // Field order: razon_social, RFC, regimen, calle, colonia, ciudad, estado, CP
+    const rows=[
+      [fd.razon_social,'Razón social'],
+      [fd.rfc,'RFC'],
+      [fd.regimen_fiscal?(REGIMEN_LABELS[fd.regimen_fiscal]||fd.regimen_fiscal)+' ('+fd.regimen_fiscal+')':null,'Régimen fiscal'],
+      [fd.calle_fiscal,'Calle y número'],
+      [fd.colonia_fiscal,'Colonia'],
+      [fd.ciudad_fiscal,'Ciudad'],
+      [fd.estado_fiscal,'Estado'],
+      [fd.cp_fiscal,'Código postal'],
+    ].filter(r=>r[0]);
+    function fiscalCopyBtn(val,idx){return '<button class="btn-fiscal-copy" onclick="copyFiscalRow(this,''+val.replace(/'/g,'&apos;')+'')" id="fcb'+idx+'">Copiar</button>';}
+    $('fiscal-body').innerHTML=rows.map((r,i)=>'<div class="fiscal-row"><div class="fiscal-row-inner"><div class="fiscal-row-label">'+r[1]+'</div><div class="fiscal-row-value">'+r[0]+'</div></div>'+fiscalCopyBtn(r[0],i)+'</div>').join('')+'<div class="fiscal-expiry">🔒 Datos cifrados · Esta sesión expira en 15 min</div>';
   }catch(e){$('fiscal-body').innerHTML=`<div class="fiscal-err">${e.message}</div>`;}
+}
+function copyFiscalRow(btn,val){
+  navigator.clipboard.writeText(val).then(()=>{btn.textContent='✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},2000);});
 }
 function renderProfile(d){
   currentSlug=d.custom_slug||d.slug||'';
@@ -239,11 +268,41 @@ function renderProfile(d){
   const cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
   const preset=CARD_PRESETS.find(p=>p.value===cg);
   card.style.background=(isSolido&&preset)?preset.solid:cg;
+  const bgHex=(d.bg_color||'#000').replace('#','');
+  const bgR=parseInt(bgHex.substring(0,2)||'00',16),bgG=parseInt(bgHex.substring(2,4)||'00',16),bgB=parseInt(bgHex.substring(4,6)||'00',16);
+  const bgLum=(0.299*bgR+0.587*bgG+0.114*bgB)/255;
+  const isLightBg=bgLum>=0.5;
+  document.body.classList.toggle('bg-light',isLightBg);
   document.body.style.background=d.bg_color||'#000';
+  // Logo swap
+  const logoSrc=isLightBg?'logo-black.png':'logo-white.png';
+  const lcLogo=document.getElementById('lc-top-logo');if(lcLogo)lcLogo.src=logoSrc;
+  const brLogo=document.getElementById('branding-logo');if(brLogo)brLogo.src=logoSrc;
   const cv=getCardColorVars(cg);
   document.documentElement.style.setProperty('--card-row-bg','rgba('+cv.rgb+',.14)');
   document.documentElement.style.setProperty('--card-row-border','rgba('+cv.rgb+',.30)');
   document.documentElement.style.setProperty('--card-accent',cv.accent);
+  // Fiscal modal theming from card colors
+  // Overlay bg = bg_color with opacity
+  const overlayColor=(d.bg_color||'#000').replace('#','');
+  const oR=parseInt(overlayColor.substring(0,2)||'00',16),oG=parseInt(overlayColor.substring(2,4)||'00',16),oB=parseInt(overlayColor.substring(4,6)||'00',16);
+  document.documentElement.style.setProperty('--fiscal-overlay-bg','rgba('+oR+','+oG+','+oB+',.88)');
+  // Modal bg = card gradient first color darkened
+  const cgHexes=(cg.match(/#([0-9a-fA-F]{6})/g)||['#111111']);
+  const modalBg=cgHexes[0]||'#111';
+  // Figure out if modal is dark or light
+  const mHex=(modalBg||'#111').replace('#','');
+  const mR=parseInt(mHex.substring(0,2),16),mG=parseInt(mHex.substring(2,4),16),mB=parseInt(mHex.substring(4,6),16);
+  const mLum=(0.299*mR+0.587*mG+0.114*mB)/255;
+  const mLight=mLum>=0.5;
+  document.documentElement.style.setProperty('--fiscal-modal-bg',modalBg);
+  document.documentElement.style.setProperty('--fiscal-modal-border','rgba('+(mLight?'0,0,0':'255,255,255')+',.15)');
+  document.documentElement.style.setProperty('--fiscal-row-bg','rgba('+(mLight?'0,0,0':'255,255,255')+','+(mLight?'.06':'.04')+')');
+  document.documentElement.style.setProperty('--fiscal-row-border','rgba('+(mLight?'0,0,0':'255,255,255')+','+(mLight?'.12':'.08')+')');
+  document.documentElement.style.setProperty('--fiscal-label-color',mLight?'rgba(0,0,0,.4)':'rgba(255,255,255,.35)');
+  document.documentElement.style.setProperty('--fiscal-value-color',mLight?'rgba(0,0,0,.85)':'rgba(255,255,255,.88)');
+  document.documentElement.style.setProperty('--fiscal-close-color',mLight?'rgba(0,0,0,.4)':'rgba(255,255,255,.4)');
+  document.documentElement.style.setProperty('--fiscal-modal-title-color',mLight?'#1a1a1a':'#f0f0f0');
   const m=((isSolido&&preset)?preset.solid:cg).match(/#([0-9a-f]{6})/i);
   if(m){const n=parseInt(m[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}
   $('card-design-layer').innerHTML=CARD_DESIGNS[di].render();
@@ -274,7 +333,8 @@ function renderProfile(d){
           var el=document.createElement('div');
           el.className='geo-shape';
           el.style.cssText='left:'+left+'%;animation-duration:'+dur+'s;animation-delay:'+del+'s;width:'+sz+'px;height:'+sz+'px;';
-          el.innerHTML=iconSVG(iconData,sz,'rgba(255,255,255,0.9)',0.75);
+          var icol=d.icon_color||'rgba(255,255,255,0.9)';
+          el.innerHTML=iconSVG(iconData,sz,icol,0.75);
           shapes.appendChild(el);
         }
       }
