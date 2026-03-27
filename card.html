@@ -36,8 +36,8 @@
     .state-title{font-size:15px;font-weight:600;color:var(--muted);}
     .state-sub{font-size:13px;color:rgba(255,255,255,.3);}
     #state-profile{display:none;width:100%;flex-direction:column;align-items:center;animation:fadeInUp .4s ease both;position:relative;z-index:2;}
-    .card-wrap{width:100%;max-width:340px;}
-    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.1);cursor:default;}
+    .card-wrap{width:100%;max-width:340px;position:relative;z-index:1;isolation:isolate;}
+    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.1);cursor:default;}
     .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
     .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:20px 22px 24px;}
     .lc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
@@ -65,7 +65,7 @@
     .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,.12));border:1px solid var(--card-row-border,rgba(0,200,150,.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
     .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
     .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
-    .action-value{font-size:14px;font-weight:600;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
+    .action-value{font-size:14px;font-weight:600;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;color:var(--action-value-color,rgba(255,255,255,.92));}
     .btn-action{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;flex-shrink:0;}
     .btn-action:hover{background:rgba(255,255,255,.14);}
     .btn-action.copied{color:var(--muted);}
@@ -87,7 +87,9 @@
     /* Fiscal modal */
     .fiscal-overlay{position:fixed;inset:0;z-index:200;background:var(--fiscal-overlay-bg,rgba(0,0,0,.75));backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
     .fiscal-overlay.visible{display:flex;}
-    .fiscal-modal{background:var(--fiscal-modal-bg,#111);border:1px solid var(--fiscal-modal-border,rgba(255,255,255,.1));border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;}
+    .fiscal-modal{background:var(--fiscal-modal-bg,#111);border:1px solid var(--fiscal-modal-border,rgba(255,255,255,.1));border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;position:relative;overflow:hidden;}
+    .fiscal-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.7;}
+    .fiscal-modal-content{position:relative;z-index:1;}
     .fiscal-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
     .fiscal-modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--fiscal-title-color,#f0f0f0);}
     .fiscal-close{background:none;border:none;cursor:pointer;color:var(--fiscal-close-color,rgba(255,255,255,.4));padding:4px;transition:color .15s;display:flex;align-items:center;}
@@ -171,7 +173,7 @@
         <button class="btn-action" onclick="copyAction('act-email-text',this)">Copiar</button>
       </div>
       <div class="action-row" id="row-fiscal" style="display:none;">
-        <div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="opacity:.55;font-size:12px;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div>
+        <div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="font-size:12px;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div>
         <button class="btn-action" onclick="openFiscalModal()">Ver &#8594;</button>
       </div>
     </div>
@@ -183,11 +185,14 @@
   </div>
   <div class="fiscal-overlay" id="fiscal-overlay" onclick="onOverlayClick(event)">
     <div class="fiscal-modal">
-      <div class="fiscal-modal-hdr">
-        <div class="fiscal-modal-title">Datos fiscales</div>
-        <button class="fiscal-close" onclick="closeFiscalModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <div class="fiscal-design-layer" id="fiscal-design-layer"></div>
+      <div class="fiscal-modal-content">
+        <div class="fiscal-modal-hdr">
+          <div class="fiscal-modal-title">Datos fiscales</div>
+          <button class="fiscal-close" onclick="closeFiscalModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <div id="fiscal-body"></div>
       </div>
-      <div id="fiscal-body"></div>
     </div>
   </div>
 <script>
@@ -228,7 +233,10 @@ function getCardColorVars(cg){if(CCM[cg])return CCM[cg];var m=cg.match(/#[0-9a-f
 var currentSlug='';
 const REGIMEN_LABELS={'601':'General de Ley PM','612':'Actividades Empresariales','621':'Incorporaci\u00f3n Fiscal','626':'RESICO','605':'Sueldos y Salarios','606':'Arrendamiento','608':'D\u00e9mas ingresos','616':'Sin obligaciones fiscales','622':'Act. Agr\u00edc., Ganaderas','625':'Plataformas Tecnol\u00f3gicas','603':'PM sin Fines de Lucro'};
 function copyFiscalRow(btn){var val=btn.getAttribute('data-copy')||'';navigator.clipboard.writeText(val).then(function(){btn.textContent='\u2713';btn.classList.add('copied');setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('copied');},2000);});}
-function openFiscalModal(){$('fiscal-overlay').classList.add('visible');$('fiscal-body').innerHTML='<div class="fiscal-loading"><svg class="spin-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>Verificando acceso\u2026</div>';loadFiscalData();}
+function openFiscalModal(){
+  var fdl=$('fiscal-design-layer');
+  if(fdl&&typeof _currentCardDesign!=='undefined'){fdl.innerHTML=CARD_DESIGNS[_currentCardDesign].render();}
+  $('fiscal-overlay').classList.add('visible');$('fiscal-body').innerHTML='<div class="fiscal-loading"><svg class="spin-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>Verificando acceso\u2026</div>';loadFiscalData();}
 function closeFiscalModal(){$('fiscal-overlay').classList.remove('visible');}
 function onOverlayClick(e){if(e.target===$('fiscal-overlay'))closeFiscalModal();}
 async function loadFiscalData(){
@@ -260,6 +268,7 @@ function renderProfile(d){
   currentSlug=d.custom_slug||d.slug||'';
   var card=$('live-card');
   var di=Math.min(d.card_design||0,CARD_DESIGNS.length-1);
+  window._currentCardDesign=di;
   var isSolido=CARD_DESIGNS[di].id==='solido';
   var cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
   var preset=CARD_PRESETS.find(function(p){return p.value===cg;});
@@ -273,11 +282,14 @@ function renderProfile(d){
   document.body.classList.toggle('bg-light',isLightBg);
   document.body.style.background=d.bg_color||'#000';
   // Logo: swap to dark when light background (falls back gracefully if logo-black.png missing)
-  var logoSrc=isLightBg?'logo-black.png':'logo-white.png';
+  var logoSrc=isLightBg?'logo.png':'logo-white.png';
   var lcLogo=$('lc-top-logo');if(lcLogo)lcLogo.src=logoSrc;
   var brLogo=$('branding-logo');if(brLogo)brLogo.src=logoSrc;
   // Card color vars
   var cv=getCardColorVars(cg);
+  // Action value color matches bg
+  var avColor=isLightBg?'rgba(0,0,0,.88)':'rgba(255,255,255,.92)';
+  document.documentElement.style.setProperty('--action-value-color',avColor);
   document.documentElement.style.setProperty('--card-row-bg','rgba('+cv.rgb+',.14)');
   document.documentElement.style.setProperty('--card-row-border','rgba('+cv.rgb+',.30)');
   document.documentElement.style.setProperty('--card-accent',cv.accent);
@@ -289,7 +301,7 @@ function renderProfile(d){
   var mHex=modalBg.replace('#','');
   var mR=parseInt(mHex.substring(0,2),16)||0,mG=parseInt(mHex.substring(2,4),16)||0,mB=parseInt(mHex.substring(4,6),16)||0;
   var mLight=(0.299*mR+0.587*mG+0.114*mB)/255>=0.5;
-  document.documentElement.style.setProperty('--fiscal-modal-bg',modalBg);
+  document.documentElement.style.setProperty('--fiscal-modal-bg',(isSolido&&preset)?preset.solid:cg);
   document.documentElement.style.setProperty('--fiscal-modal-border','rgba('+(mLight?'0,0,0':'255,255,255')+',.15)');
   document.documentElement.style.setProperty('--fiscal-row-bg','rgba('+(mLight?'0,0,0':'255,255,255')+','+(mLight?'.06':'.04')+')');
   document.documentElement.style.setProperty('--fiscal-row-border','rgba('+(mLight?'0,0,0':'255,255,255')+','+(mLight?'.12':'.08')+')');
