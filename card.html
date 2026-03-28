@@ -44,6 +44,7 @@
     .lc-logo-sq{width:96px;height:96px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
     .lc-logo-sq.visible{display:block;}
     .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
+    /* Logo de tr4nsfer.me dentro de la card — SIEMPRE blanco */
     .lc-top-logo{height:14px;width:auto;display:block;opacity:.8;position:absolute;top:0;right:0;}
     .lc-middle{display:flex;flex-direction:column;flex:1;justify-content:space-evenly;padding:14px 0;}
     .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.40);border-radius:24px;padding:7px 16px 7px 8px;align-self:flex-start;}
@@ -61,14 +62,38 @@
     .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.6);}
     .live-card.light-text{color:#fff;}
     .live-card.dark-text{color:#1a1a1a;}
+    /* ACTIONS — glass con blur, menos transparencia, texto en color acento */
     .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
-    .action-row{display:flex;align-items:center;justify-content:space-between;background:var(--card-row-bg,rgba(0,200,150,.12));border:1px solid var(--card-row-border,rgba(0,200,150,.25));border-radius:14px;padding:14px 16px;transition:background .3s,border-color .3s;}
+    .action-row{
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--card-row-bg,rgba(0,200,150,.20));
+      border:1px solid var(--card-row-border,rgba(0,200,150,.32));
+      border-radius:14px;padding:14px 16px;
+      transition:background .3s,border-color .3s;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+    }
     .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
-    .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
-    .action-value{font-size:14px;font-weight:600;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;color:var(--action-value-color,rgba(255,255,255,.92));}
-    .btn-action{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--card-accent,var(--teal));border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .3s;white-space:nowrap;flex-shrink:0;}
-    .btn-action:hover{background:rgba(255,255,255,.14);}
-    .btn-action.copied{color:var(--muted);}
+    .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);}
+    /* Valor: usa el color acento de la tarjeta, nunca negro */
+    .action-value{font-size:14px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;color:var(--card-accent,#00c896);}
+    .btn-action{
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.20);
+      color:rgba(255,255,255,.92);
+      border-radius:8px;padding:7px 14px;
+      font-size:11px;font-weight:700;
+      font-family:'Inter',sans-serif;cursor:pointer;
+      transition:background .15s;white-space:nowrap;flex-shrink:0;
+    }
+    .btn-action:hover{background:rgba(255,255,255,.22);}
+    .btn-action.copied{color:rgba(255,255,255,.4);}
+    /* Adaptación fondo claro */
+    body.bg-light{--muted:rgba(0,0,0,0.45);--text:#1a1a1a;}
+    body.bg-light .action-label{color:rgba(0,0,0,.45);}
+    body.bg-light .action-row{background:var(--card-row-bg);border-color:var(--card-row-border);}
+    body.bg-light .btn-action{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.16);color:rgba(0,0,0,.8);}
+    /* Branding */
     .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
     .branding-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
     .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:.55;transition:opacity .2s;}
@@ -76,13 +101,10 @@
     .branding img{height:12px;width:auto;}
     .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;}
     .branding-cta:hover{color:rgba(0,200,150,.8);}
-    body.bg-light{--muted:rgba(0,0,0,0.45);--text:#1a1a1a;}
-    body.bg-light .action-label{color:rgba(0,0,0,0.45);}
-    body.bg-light .action-value{color:rgba(0,0,0,0.88);}
-    body.bg-light .btn-action{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.14);}
-    body.bg-light .branding-label{color:rgba(0,0,0,0.25);}
+    body.bg-light .branding-label{color:rgba(0,0,0,.25);}
     body.bg-light .branding a{opacity:.6;}
-    body.bg-light .branding-cta{color:rgba(0,0,0,0.35);}
+    body.bg-light .branding-cta{color:rgba(0,0,0,.35);}
+    /* Modal fiscal */
     .fiscal-overlay{position:fixed;inset:0;z-index:200;background:var(--fiscal-overlay-bg,rgba(0,0,0,.75));backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
     .fiscal-overlay.visible{display:flex;}
     .fiscal-modal{background:var(--fiscal-modal-bg,#111);border:1px solid var(--fiscal-modal-border,rgba(255,255,255,.1));border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;position:relative;overflow:hidden;}
@@ -128,7 +150,8 @@
         <div class="lc-inner">
           <div class="lc-top">
             <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt="Logo"/></div>
-            <img class="lc-top-logo" id="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
+            <!-- Siempre logo-white.png dentro de la card -->
+            <img class="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
           </div>
           <div class="lc-middle">
             <div class="lc-group" id="lc-negocio-group" style="display:none;">
@@ -171,7 +194,7 @@
         <button class="btn-action" onclick="copyAction('act-email-text',this)">Copiar</button>
       </div>
       <div class="action-row" id="row-fiscal" style="display:none;">
-        <div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="font-size:12px;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div>
+        <div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="font-size:12px;opacity:.7;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div>
         <button class="btn-action" onclick="openFiscalModal()">Ver &#8594;</button>
       </div>
     </div>
@@ -197,6 +220,7 @@
 const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
 const $=id=>document.getElementById(id);
+
 const INDUSTRY_ICONS=[
   {id:'restaurante',svg:'<path d="M7 2 L7 22"/><path d="M5 2 L5 8 Q7 12 9 8 L9 2"/><path d="M15 2 L15 22"/><path d="M15 2 Q18 4 18 10 L15 12"/>'},
   {id:'comercio',svg:'<path d="M2 5 L5.5 5 Q6.5 5 7 7 L9.5 16 Q10 17 11 17 L20 17"/><path d="M7 7 L21 7 L19.5 14 L9.5 14 Z"/><circle cx="10.5" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/>'},
@@ -211,8 +235,9 @@ const INDUSTRY_ICONS=[
   {id:'barberia',svg:'<path d="M9.5 3 L14.5 3 Q15.5 3 15.5 4 L15.5 21 Q15.5 22 14.5 22 L9.5 22 Q8.5 22 8.5 21 L8.5 4 Q8.5 3 9.5 3 Z"/><path d="M8.5 7 Q12 9 15.5 11"/><path d="M8.5 12 Q12 14 15.5 16"/><path d="M8.5 17 Q12 19 15.5 21"/><path d="M8 3 L16 3"/><path d="M8 22 L16 22"/><circle cx="12" cy="1.8" r="1.5"/>'},
   {id:'pagos',svg:'<path d="M3 5 L21 5 Q22.5 5 22.5 6.5 L22.5 17.5 Q22.5 19 21 19 L3 19 Q1.5 19 1.5 17.5 L1.5 6.5 Q1.5 5 3 5 Z"/><path d="M12 7 L12 17"/><path d="M14.5 9.5 C14.5 7.5 9.5 7.5 9.5 9.5 C9.5 11.5 14.5 11.5 14.5 13.5 C14.5 15.5 9.5 15.5 9.5 13.5"/>'},
 ];
-function iconSVG(icon,size,stroke,sw){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><g stroke="'+(stroke||'rgba(255,255,255,0.9)')+'" stroke-width="'+(sw||0.85)+'" stroke-linecap="round" stroke-linejoin="round">'+icon.svg+'</g></svg>';}
+function iconSVG(icon,size,stroke,sw){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><g stroke="'+(stroke||'rgba(255,255,255,0.9)')+'" stroke-width="'+(sw||1.2)+'" stroke-linecap="round" stroke-linejoin="round">'+icon.svg+'</g></svg>';}
 const favicon=d=>'https://www.google.com/s2/favicons?domain='+d+'&sz=32';
+
 const CARD_DESIGNS=[
   {id:'diagonal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,36 0,78" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,24" fill="rgba(255,255,255,0.07)"/><polygon points="0,82 100,38 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
   {id:'aurora',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`},
@@ -221,16 +246,35 @@ const CARD_DESIGNS=[
   {id:'topografico',render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`},
   {id:'solido',render:()=>''},
 ];
-const CARD_PRESETS=[{value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a'},{value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000'},{value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a'},{value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96'},{value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb'},{value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a'}];
-const CCM={'linear-gradient(135deg,#004d38,#00c896)':{rgb:'0,200,150',accent:'#00c896'},'linear-gradient(135deg,#0d0d0d,#1f1f1f)':{rgb:'200,200,200',accent:'#aaaaaa'},'linear-gradient(135deg,#7a2050,#e8719a)':{rgb:'232,113,154',accent:'#e8719a'},'linear-gradient(135deg,#0f3460,#1a6fb5)':{rgb:'26,111,181',accent:'#00c896'},'linear-gradient(135deg,#2d1b69,#8b5cf6)':{rgb:'139,92,246',accent:'#8b5cf6'},'linear-gradient(135deg,#7c2d12,#f97316)':{rgb:'249,115,22',accent:'#f97316'}};
+
+const CARD_PRESETS=[
+  {value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a',accent:'#00c896'},
+  {value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000',accent:'#aaaaaa'},
+  {value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a',accent:'#e8719a'},
+  {value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96',accent:'#5baee0'},
+  {value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb',accent:'#8b5cf6'},
+  {value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a',accent:'#f97316'},
+];
+
 const LADAS_2D=new Set(['55','56','81','33','99']);
 function fmtWA(d){if(!d)return '';var l2=d.substring(0,2);if(LADAS_2D.has(l2))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(function(p){return p;}).join(' ');return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(function(p){return p;}).join(' ');}
 function fmt(c){return c.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
+
 function copyAction(textId,btn,rawAttr){var el=document.getElementById(textId);if(!el)return;var val=rawAttr&&el.dataset[rawAttr]?el.dataset[rawAttr]:el.textContent.trim();navigator.clipboard.writeText(val).then(function(){btn.textContent='\u2713 Copiado';btn.classList.add('copied');setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('copied');},2000);});}
-function getCardColorVars(cg){if(CCM[cg])return CCM[cg];var m=cg.match(/#[0-9a-fA-F]{6}/g),e=m?m[m.length-1]:'#00c896';var r=parseInt(e.slice(1,3),16),g=parseInt(e.slice(3,5),16),b=parseInt(e.slice(5,7),16);return{rgb:r+','+g+','+b,accent:e};}
+
+function getCardColorVars(cg){
+  var preset=CARD_PRESETS.find(function(p){return p.value===cg;});
+  if(preset)return{rgb:hexToRgb(preset.solid||preset.value),accent:preset.accent||preset.solid};
+  var m=cg.match(/#[0-9a-fA-F]{6}/g),e=m?m[m.length-1]:'#00c896';
+  return{rgb:hexToRgb(e),accent:e};
+}
+function hexToRgb(hex){var h=(hex.match(/#[0-9a-fA-F]{6}/)||['#00c896'])[0];var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return r+','+g+','+b;}
+
 var currentSlug='';
 const REGIMEN_LABELS={'601':'General de Ley PM','612':'Actividades Empresariales','621':'Incorporaci\u00f3n Fiscal','626':'RESICO','605':'Sueldos y Salarios','606':'Arrendamiento','608':'D\u00e9mas ingresos','616':'Sin obligaciones fiscales','622':'Act. Agr\u00edc., Ganaderas','625':'Plataformas Tecnol\u00f3gicas','603':'PM sin Fines de Lucro'};
+
 function copyFiscalRow(btn){var val=btn.getAttribute('data-copy')||'';navigator.clipboard.writeText(val).then(function(){btn.textContent='\u2713';btn.classList.add('copied');setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('copied');},2000);});}
+
 function openFiscalModal(){
   var fdl=$('fiscal-design-layer');
   if(fdl&&typeof _currentCardDesign!=='undefined'){fdl.innerHTML=CARD_DESIGNS[_currentCardDesign].render();}
@@ -240,6 +284,7 @@ function openFiscalModal(){
 }
 function closeFiscalModal(){$('fiscal-overlay').classList.remove('visible');}
 function onOverlayClick(e){if(e.target===$('fiscal-overlay'))closeFiscalModal();}
+
 async function loadFiscalData(){
   try{
     var tr=await fetch(SUPABASE_URL+'/functions/v1/get-fiscal-token',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({slug:currentSlug})});
@@ -265,6 +310,7 @@ async function loadFiscalData(){
     rows.forEach(function(r,i){var b=document.getElementById('fcb'+i);if(b)b.setAttribute('data-copy',r[0]);});
   }catch(e){$('fiscal-body').innerHTML='<div class="fiscal-err">'+e.message+'</div>';}
 }
+
 function renderProfile(d){
   currentSlug=d.custom_slug||d.slug||'';
   var card=$('live-card');
@@ -273,28 +319,32 @@ function renderProfile(d){
   var isSolido=CARD_DESIGNS[di].id==='solido';
   var cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
   var preset=CARD_PRESETS.find(function(p){return p.value===cg;});
+
+  // Color de la card
   card.style.background=(isSolido&&preset)?preset.solid:cg;
+
+  // Fondo de página
   var bgHex=(d.bg_color||'#000000').replace('#','').padEnd(6,'0');
-  var bgR=parseInt(bgHex.substring(0,2),16)||0;
-  var bgG=parseInt(bgHex.substring(2,4),16)||0;
-  var bgB=parseInt(bgHex.substring(4,6),16)||0;
+  var bgR=parseInt(bgHex.substring(0,2),16)||0,bgG=parseInt(bgHex.substring(2,4),16)||0,bgB=parseInt(bgHex.substring(4,6),16)||0;
   var isLightBg=(0.299*bgR+0.587*bgG+0.114*bgB)/255>=0.5;
   document.body.classList.toggle('bg-light',isLightBg);
   document.body.style.background=d.bg_color||'#000';
-  var logoSrc=isLightBg?'logo.png':'logo-white.png';
-  var lcLogo=$('lc-top-logo');if(lcLogo)lcLogo.src=logoSrc;
-  var brLogo=$('branding-logo');if(brLogo)brLogo.src=logoSrc;
+
+  // Logo branding — adapta al fondo de página
+  var brLogo=$('branding-logo');if(brLogo)brLogo.src=isLightBg?'logo.png':'logo-white.png';
+  // Logo DENTRO de la card — SIEMPRE blanco (ya está hardcodeado en el HTML)
+
+  // Vars de color de tarjeta
   var cv=getCardColorVars(cg);
-  var avColor=isLightBg?'rgba(0,0,0,.88)':'rgba(255,255,255,.92)';
-  document.documentElement.style.setProperty('--action-value-color',avColor);
-  document.documentElement.style.setProperty('--card-row-bg','rgba('+cv.rgb+',.14)');
-  document.documentElement.style.setProperty('--card-row-border','rgba('+cv.rgb+',.30)');
+  document.documentElement.style.setProperty('--card-row-bg','rgba('+cv.rgb+',.20)');
+  document.documentElement.style.setProperty('--card-row-border','rgba('+cv.rgb+',.32)');
   document.documentElement.style.setProperty('--card-accent',cv.accent);
+
+  // Fiscal modal theming
   var oR=bgR,oG=bgG,oB=bgB;
   document.documentElement.style.setProperty('--fiscal-overlay-bg','rgba('+oR+','+oG+','+oB+',.88)');
   var cgHexes=cg.match(/#([0-9a-fA-F]{6})/g)||['#111111'];
-  var modalBg=cgHexes[0];
-  var mHex=modalBg.replace('#','');
+  var modalBg=cgHexes[0];var mHex=modalBg.replace('#','');
   var mR=parseInt(mHex.substring(0,2),16)||0,mG=parseInt(mHex.substring(2,4),16)||0,mB=parseInt(mHex.substring(4,6),16)||0;
   var mLight=(0.299*mR+0.587*mG+0.114*mB)/255>=0.5;
   document.documentElement.style.setProperty('--fiscal-modal-bg',(isSolido&&preset)?preset.solid:cg);
@@ -305,45 +355,72 @@ function renderProfile(d){
   document.documentElement.style.setProperty('--fiscal-value-color',mLight?'rgba(0,0,0,.85)':'rgba(255,255,255,.88)');
   document.documentElement.style.setProperty('--fiscal-close-color',mLight?'rgba(0,0,0,.4)':'rgba(255,255,255,.4)');
   document.documentElement.style.setProperty('--fiscal-title-color',mLight?'#1a1a1a':'#f0f0f0');
+
+  // Texto claro/oscuro en card
   var m=((isSolido&&preset)?preset.solid:cg).match(/#([0-9a-f]{6})/i);
   if(m){var n=parseInt(m[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}
+
   $('card-design-layer').innerHTML=CARD_DESIGNS[di].render();
+
+  // Logo negocio
   if(d.logo_url){$('lc-logo-img').src=d.logo_url;$('lc-logo-sq').classList.add('visible');}
+
+  // Nombre negocio
   if(d.nombre_negocio){$('lc-negocio-name').textContent=d.nombre_negocio.toUpperCase();$('lc-negocio-group').style.display='flex';}
-  if(d.banco){$('lc-bank-name').textContent=d.banco;if(d.banco_domain){var ic=$('lc-bank-icon');ic.src=favicon(d.banco_domain);ic.style.display='block';}$('lc-bank').style.display='flex';}else $('lc-bank').style.display='none';
+
+  // Banco
+  if(d.banco){$('lc-bank-name').textContent=d.banco;if(d.banco_domain){var ic=$('lc-bank-icon');ic.src=favicon(d.banco_domain);ic.style.display='block';}$('lc-bank').style.display='flex';}
+  else $('lc-bank').style.display='none';
+
+  // CLABE
   var clabeRaw=d.clabe||'';$('lc-clabe').textContent=fmt(clabeRaw);
   $('card-copy-clabe').onclick=function(){navigator.clipboard.writeText(clabeRaw).then(function(){$('card-copy-clabe').style.opacity='.2';setTimeout(function(){$('card-copy-clabe').style.opacity='.5';},500);});};
+
+  // Titular
   var nom=d.titular_cuenta||'';$('lc-name').textContent=nom;if(nom.length>25)$('lc-name').style.fontSize='14px';
   $('card-copy-nombre').onclick=function(){navigator.clipboard.writeText(nom).then(function(){$('card-copy-nombre').style.opacity='.2';setTimeout(function(){$('card-copy-nombre').style.opacity='.5';},500);});};
+
   if(d.alias)$('lc-alias').textContent=d.alias;
+
+  // Acciones
   var any=false;
-  if(d.whatsapp&&d.show_whatsapp!==false){var wd=d.whatsapp.length>10?d.whatsapp.slice(-10):d.whatsapp;var wt=$('act-wa-text');wt.textContent='+52 '+fmtWA(wd);wt.dataset.rawWa=d.whatsapp;$('row-wa').style.display='flex';any=true;}
+  if(d.whatsapp&&d.show_whatsapp!==false){
+    var wd=d.whatsapp.length>10?d.whatsapp.slice(-10):d.whatsapp;
+    var wt=$('act-wa-text');wt.textContent='+52 '+fmtWA(wd);wt.dataset.rawWa=d.whatsapp;
+    $('row-wa').style.display='flex';any=true;
+  }
   if(d.email&&d.show_email!==false){$('act-email-text').textContent=d.email;$('row-email').style.display='flex';any=true;}
   if(d.has_fiscal){$('row-fiscal').style.display='flex';any=true;}
   if(any)$('actions').style.display='flex';
+
+  // Íconos flotantes en fondo — con strokeWidth más visible
   if(d.icon_id){
     var iconData=INDUSTRY_ICONS.find(function(i){return i.id===d.icon_id;});
     if(iconData){
       var shapes=document.getElementById('shapes');
       if(shapes){
-        var icol=d.icon_color||'rgba(255,255,255,0.9)';
-        for(var ci=0;ci<10;ci++){
-          var sz=Math.round(16+Math.random()*28);
-          var left=(ci*9+2+Math.random()*6).toFixed(2);
-          var dur=(13+(ci%5)*2.2+Math.random()*4).toFixed(1);
-          var del=(-(ci*(parseFloat(dur)/10))-Math.random()*4).toFixed(1);
+        // Limpiar shapes anteriores
+        while(shapes.firstChild)shapes.removeChild(shapes.firstChild);
+        var icol=d.icon_color||'rgba(255,255,255,0.55)';
+        for(var ci=0;ci<14;ci++){
+          var sz=Math.round(18+Math.random()*32);
+          var left=(ci*(92/14)+2+Math.random()*5).toFixed(2);
+          var dur=(14+(ci%5)*2.4+Math.random()*4).toFixed(1);
+          var del=(-(ci*(parseFloat(dur)/14))-Math.random()*5).toFixed(1);
           var el=document.createElement('div');
           el.className='geo-shape';
           el.style.cssText='left:'+left+'%;animation-duration:'+dur+'s;animation-delay:'+del+'s;width:'+sz+'px;height:'+sz+'px;';
-          el.innerHTML=iconSVG(iconData,sz,icol,0.75);
+          el.innerHTML=iconSVG(iconData,sz,icol,1.2);
           shapes.appendChild(el);
         }
       }
     }
   }
+
   hideLoader();
   $('state-profile').style.display='flex';
 }
+
 var _done=false,_dismissed=false,_cb=null;
 (function(){
   var L=$('page-loader');if(!L)return;
@@ -353,6 +430,7 @@ var _done=false,_dismissed=false,_cb=null;
   });
 })();
 function hideLoader(cb){_cb=cb||null;_done=true;}
+
 async function init(){
   var p=new URLSearchParams(window.location.search);
   var slug=p.get('id')||window.location.pathname.replace(/\//g,'').split('?')[0];
