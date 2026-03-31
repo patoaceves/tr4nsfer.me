@@ -406,9 +406,15 @@ function renderProfile(d){
   document.documentElement.style.setProperty('--card-row-bg','rgba('+rgb_.rgb+',.20)');
   document.documentElement.style.setProperty('--card-row-border','rgba('+rgb_.rgb+',.32)');
   document.documentElement.style.setProperty('--card-accent',acc);
-  document.documentElement.style.setProperty('--action-label-color','rgba('+rgb_.rgb+',.55)');
-  document.documentElement.style.setProperty('--action-value-color','rgba('+rgb_.rgb+',.95)');
   document.documentElement.style.setProperty('--action-btn-border','rgba('+rgb_.rgb+',.40)');
+  // Texto de filas se adapta al fondo de la página, no al color de la tarjeta
+  if(isLightBg){
+    document.documentElement.style.setProperty('--action-label-color','rgba(0,0,0,.48)');
+    document.documentElement.style.setProperty('--action-value-color','rgba(0,0,0,.82)');
+  }else{
+    document.documentElement.style.setProperty('--action-label-color','rgba(255,255,255,.55)');
+    document.documentElement.style.setProperty('--action-value-color','rgba(255,255,255,.92)');
+  }
 
   // Modal fiscal — fondo hereda el color de la tarjeta
   document.documentElement.style.setProperty('--fiscal-overlay-bg','rgba('+bgR+','+bgG+','+bgB+',.88)');
