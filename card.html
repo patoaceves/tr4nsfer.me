@@ -72,16 +72,16 @@
       backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     }
     .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
-    .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);}
-    .action-value{font-size:14px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;color:rgba(255,255,255,.95);}
+    .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--action-label-color,rgba(255,255,255,.5));}
+    .action-value{font-size:14px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;color:var(--action-value-color,rgba(255,255,255,.95));}
     .btn-action{
       background:rgba(255,255,255,.10);
-      border:1.5px solid rgba(255,255,255,.30);
+      border:1.5px solid var(--action-btn-border,rgba(255,255,255,.30));
       color:var(--card-accent,var(--teal));
       border-radius:8px;padding:7px 14px;
       font-size:11px;font-weight:700;
       font-family:'Inter',sans-serif;cursor:pointer;
-      transition:background .15s;white-space:nowrap;flex-shrink:0;
+      transition:background .15s,border-color .3s;white-space:nowrap;flex-shrink:0;
     }
     .btn-action:hover{background:rgba(255,255,255,.20);}
     .btn-action.copied{color:rgba(255,255,255,.4);}
@@ -406,6 +406,9 @@ function renderProfile(d){
   document.documentElement.style.setProperty('--card-row-bg','rgba('+rgb_.rgb+',.20)');
   document.documentElement.style.setProperty('--card-row-border','rgba('+rgb_.rgb+',.32)');
   document.documentElement.style.setProperty('--card-accent',acc);
+  document.documentElement.style.setProperty('--action-label-color','rgba('+rgb_.rgb+',.55)');
+  document.documentElement.style.setProperty('--action-value-color','rgba('+rgb_.rgb+',.95)');
+  document.documentElement.style.setProperty('--action-btn-border','rgba('+rgb_.rgb+',.40)');
 
   // Modal fiscal — fondo hereda el color de la tarjeta
   document.documentElement.style.setProperty('--fiscal-overlay-bg','rgba('+bgR+','+bgG+','+bgB+',.88)');
