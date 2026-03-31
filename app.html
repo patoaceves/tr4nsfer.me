@@ -458,14 +458,14 @@
           </div>
           <div class="field" id="fg-slug" style="margin-top:4px;">
             <label>Tu link <span class="opt">&#8212; opcional</span></label>
-            <div class="slug-wrap" id="slug-wrap">
-              <span class="slug-prefix">tr4nsfer.me/</span>
-              <input type="text" id="slug-custom" placeholder="tu-nombre" maxlength="20" inputmode="url" autocomplete="off" spellcheck="false" oninput="onSlugInput()"/>
-              <div class="slug-status" id="slug-status">
-                <svg id="slug-ok" width="16" height="16" viewBox="0 0 24 24" fill="none" style="display:none;flex-shrink:0;"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <svg id="slug-err" width="16" height="16" viewBox="0 0 24 24" fill="none" style="display:none;flex-shrink:0;"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>
-                <svg id="slug-spin" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none;flex-shrink:0;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+            <div style="position:relative;">
+              <div class="slug-wrap" id="slug-wrap">
+                <span class="slug-prefix">tr4nsfer.me/</span>
+                <input type="text" id="slug-custom" placeholder="tu-nombre" maxlength="20" inputmode="url" autocomplete="off" spellcheck="false" oninput="onSlugInput()" style="padding-right:28px;"/>
               </div>
+              <svg id="slug-ok" width="16" height="16" viewBox="0 0 24 24" fill="none" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg id="slug-err" width="16" height="16" viewBox="0 0 24 24" fill="none" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <svg id="slug-spin" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none;position:absolute;right:10px;top:50%;margin-top:-8px;pointer-events:none;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
             </div>
             <span class="field-error" id="slug-error">Solo letras, n&#250;meros y guiones. M&#237;nimo 3 caracteres.</span>
           </div>
@@ -1029,12 +1029,25 @@ function applyCardColor(){
   frame.style.setProperty('--cp-row-bg',`rgba(${rgb},.20)`);
   frame.style.setProperty('--cp-row-border',`rgba(${rgb},.32)`);
   frame.style.setProperty('--cp-accent',accent);
-  frame.style.setProperty('--cp-label-color',`rgba(${rgb},.55)`);
-  frame.style.setProperty('--cp-value-color',`rgba(${rgb},.95)`);
   frame.style.setProperty('--cp-btn-border',`rgba(${rgb},.40)`);
 }
 
-function applyBgColor(){const frame=$('card-frame');frame.style.background=selectedBgColor;const hex=selectedBgColor.replace('#','');const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);const lum=(0.299*r+0.587*g+0.114*b)/255;frame.classList.toggle('bg-light',lum>=.5);}
+function applyBgColor(){
+  const frame=$('card-frame');
+  frame.style.background=selectedBgColor;
+  const hex=selectedBgColor.replace('#','');
+  const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  frame.classList.toggle('bg-light',lum>=.5);
+  // Texto de filas de contacto se adapta al fondo del frame
+  if(lum>=.5){
+    frame.style.setProperty('--cp-label-color','rgba(0,0,0,.48)');
+    frame.style.setProperty('--cp-value-color','rgba(0,0,0,.82)');
+  }else{
+    frame.style.setProperty('--cp-label-color','rgba(255,255,255,.55)');
+    frame.style.setProperty('--cp-value-color','rgba(255,255,255,.92)');
+  }
+}
 
 /* ── INDUSTRY ICON ── */
 function isDarkIconColor(col){if(!col)return false;var m=col.match(/rgba?\((\d+),(\d+),(\d+)/);if(!m)return false;return(0.299*+m[1]+0.587*+m[2]+0.114*+m[3])/255<0.25;}
