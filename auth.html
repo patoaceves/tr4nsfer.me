@@ -141,7 +141,7 @@
 
 <!-- HEADER -->
 <header>
-  <a href="index.html" class="logo"><img src="logo.png" alt="tr4nsfer.me"/></a>
+  <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
   <nav>
     <div class="nav-links">
       <a href="index.html">Inicio</a>
@@ -157,7 +157,7 @@
   <div class="auth-card">
 
     <div class="auth-brand">
-      <img src="logo.png" alt="tr4nsfer.me"/>
+      <img src="logo-white.png" alt="tr4nsfer.me"/>
     </div>
 
     <!-- ── STEP 1: EMAIL ── -->
@@ -338,7 +338,7 @@ async function sendOtp() {
   try {
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true }
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
     });
     if (error) throw error;
 
@@ -363,7 +363,7 @@ async function resendOtp() {
   try {
     const { error } = await sb.auth.signInWithOtp({
       email: currentEmail,
-      options: { shouldCreateUser: true }
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
     });
     if (error) throw error;
     setMsg('msg-verify', 'Código reenviado.', 'ok');
