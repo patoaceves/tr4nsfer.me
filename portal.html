@@ -62,7 +62,7 @@
     .sidebar-user-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
     .sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:700;color:var(--teal);}
     .sidebar-email{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;padding-left:2px;}
-    .sidebar-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;text-transform:uppercase;letter-spacing:.04em;}
+    .sidebar-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;text-transform:uppercase;letter-spacing:.04em;}
     .sidebar-tabs{flex:1;padding:16px 12px 0;}
     .sidebar-tab{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:background .15s,color .15s;user-select:none;border:none;background:none;width:100%;font-family:'Inter',sans-serif;text-align:left;}
     .sidebar-tab:hover{background:rgba(255,255,255,.04);color:var(--text-soft);}
@@ -407,8 +407,9 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /* ── HELPERS ── */
 const $ = id => document.getElementById(id);
 let _currentUser = null;
+let _accessToken = '';   // stored once in init(), reused everywhere
 let _allLinks    = [];
-let _activeModal = null;  // slug of link in modal
+let _activeModal = null;
 let _selectedHours = 12;
 
 /* ── PAGE LOADER ── */
@@ -463,15 +464,25 @@ function randCode(len) {
 
 /* ── AUTH GUARD ── */
 async function init() {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) {
-    window.location.href = 'auth.html?return=portal&reason=portal';
-    return;
+  // getSession() reads localStorage — fastest and gives us the token immediately
+  let { data: { session } } = await sb.auth.getSession();
+
+  // If localStorage is cold (first magic-link land), do a server round-trip
+  if (!session) {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) { window.location.href = 'auth.html?return=portal&reason=portal'; return; }
+    // getUser() refreshes the session — try once more
+    const refetch = await sb.auth.getSession();
+    session = refetch.data.session;
   }
-  _currentUser = user;
-  populateUserInfo(user);
-  loadLinks(user.email);
-  /* reveal portal only after auth confirmed — prevents flash */
+
+  if (!session) { window.location.href = 'auth.html?return=portal&reason=portal'; return; }
+
+  _currentUser = session.user;
+  _accessToken = session.access_token;   // ← stored once, reused everywhere
+
+  populateUserInfo(session.user);
+  loadLinks();
   const shell = document.querySelector('.portal-shell');
   if (shell) shell.classList.add('ready');
 }
@@ -501,17 +512,16 @@ function updateSidebarName(name) {
 }
 
 /* ── LOAD LINKS ── */
-async function loadLinks(email) {
+async function loadLinks() {
   $('links-loading').style.display = 'flex';
   $('links-grid').style.display    = 'none';
   $('links-empty').style.display   = 'none';
 
   try {
-    const { data: { session } } = await sb.auth.getSession();
-    const token = session?.access_token ?? '';
+    if (!_accessToken) throw new Error('Sin sesión activa');
 
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/user-links`, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      headers: { 'Authorization': `Bearer ${_accessToken}` }
     });
 
     if (!resp.ok) {
@@ -703,7 +713,7 @@ function switchTab(id) {
   const target = $('tab-' + id);
   if (target) { target.style.display = 'block'; target.classList.add('active'); }
   if (id === 'links' && _allLinks.length === 0 && _currentUser) {
-    loadLinks(_currentUser.email);
+    loadLinks();
   }
 }
 
@@ -751,10 +761,9 @@ async function saveProfile() {
   msg.textContent = '';
 
   try {
-    const { data: { session } } = await sb.auth.getSession();
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/update-link`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token ?? ''}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_accessToken}` },
       body: JSON.stringify({ slug, nombre, whatsapp: whatsapp || null })
     });
     const result = await resp.json();
@@ -780,10 +789,11 @@ init();
 
 /* ── CROSS-TAB SIGN-IN ── */
 sb.auth.onAuthStateChange((event, session) => {
+  if (session?.access_token) _accessToken = session.access_token;  // always refresh token
   if (event === 'SIGNED_IN' && session && !_currentUser) {
     _currentUser = session.user;
     populateUserInfo(session.user);
-    loadLinks(session.user.email);
+    loadLinks();
     const shell = document.querySelector('.portal-shell');
     if (shell) shell.classList.add('ready');
   }
