@@ -520,6 +520,9 @@ async function loadLinks() {
   try {
     if (!_accessToken) throw new Error('Sin sesión activa');
 
+    // Debug: log token prefix so we can verify it's a user JWT (not anon key)
+    console.log('[portal] loadLinks token prefix:', _accessToken.substring(0, 40) + '…');
+
     const resp = await fetch(`${SUPABASE_URL}/functions/v1/user-links`, {
       headers: { 'Authorization': `Bearer ${_accessToken}` }
     });
