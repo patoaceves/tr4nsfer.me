@@ -458,14 +458,20 @@ async function loadLinks(email) {
 
   try {
     const hash = await hashEmail(email);
-    const { data: links, error } = await sb
-      .from('links')
-      .select('*')
-      .eq('email_hash', hash)
-      .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    _allLinks = links || [];
+    /* query by email_hash first; fall back to plain email column for older links */
+    let links = [], queryError = null;
+    const { data: byHash, error: e1 } = await sb
+      .from('links').select('*').eq('email_hash', hash).order('created_at', { ascending: false });
+    if (!e1 && byHash?.length > 0) {
+      links = byHash;
+    } else {
+      const { data: byEmail, error: e2 } = await sb
+        .from('links').select('*').eq('email', email).order('created_at', { ascending: false });
+      if (e2) queryError = e2; else links = byEmail || [];
+    }
+    if (queryError) throw queryError;
+    _allLinks = links;
 
     /* also load expirable links for these slugs */
     let expMap = {};
