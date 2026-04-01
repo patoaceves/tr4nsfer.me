@@ -287,12 +287,22 @@ function clearAuthMsg() { setMsg('msg-send', ''); $('fg-auth-email').classList.r
 })();
 
 /* ── MAGIC LINK: handle return redirect ── */
-(async function handleMagicLinkReturn() {
+// onAuthStateChange is the reliable hook for magic-link redirects.
+// Supabase parses the URL hash and fires SIGNED_IN before any async code runs.
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    showStep('step-success');
+    $('success-sub').textContent = 'Sesión iniciada. Redirigiendo…';
+    setTimeout(() => { window.location.href = RETURN_URL; }, 1200);
+  }
+});
+// Also check immediately in case session is already in storage (e.g. page reload)
+(async function() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     showStep('step-success');
     $('success-sub').textContent = 'Sesión iniciada. Redirigiendo…';
-    setTimeout(() => { window.location.href = RETURN_URL; }, 1000);
+    setTimeout(() => { window.location.href = RETURN_URL; }, 1200);
   }
 })();
 
@@ -324,8 +334,15 @@ async function sendLink() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
         body: JSON.stringify({ email })
       });
-      const chkData = await chk.json();
-      emailExists = !!chkData.exists;
+      if (!chk.ok) {
+        // función no desplegada o error del servidor → dejar pasar
+        console.warn('[auth] check-email HTTP', chk.status, '— omitiendo validación');
+        emailExists = true;
+      } else {
+        const chkData = await chk.json();
+        emailExists = chkData.exists === true;
+        console.log('[auth] check-email resultado:', chkData);
+      }
     } catch (e) {
       console.warn('[auth] check-email falló, continuando sin validación', e);
       emailExists = true; // si el check falla, dejar pasar
@@ -340,7 +357,7 @@ async function sendLink() {
     btn.innerHTML = '<span class="btn-spinner"></span>Enviando…';
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
+      options: { shouldCreateUser: false, emailRedirectTo: 'https://tr4nsfer.me/auth.html?return=portal' }
     });
     if (error) {
       console.error('[auth] signInWithOtp error:', error);
