@@ -994,7 +994,7 @@ async function checkEmailExists(email){
     if(ring)ring.classList.remove('visible');
     if(data.exists){
       emailCheckState='exists';
-      if(errMsg)errMsg.textContent='Este correo ya tiene una cuenta registrada.';
+      if(errMsg)errMsg.textContent='Este correo ya tiene una cuenta. ¿Es tuyo?';
       setError('fg-email',true);if(ver)ver.style.display='none';
       if(cta)cta.style.display='block';
     }else{
