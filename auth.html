@@ -312,13 +312,35 @@ async function sendLink() {
 
   const btn = $('btn-send-link');
   btn.disabled = true;
-  btn.innerHTML = '<span class="btn-spinner"></span>Enviando…';
+  btn.innerHTML = '<span class="btn-spinner"></span>Verificando…';
   setMsg('msg-send', '', '');
 
   try {
+    /* ── 1. Verificar que el correo tenga una cuenta ── */
+    let emailExists = false;
+    try {
+      const chk = await fetch(`${SUPABASE_URL}/functions/v1/check-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+        body: JSON.stringify({ email })
+      });
+      const chkData = await chk.json();
+      emailExists = !!chkData.exists;
+    } catch (e) {
+      console.warn('[auth] check-email falló, continuando sin validación', e);
+      emailExists = true; // si el check falla, dejar pasar
+    }
+
+    if (!emailExists) {
+      setMsg('msg-send', 'No encontramos una cuenta ligada a este correo electrónico.', 'err');
+      return;
+    }
+
+    /* ── 2. Enviar link de acceso ── */
+    btn.innerHTML = '<span class="btn-spinner"></span>Enviando…';
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
+      options: { shouldCreateUser: false, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
     });
     if (error) {
       console.error('[auth] signInWithOtp error:', error);
