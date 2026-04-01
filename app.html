@@ -1044,7 +1044,7 @@ function restoreFormState(){
   /* restore checkboxes */
   ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio','consent1','consent2'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.checked=state[id];});
   /* restore selections */
-  if(state._profileType){profileType=state._profileType;}
+  if(state._profileType){selectType(state._profileType);}
   if(state._gradient){selectedCardGradient=state._gradient;}
   if(state._design!==undefined){selectedDesign=state._design;}
   if(state._bgColor){selectedBgColor=state._bgColor;}
