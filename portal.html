@@ -520,9 +520,13 @@ async function loadLinks() {
   $('links-empty').style.display   = 'none';
 
   try {
-    // sb.functions.invoke sends both Authorization + apikey headers automatically
-    const { data, error: fnErr } = await sb.functions.invoke('user-links');
-    if (fnErr) throw fnErr;
+    const { data, error: fnErr } = await sb.functions.invoke('user-links', {
+      headers: { 'Authorization': `Bearer ${_accessToken}` }
+    });
+    if (fnErr) {
+      console.error('[user-links] error:', JSON.stringify(fnErr));
+      throw fnErr;
+    }
     const { links, expirable: expMap } = data;
     _allLinks = links || [];
 
@@ -757,6 +761,7 @@ async function saveProfile() {
   try {
     const { data: saveData, error: saveErr } = await sb.functions.invoke('update-link', {
       method: 'POST',
+      headers: { 'Authorization': `Bearer ${_accessToken}` },
       body: { slug, nombre, whatsapp: whatsapp || null }
     });
     if (saveErr) throw saveErr;
