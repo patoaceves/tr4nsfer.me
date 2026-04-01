@@ -84,12 +84,11 @@
     .fg.has-error input{border-color:var(--error);}
 
     /* ── OTP INPUT ── */
-    .otp-wrap{display:flex;gap:8px;justify-content:center;margin-bottom:8px;}
-    .otp-wrap input{width:44px;height:52px;text-align:center;font-size:20px;font-weight:700;letter-spacing:0;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);outline:none;transition:border-color .15s;font-family:'Inter',sans-serif;caret-color:var(--teal);}
+    .otp-wrap{margin-bottom:8px;}
+    .otp-wrap input{width:100%;height:60px;text-align:center;font-size:28px;font-weight:700;letter-spacing:6px;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:12px;color:var(--text);outline:none;transition:border-color .15s;font-family:'Inter',monospace;caret-color:var(--teal);padding:0 16px;}
     .otp-wrap input:focus{border-color:var(--teal-border);}
     .otp-wrap input.filled{border-color:rgba(0,200,150,.25);}
     .otp-wrap.shake{animation:shake .35s ease;}
-    @media(max-width:380px){.otp-wrap input{width:38px;height:46px;font-size:18px;gap:6px;}}
 
     .otp-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px;}
 
@@ -183,14 +182,12 @@
       <div class="auth-sub" id="otp-sub">Enviamos un código a <strong id="otp-email-display"></strong></div>
 
       <div class="otp-wrap" id="otp-wrap">
-        <input type="text" inputmode="numeric" maxlength="1" id="otp0" oninput="otpInput(0)" onkeydown="otpKey(event,0)"/>
-        <input type="text" inputmode="numeric" maxlength="1" id="otp1" oninput="otpInput(1)" onkeydown="otpKey(event,1)"/>
-        <input type="text" inputmode="numeric" maxlength="1" id="otp2" oninput="otpInput(2)" onkeydown="otpKey(event,2)"/>
-        <input type="text" inputmode="numeric" maxlength="1" id="otp3" oninput="otpInput(3)" onkeydown="otpKey(event,3)"/>
-        <input type="text" inputmode="numeric" maxlength="1" id="otp4" oninput="otpInput(4)" onkeydown="otpKey(event,4)"/>
-        <input type="text" inputmode="numeric" maxlength="1" id="otp5" oninput="otpInput(5)" onkeydown="otpKey(event,5)"/>
+        <input type="text" inputmode="numeric" maxlength="8" id="otp-input"
+               autocomplete="one-time-code"
+               placeholder="· · · · · ·"
+               oninput="otpInput()" onkeydown="if(event.key==='Enter')verifyOtp()"/>
       </div>
-      <div class="otp-hint">Código de 6 dígitos</div>
+      <div class="otp-hint">Ingresa el código que llegó a tu correo</div>
 
       <button class="btn-primary" id="btn-verify-otp" onclick="verifyOtp()" disabled>Verificar</button>
       <div class="auth-msg" id="msg-verify"></div>
@@ -344,7 +341,7 @@ async function sendOtp() {
 
     $('otp-email-display').textContent = email;
     showStep('step-otp');
-    setTimeout(() => $('otp0').focus(), 80);
+    setTimeout(() => $('otp-input').focus(), 80);
     startResendCountdown(30);
   } catch (err) {
     setMsg('msg-send', 'Error al enviar el código. Intenta de nuevo.', 'err');
@@ -376,38 +373,12 @@ async function resendOtp() {
 }
 
 /* ── OTP INPUT HANDLERS ── */
-function otpInput(idx) {
-  const inp = $('otp' + idx);
-  /* allow only digits */
-  inp.value = inp.value.replace(/[^0-9]/g, '').slice(-1);
+function otpInput() {
+  const inp = $('otp-input');
+  inp.value = inp.value.replace(/[^0-9]/g, '');
   inp.classList.toggle('filled', inp.value.length > 0);
-  if (inp.value && idx < 5) $('otp' + (idx + 1)).focus();
   updateVerifyBtn();
 }
-
-function otpKey(e, idx) {
-  if (e.key === 'Backspace' && !$('otp' + idx).value && idx > 0) {
-    $('otp' + (idx - 1)).focus();
-  }
-  if (e.key === 'Enter') verifyOtp();
-  /* handle paste */
-  if (e.ctrlKey && e.key === 'v') return;
-}
-
-/* Handle paste on any OTP box */
-document.addEventListener('paste', function(e) {
-  const focused = document.activeElement;
-  if (!focused || !focused.id.startsWith('otp')) return;
-  e.preventDefault();
-  const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
-  [...text.slice(0,6)].forEach((ch, i) => {
-    const el = $('otp' + i); if (!el) return;
-    el.value = ch; el.classList.add('filled');
-  });
-  const last = Math.min(text.length - 1, 5);
-  if (last >= 0) $('otp' + last).focus();
-  updateVerifyBtn();
-});
 
 function updateVerifyBtn() {
   const code = getOtpValue();
@@ -415,11 +386,13 @@ function updateVerifyBtn() {
 }
 
 function getOtpValue() {
-  return [0,1,2,3,4,5].map(i => $('otp'+i).value).join('');
+  return ($('otp-input').value || '').replace(/\D/g, '');
 }
 
 function clearOtp() {
-  [0,1,2,3,4,5].forEach(i => { const el=$('otp'+i); el.value=''; el.classList.remove('filled'); });
+  const inp = $('otp-input');
+  inp.value = '';
+  inp.classList.remove('filled');
   updateVerifyBtn();
 }
 
@@ -433,31 +406,33 @@ async function verifyOtp() {
   btn.innerHTML = '<span class="btn-spinner"></span>Verificando…';
   setMsg('msg-verify', '', '');
 
-  try {
-    const { data, error } = await sb.auth.verifyOtp({
-      email: currentEmail,
-      token,
-      type: 'email'
-    });
-    if (error) throw error;
+  /* try multiple types — Supabase uses different types for signup vs magic link */
+  const types = ['email', 'magiclink', 'signup'];
+  let lastError = null;
 
-    /* ── SUCCESS ── */
-    clearInterval(resendTimer);
-    showStep('step-success');
-    $('success-sub').textContent = 'Sesión iniciada. Redirigiendo…';
+  for (const type of types) {
+    try {
+      const { data, error } = await sb.auth.verifyOtp({ email: currentEmail, token, type });
+      if (error) { lastError = error; continue; }
+      if (data?.session) {
+        /* ── SUCCESS ── */
+        clearInterval(resendTimer);
+        showStep('step-success');
+        $('success-sub').textContent = 'Sesión iniciada. Redirigiendo…';
+        setTimeout(() => { window.location.href = RETURN_URL; }, 1200);
+        return;
+      }
+    } catch (e) { lastError = e; }
+  }
 
-    setTimeout(() => {
-      window.location.href = RETURN_URL;
-    }, 1200);
-
-  } catch (err) {
-    /* shake the OTP boxes */
+  /* all types failed */
+  {
     const wrap = $('otp-wrap');
     wrap.classList.remove('shake');
-    wrap.offsetHeight; // reflow
+    wrap.offsetHeight;
     wrap.classList.add('shake');
     clearOtp();
-    $('otp0').focus();
+    $('otp-input').focus();
     setMsg('msg-verify', 'Código incorrecto o expirado. Inténtalo de nuevo.', 'err');
     btn.disabled = false;
     btn.textContent = 'Verificar';
