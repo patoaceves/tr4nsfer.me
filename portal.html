@@ -43,7 +43,7 @@
     /* ── HEADER ── */
     header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
     .logo{display:inline-flex;align-items:center;text-decoration:none;}
-    .logo img{height:28px;width:auto;display:block;}
+    .logo img{height:28px;width:auto;display:block;filter:brightness(0) invert(1);}
     nav{display:flex;align-items:center;gap:36px;}
     .nav-links{display:flex;align-items:center;gap:28px;}
     nav a{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s;}
@@ -59,9 +59,10 @@
     /* ── SIDEBAR ── */
     .sidebar{width:var(--sidebar-w);flex-shrink:0;position:fixed;top:64px;left:0;bottom:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:28px 0 24px;z-index:50;overflow-y:auto;}
     .sidebar-user{padding:0 20px 20px;border-bottom:1px solid var(--border);}
-    .sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:14px;font-weight:700;color:var(--teal);}
-    .sidebar-email{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
-    .sidebar-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+    .sidebar-user-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:700;color:var(--teal);}
+    .sidebar-email{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;padding-left:2px;}
+    .sidebar-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;text-transform:uppercase;letter-spacing:.04em;}
     .sidebar-tabs{flex:1;padding:16px 12px 0;}
     .sidebar-tab{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:background .15s,color .15s;user-select:none;border:none;background:none;width:100%;font-family:'Inter',sans-serif;text-align:left;}
     .sidebar-tab:hover{background:rgba(255,255,255,.04);color:var(--text-soft);}
@@ -197,13 +198,13 @@
 
 <!-- HEADER -->
 <header>
-  <a href="index.html" class="logo"><img src="logo.png" alt="tr4nsfer.me"/></a>
+  <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
   <nav>
     <div class="nav-links">
       <a href="index.html">Inicio</a>
       <a href="index.html#pricing">Pricing</a>
       <a href="index.html#ayuda">Ayuda</a>
-      <a href="portal.html" style="color:var(--teal);">Mi Cuenta</a>
+      <a href="portal.html" style="color:var(--teal);" id="nav-account-link">Mi Cuenta</a>
     </div>
     <a href="app.html" class="btn-nav">Crear mi Link</a>
   </nav>
@@ -215,8 +216,10 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-user">
-      <div class="sidebar-avatar" id="user-avatar">?</div>
-      <div class="sidebar-name" id="user-name">—</div>
+      <div class="sidebar-user-row">
+        <div class="sidebar-avatar" id="user-avatar">?</div>
+        <div class="sidebar-name" id="user-name">—</div>
+      </div>
       <div class="sidebar-email" id="user-email">—</div>
     </div>
     <div class="sidebar-tabs">
@@ -440,14 +443,23 @@ async function init() {
 }
 
 function populateUserInfo(user) {
-  const email  = user.email || '';
+  const email    = user.email || '';
   const initials = email.charAt(0).toUpperCase();
+  const shortName = email.split('@')[0];
   $('user-avatar').textContent = initials;
+  $('user-name').textContent   = shortName;   // fallback hasta que carguen links
   $('user-email').textContent  = email;
   $('detail-email').textContent = email;
 
   const since = user.created_at ? new Date(user.created_at).toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'}) : '—';
   $('detail-since').textContent = since;
+}
+
+function updateUserDisplayName(name) {
+  if (!name) return;
+  $('user-name').textContent = name;
+  const navLink = $('nav-account-link');
+  if (navLink) navLink.textContent = name;
 }
 
 /* ── LOAD LINKS ── */
@@ -457,46 +469,27 @@ async function loadLinks(email) {
   $('links-empty').style.display   = 'none';
 
   try {
-    const hash = await hashEmail(email);
-    console.log('[portal] loadLinks email:', email, '| hash:', hash);
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session?.access_token ?? '';
 
-    /* query by email_hash first; fall back to plain email column for older links */
-    let links = [], queryError = null;
-    const { data: byHash, error: e1 } = await sb
-      .from('links').select('*').eq('email_hash', hash).order('created_at', { ascending: false });
-    console.log('[portal] byHash result:', byHash?.length ?? 0, 'rows | error:', e1?.message);
-    if (!e1 && byHash?.length > 0) {
-      links = byHash;
-    } else {
-      const { data: byEmail, error: e2 } = await sb
-        .from('links').select('*').eq('email', email).order('created_at', { ascending: false });
-      console.log('[portal] byEmail result:', byEmail?.length ?? 0, 'rows | error:', e2?.message);
-      if (e2) queryError = e2; else links = byEmail || [];
-    }
-    if (queryError) throw queryError;
-    _allLinks = links;
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/user-links`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+    });
 
-    /* also load expirable links for these slugs */
-    let expMap = {};
-    if (_allLinks.length > 0) {
-      const slugs = _allLinks.map(l => l.slug);
-      const { data: expRows } = await sb
-        .from('expirable_links')
-        .select('*')
-        .in('slug', slugs)
-        .order('created_at', { ascending: false });
-      (expRows || []).forEach(r => {
-        if (!expMap[r.slug]) expMap[r.slug] = [];
-        expMap[r.slug].push(r);
-      });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${resp.status}`);
     }
+
+    const { links, expirable: expMap } = await resp.json();
+    _allLinks = links || [];
 
     $('links-loading').style.display = 'none';
 
     if (_allLinks.length === 0) {
       $('links-empty').style.display = 'block';
-      $('links-empty').querySelector('h3').textContent = 'No encontramos links';
-      $('links-empty').querySelector('p').textContent = `No hay links asociados a ${email}. Si usaste un correo diferente al crear tu link, escríbenos a hola@tr4nsfer.me`;
+      $('links-empty').querySelector('h3').textContent = 'Aún no tienes links';
+      $('links-empty').querySelector('p').textContent  = `No encontramos links para ${email}. Si usaste otro correo al crear, escríbenos a hola@tr4nsfer.me.`;
       $('detail-links-count').textContent = '0';
       return;
     }
@@ -504,22 +497,20 @@ async function loadLinks(email) {
     $('detail-links-count').textContent = _allLinks.length;
     $('links-count-badge').textContent  = _allLinks.length;
     $('links-count-badge').style.display = '';
-    renderLinkCards(_allLinks, expMap);
+    renderLinkCards(_allLinks, expMap || {});
     $('links-grid').style.display = 'grid';
 
-    /* also update sidebar name from first link */
+    /* Update sidebar / nav with the first link's name */
     const first = _allLinks[0];
     const displayName = first.nombre_negocio || first.nombre || '';
-    if (displayName) {
-      $('user-name').textContent = displayName;
-    }
+    updateUserDisplayName(displayName);
 
   } catch (err) {
     console.error('loadLinks error', err);
     $('links-loading').style.display = 'none';
     $('links-empty').style.display   = 'block';
     $('links-empty').querySelector('h3').textContent = 'Error al cargar';
-    $('links-empty').querySelector('p').textContent  = 'No se pudieron cargar tus links. Intenta recargar.';
+    $('links-empty').querySelector('p').textContent  = 'No se pudieron cargar tus links. Intenta recargar la página.';
   }
 }
 
@@ -693,6 +684,20 @@ function relativeTime(iso) {
 
 /* ── INIT ── */
 init();
+
+/* ── CROSS-TAB SIGN-IN ─────────────────────────────────────────────────────
+   When the user clicks the magic-link email in another tab (or in this one
+   before the shell was ready), Supabase fires SIGNED_IN via localStorage.
+   We pick it up here so the portal shows without a manual reload.           */
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session && !_currentUser) {
+    _currentUser = session.user;
+    populateUserInfo(session.user);
+    loadLinks(session.user.email);
+    const shell = document.querySelector('.portal-shell');
+    if (shell) shell.classList.add('ready');
+  }
+});
 </script>
 </body>
 </html>
