@@ -85,7 +85,6 @@
 
     /* ── MI CUENTA ── */
     .cuenta-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;max-width:520px;margin-bottom:16px;}
-    .cuenta-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
     .cuenta-row:last-child{border-bottom:none;padding-bottom:0;}
     .cuenta-label{font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.04em;}
     .cuenta-value{font-size:13.5px;font-weight:500;color:var(--text-soft);}
@@ -185,10 +184,19 @@
     .gen-copy-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;border-radius:9px;border:1px solid rgba(0,200,150,.25);background:rgba(0,200,150,.07);color:var(--teal);font-size:12.5px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s;}
     .gen-copy-btn:hover{background:rgba(0,200,150,.14);}
 
-    /* ── EDIT PROFILE FORM ── */
-    .fg-label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase;}
-    .fg-input{width:100%;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:10px;padding:10px 13px;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);outline:none;transition:border-color .15s;}
-    .fg-input:focus{border-color:var(--teal-border);}
+    /* ── INLINE ROW EDITOR ── */
+    .cuenta-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;}
+    .cuenta-row:last-child{border-bottom:none;padding-bottom:0;}
+    .cuenta-row-right{display:flex;align-items:center;gap:8px;}
+    .row-edit-btn{background:none;border:none;cursor:pointer;color:var(--muted2);padding:3px 5px;border-radius:5px;display:flex;align-items:center;transition:color .15s,background .15s;}
+    .row-edit-btn:hover{color:var(--text-soft);background:rgba(255,255,255,.06);}
+    .row-editor{width:100%;padding-top:8px;}
+    .row-editor-input{width:100%;background:var(--input-bg);border:1.5px solid rgba(0,200,150,.3);border-radius:9px;padding:9px 12px;font-size:13.5px;font-family:'Inter',sans-serif;color:var(--text);outline:none;}
+    .row-editor-input:focus{border-color:var(--teal);}
+    .row-editor-actions{display:flex;gap:8px;margin-top:8px;}
+    .row-editor-btn{flex:1;padding:7px 12px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .15s;}
+    .row-editor-btn.primary{background:var(--teal-dim);border-color:var(--teal-border);color:var(--teal);}
+    .row-editor-msg{font-size:11.5px;min-height:16px;margin-top:6px;}
 
     /* ── TOAST ── */
     .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid var(--border2);border-radius:100px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text-soft);z-index:9000;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;}
@@ -278,6 +286,23 @@
 
       <!-- Read-only info -->
       <div class="cuenta-card">
+        <div class="cuenta-row" id="row-nombre">
+          <span class="cuenta-label">Nombre</span>
+          <div class="cuenta-row-right">
+            <span class="cuenta-value" id="detail-nombre">—</span>
+            <button class="row-edit-btn" onclick="startRowEdit('nombre')" title="Editar">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="row-editor" id="editor-nombre" style="display:none;">
+            <input class="row-editor-input" id="input-nombre" type="text" maxlength="60" placeholder="Tu nombre completo"/>
+            <div class="row-editor-actions">
+              <button class="row-editor-btn" onclick="cancelRowEdit('nombre')">Cancelar</button>
+              <button class="row-editor-btn primary" onclick="saveRowEdit('nombre')">Guardar</button>
+            </div>
+            <div class="row-editor-msg" id="msg-nombre"></div>
+          </div>
+        </div>
         <div class="cuenta-row">
           <span class="cuenta-label">Correo</span>
           <span class="cuenta-value" id="detail-email">—</span>
@@ -291,45 +316,19 @@
           <span class="cuenta-value" id="detail-links-count">—</span>
         </div>
       </div>
-
-      <!-- Editable profile info -->
-      <div class="cuenta-card" id="edit-profile-card" style="display:none;">
-        <div class="config-title" style="margin-bottom:18px;">Editar perfil</div>
-
-        <div class="fg" style="margin-bottom:14px;">
-          <label class="fg-label">Correo electrónico</label>
-          <input type="email" id="edit-email-display" class="fg-input" disabled style="opacity:.5;cursor:not-allowed;" placeholder="—"/>
-          <div style="font-size:11px;color:var(--dim);margin-top:4px;">El correo es tu identificador de acceso y no puede cambiarse.</div>
-        </div>
-        <div class="fg" style="margin-bottom:14px;">
-          <label class="fg-label">Nombre completo</label>
-          <input type="text" id="edit-nombre" class="fg-input" placeholder="Tu nombre completo"/>
-        </div>
-        <div class="fg" style="margin-bottom:20px;">
-          <label class="fg-label">WhatsApp <span style="font-weight:400;text-transform:none;color:var(--dim);">(con lada, ej. 521…)</span></label>
-          <input type="tel" id="edit-whatsapp" class="fg-input" placeholder="5219991234567"/>
-        </div>
-
-        <div style="display:flex;gap:10px;">
-          <button class="config-btn" style="flex:1;padding:10px;" onclick="cancelEditProfile()">Cancelar</button>
-          <button class="config-btn" id="btn-save-profile" style="flex:1;padding:10px;background:var(--teal-dim);border-color:var(--teal-border);color:var(--teal);" onclick="saveProfile()">Guardar</button>
-        </div>
-        <div id="edit-profile-msg" style="font-size:12px;text-align:center;margin-top:10px;min-height:16px;"></div>
-      </div>
-
-      <div id="btn-edit-profile-wrap">
-        <button class="config-btn" onclick="openEditProfile()" style="display:flex;align-items:center;gap:7px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          Editar perfil
-        </button>
-      </div>
     </section>
 
     <!-- ── MIS LINKS ── -->
     <section id="tab-links" class="portal-section">
-      <div class="section-header">
-        <div class="section-title">Mis Links</div>
-        <div class="section-sub">Administra, comparte y genera links expirables.</div>
+      <div class="section-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+        <div>
+          <div class="section-title">Mis Links</div>
+          <div class="section-sub">Administra, comparte y genera links expirables.</div>
+        </div>
+        <a href="app.html" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;background:var(--teal);color:#000;font-size:12.5px;font-weight:700;font-family:'Inter',sans-serif;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background .15s,transform .1s;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          Nuevo link
+        </a>
       </div>
       <div id="links-loading" class="links-loading">
         <div class="mini-spinner"></div> Cargando tus links…
@@ -555,7 +554,7 @@ async function loadLinks() {
     if (_allLinks.length === 0) {
       $('links-empty').style.display = 'block';
       $('links-empty').querySelector('h3').textContent = 'Aún no tienes links';
-      $('links-empty').querySelector('p').textContent  = `No encontramos links para ${email}. Si usaste otro correo al crear, escríbenos a hola@tr4nsfer.me.`;
+      $('links-empty').querySelector('p').textContent  = `No encontramos una cuenta ligada a ${_currentUser?.email || email}.`;
       $('detail-links-count').textContent = '0';
       return;
     }
@@ -570,6 +569,8 @@ async function loadLinks() {
     const first = _allLinks[0];
     const displayName = first.nombre_negocio || first.nombre || '';
     updateSidebarName(displayName);
+    const detNombre = $('detail-nombre');
+    if (detNombre) detNombre.textContent = displayName || '—';
 
   } catch (err) {
     console.error('loadLinks error', err);
@@ -586,6 +587,7 @@ function renderLinkCards(links, expMap) {
   grid.innerHTML = '';
   links.forEach(link => {
     const slug = link.slug;
+    const displaySlug = link.custom_slug || link.slug;
     const expLinks = expMap[slug] || [];
     const card = document.createElement('div');
     card.className = 'link-card';
@@ -593,7 +595,7 @@ function renderLinkCards(links, expMap) {
 
     const displayName = link.nombre_negocio || link.nombre || '—';
     const banco = link.banco || '—';
-    const url   = SITE_BASE + slug;
+    const url   = SITE_BASE + displaySlug;
 
     /* expirable chips */
     const now = Date.now();
@@ -621,7 +623,7 @@ function renderLinkCards(links, expMap) {
       <div class="link-card-url-wrap">
         <div class="link-card-url" id="url-display-${slug}" onclick="copyText('${url}','Link copiado')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span>tr4nsfer.me/${esc(slug)}</span>
+          <span>tr4nsfer.me/${esc(displaySlug)}</span>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           <button class="url-edit-btn" onclick="startEditUrl(event,'${slug}')" title="Editar URL">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -761,60 +763,65 @@ function relativeTime(iso) {
   return `en ${d}d`;
 }
 
-/* ── EDIT PROFILE ── */
-function openEditProfile() {
-  if (!_allLinks.length) { showToast('Carga tus links primero'); return; }
-  const link = _allLinks[0];
-  $('edit-email-display').value = _currentUser?.email || '';
-  $('edit-nombre').value        = link.nombre   || '';
-  $('edit-whatsapp').value      = link.whatsapp || '';
-  $('edit-profile-card').style.display    = 'block';
-  $('btn-edit-profile-wrap').style.display = 'none';
-  $('edit-profile-msg').textContent = '';
+/* ── INLINE ROW EDITOR (Mi Cuenta) ── */
+function startRowEdit(field) {
+  const row    = $('row-' + field);
+  const editor = $('editor-' + field);
+  const detail = $('detail-' + field);
+  if (!editor) return;
+  // Pre-fill with current value
+  const input = $('input-' + field);
+  if (field === 'nombre') input.value = (_allLinks[0]?.nombre) || '';
+  detail.closest('.cuenta-row-right') && (detail.closest('.cuenta-row-right').style.display = 'none');
+  editor.style.display = 'block';
+  const msg = $('msg-' + field);
+  if (msg) msg.textContent = '';
+  input.focus();
 }
 
-function cancelEditProfile() {
-  $('edit-profile-card').style.display    = 'none';
-  $('btn-edit-profile-wrap').style.display = '';
+function cancelRowEdit(field) {
+  const editor = $('editor-' + field);
+  const right  = $('detail-' + field)?.closest('.cuenta-row-right');
+  if (!editor) return;
+  editor.style.display = 'none';
+  if (right) right.style.display = '';
 }
 
-async function saveProfile() {
+async function saveRowEdit(field) {
   if (!_allLinks.length) return;
-  const slug     = _allLinks[0].slug;
-  const nombre   = $('edit-nombre').value.trim();
-  const whatsapp = $('edit-whatsapp').value.trim();
-  const btn      = $('btn-save-profile');
-  const msg      = $('edit-profile-msg');
+  const slug  = _allLinks[0].slug;
+  const input = $('input-' + field);
+  const val   = input?.value.trim();
+  const msg   = $('msg-' + field);
+  if (!val) { if(msg){msg.style.color='var(--error)';msg.textContent='No puede estar vacío.';} return; }
 
-  if (!nombre) { msg.style.color = 'var(--error)'; msg.textContent = 'El nombre no puede estar vacío.'; return; }
-
-  btn.disabled = true; btn.textContent = 'Guardando…';
-  msg.textContent = '';
+  const saveBtn = $('editor-' + field)?.querySelector('.primary');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Guardando…'; }
 
   try {
-    const { data: saveData, error: saveErr } = await sb.functions.invoke('update-link', {
+    const body = { slug };
+    if (field === 'nombre') body.nombre = val;
+
+    const { data: sd, error: se } = await sb.functions.invoke('update-link', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'x-user-jwt': _accessToken
-      },
-      body: { slug, nombre, whatsapp: whatsapp || null }
+      headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'x-user-jwt': _accessToken },
+      body
     });
-    if (saveErr) throw saveErr;
-    if (saveData?.error) throw new Error(saveData.error);
+    if (se) throw se;
+    if (sd?.error) throw new Error(sd.error);
 
-    // Update local cache so sidebar refreshes
-    _allLinks[0].nombre   = nombre;
-    _allLinks[0].whatsapp = whatsapp || null;
-    updateSidebarName(nombre);
-
-    msg.style.color = 'var(--teal)'; msg.textContent = '¡Cambios guardados!';
-    btn.textContent = 'Guardar';
-    btn.disabled = false;
-    setTimeout(cancelEditProfile, 1200);
-  } catch (e) {
-    msg.style.color = 'var(--error)'; msg.textContent = e.message || 'Error al guardar.';
-    btn.textContent = 'Guardar'; btn.disabled = false;
+    // Update local + UI
+    if (field === 'nombre') {
+      _allLinks[0].nombre = val;
+      $('detail-nombre').textContent = val;
+      updateSidebarName(val);
+    }
+    cancelRowEdit(field);
+    showToast('¡Guardado!');
+  } catch(e) {
+    if(msg){msg.style.color='var(--error)';msg.textContent=e.message||'Error al guardar.';}
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Guardar'; }
   }
 }
 
