@@ -280,11 +280,16 @@
         <div class="config-title" style="margin-bottom:18px;">Editar perfil</div>
 
         <div class="fg" style="margin-bottom:14px;">
-          <label class="fg-label">Nombre</label>
+          <label class="fg-label">Correo electrónico</label>
+          <input type="email" id="edit-email-display" class="fg-input" disabled style="opacity:.5;cursor:not-allowed;" placeholder="—"/>
+          <div style="font-size:11px;color:var(--dim);margin-top:4px;">El correo es tu identificador de acceso y no puede cambiarse.</div>
+        </div>
+        <div class="fg" style="margin-bottom:14px;">
+          <label class="fg-label">Nombre completo</label>
           <input type="text" id="edit-nombre" class="fg-input" placeholder="Tu nombre completo"/>
         </div>
         <div class="fg" style="margin-bottom:20px;">
-          <label class="fg-label">WhatsApp <span style="font-weight:400;text-transform:none;color:var(--dim);">(con código de país, ej. 521…)</span></label>
+          <label class="fg-label">WhatsApp <span style="font-weight:400;text-transform:none;color:var(--dim);">(con lada, ej. 521…)</span></label>
           <input type="tel" id="edit-whatsapp" class="fg-input" placeholder="5219991234567"/>
         </div>
 
@@ -490,10 +495,9 @@ function populateUserInfo(user) {
 }
 
 function updateSidebarName(name) {
-  // Show only the first word (first name) in the sidebar, uppercase
+  // Show full name in uppercase (CSS already handles text-transform)
   if (!name) return
-  const firstName = name.trim().split(/\s+/)[0].toUpperCase()
-  if (firstName) $('user-name').textContent = firstName
+  $('user-name').textContent = name.trim().toUpperCase()
 }
 
 /* ── LOAD LINKS ── */
@@ -720,8 +724,9 @@ function relativeTime(iso) {
 function openEditProfile() {
   if (!_allLinks.length) { showToast('Carga tus links primero'); return; }
   const link = _allLinks[0];
-  $('edit-nombre').value    = link.nombre   || '';
-  $('edit-whatsapp').value  = link.whatsapp || '';
+  $('edit-email-display').value = _currentUser?.email || '';
+  $('edit-nombre').value        = link.nombre   || '';
+  $('edit-whatsapp').value      = link.whatsapp || '';
   $('edit-profile-card').style.display    = 'block';
   $('btn-edit-profile-wrap').style.display = 'none';
   $('edit-profile-msg').textContent = '';
