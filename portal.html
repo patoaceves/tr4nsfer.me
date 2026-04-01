@@ -464,22 +464,24 @@ function randCode(len) {
 
 /* ── AUTH GUARD ── */
 async function init() {
-  // getSession() reads localStorage — fastest and gives us the token immediately
-  let { data: { session } } = await sb.auth.getSession();
-
-  // If localStorage is cold (first magic-link land), do a server round-trip
-  if (!session) {
-    const { data: { user } } = await sb.auth.getUser();
-    if (!user) { window.location.href = 'auth.html?return=portal&reason=portal'; return; }
-    // getUser() refreshes the session — try once more
-    const refetch = await sb.auth.getSession();
-    session = refetch.data.session;
+  // getUser() ALWAYS makes a server round-trip and refreshes an expired access_token.
+  // getSession() only reads localStorage and returns stale/expired tokens as-is.
+  // We must call getUser() first so the token in localStorage is fresh before we read it.
+  const { data: { user }, error: userErr } = await sb.auth.getUser();
+  if (userErr || !user) {
+    window.location.href = 'auth.html?return=portal&reason=portal';
+    return;
   }
 
-  if (!session) { window.location.href = 'auth.html?return=portal&reason=portal'; return; }
+  // Now getSession() is guaranteed to have the refreshed token
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.access_token) {
+    window.location.href = 'auth.html?return=portal&reason=portal';
+    return;
+  }
 
   _currentUser = session.user;
-  _accessToken = session.access_token;   // ← stored once, reused everywhere
+  _accessToken = session.access_token;  // always a fresh, valid JWT
 
   populateUserInfo(session.user);
   loadLinks();
@@ -715,7 +717,7 @@ function switchTab(id) {
   });
   const target = $('tab-' + id);
   if (target) { target.style.display = 'block'; target.classList.add('active'); }
-  if (id === 'links' && _allLinks.length === 0 && _currentUser) {
+  if (id === 'links' && _allLinks.length === 0 && _currentUser && !document.getElementById('links-loading').style.display.includes('flex')) {
     loadLinks();
   }
 }
