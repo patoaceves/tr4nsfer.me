@@ -597,6 +597,10 @@
             </div>
           </div>
         </div>
+      <!-- Inline continue button shown only in edit mode -->
+      <div id="edit-continue-wrap" style="display:none;padding:0 0 8px;">
+        <button class="btn" id="edit-continue-btn" onclick="floatingBtnClick()" style="border-radius:999px;margin-top:0;">Continuar &#8594;</button>
+      </div>
       </div>
       <div id="floating-btn-wrap"><button id="floating-btn" onclick="floatingBtnClick()"><span id="floating-btn-text">Continuar &#8594;</span></button></div>
     </div>
@@ -1148,7 +1152,9 @@ function applyCardColor(){
   const {r,g,b}=gradientToShadowRGB(selectedCardGradient);
   const rgb=`${r},${g},${b}`;
   const frame=$('card-frame');
-  frame.style.boxShadow=`0 8px 40px rgba(${rgb},.45), 0 0 0 1px rgba(${rgb},.20)`;
+  // Glow on the CARD (clipped inside frame by overflow:hidden), not on the frame itself
+  card.style.boxShadow=`0 8px 48px rgba(${rgb},.60), 0 0 0 1px rgba(${rgb},.22)`;
+  frame.style.boxShadow='none';
   frame.style.setProperty('--cp-row-bg',`rgba(${rgb},.20)`);
   frame.style.setProperty('--cp-row-border',`rgba(${rgb},.32)`);
   frame.style.setProperty('--cp-accent',accent);
@@ -1338,31 +1344,53 @@ async function initEditMode(){
       }catch(_){}
     }
 
-    /* pre-fill non-encrypted fields */
-    profileType=data.profile_type||'personal';
-    if(data.nombre)$('nombre').value=data.nombre;
+    /* ── Step 1: pre-fill banking fields (readonly in edit mode) ── */
+    // CLABE — show value so preview card updates, but keep disabled
+    if(data.clabe&&$('clabe')){
+      $('clabe').value=data.clabe.replace(/\s/g,'');
+      $('clabe').dispatchEvent(new Event('input')); // triggers preview + bank detect
+    }
+    // Titular de la cuenta
+    if(data.titular_cuenta&&$('nombre-cuenta')){
+      $('nombre-cuenta').value=data.titular_cuenta;
+      $('nombre-cuenta').dispatchEvent(new Event('input'));
+    }
+    // Alias
     if(data.alias)$('alias').value=data.alias;
-    if(data.custom_slug)$('slug-custom').value=data.custom_slug;
 
-    /* mark encrypted fields as locked */
-    ['clabe','email','whatsapp'].forEach(id=>{
+    /* Lock Step 1 fields that can't change (CLABE, banco, titular) */
+    ['clabe','nombre-cuenta','banco'].forEach(id=>{
       const el=$(id); if(!el)return;
-      el.placeholder='(guardado — no editable aquí)';
-      el.disabled=true;
-      el.style.opacity='.45';
-      /* hide any validation CTAs for these fields */
+      el.readOnly=true;
+      el.style.opacity='.65';
+      el.style.cursor='default';
     });
     if($('clabe-exists-cta'))$('clabe-exists-cta').style.display='none';
     if($('email-exists-cta'))$('email-exists-cta').style.display='none';
 
-    /* icon */
-    if(data.profile_type==='negocios'){
-      const iconSec=$('icon-editor-section');
-      if(iconSec)iconSec.style.display='block';
+    /* ── Step 2: pre-fill design + personal fields ── */
+    profileType=data.profile_type||'personal';
+    // Nombre — show value but readonly (edit via Mi Cuenta > Editar perfil)
+    if(data.nombre&&$('nombre')){
+      $('nombre').value=data.nombre;
+      $('nombre').readOnly=true;
+      $('nombre').style.opacity='.65';
+      $('nombre').style.cursor='default';
     }
+    if(data.custom_slug)$('slug-custom').value=data.custom_slug;
+
+    /* Lock encrypted contact fields */
+    ['email','whatsapp'].forEach(id=>{
+      const el=$(id); if(!el)return;
+      el.disabled=true;
+      el.style.opacity='.45';
+    });
+
+    /* icon */
+    if(data.profile_type==='negocios'){const iconSec=$('icon-editor-section');if(iconSec)iconSec.style.display='block';}
     if(data.icon_id){selectedIconId=data.icon_id;selectedIconColor=data.icon_color||'rgba(255,255,255,1)';updateCardIcon(data.icon_id);}
 
-    /* card design */
+    /* card design + colors */
     if(data.card_design!=null&&data.card_design>=0){
       selectedDesign=data.card_design;
       document.querySelectorAll('.design-thumb').forEach((t,i)=>{t.classList.toggle('active',i===selectedDesign);});
@@ -1388,12 +1416,9 @@ async function initEditMode(){
       Object.entries(fmap).forEach(([k,id])=>{if(fd[k]&&$(id))$(id).value=fd[k];});
     }
 
-    /* go to step 2 directly */
+    /* ── Show Step 1 first (with inline Continue button below the card) ── */
     showMainLayout();
-    $('main-layout').classList.add('step2');
-    $('panel-step1').classList.add('hidden');
-    $('panel-step2').classList.remove('hidden','enter-right');
-    currentStep=2;
+    if($('edit-continue-wrap'))$('edit-continue-wrap').style.display='block';
     setFloatingBtn({visible:false});
     updateContactPreview();
     hidePageLoader(()=>{window.scrollTo({top:0,behavior:'smooth'});});
