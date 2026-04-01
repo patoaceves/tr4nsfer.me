@@ -844,8 +844,8 @@ function goToStep2(){
   let ok=true;
   if(setError('fg-nombre-cuenta',nombreCuenta.length<2))ok=false;
   if(clabe.length!==18){setError('fg-clabe',true);$('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';ok=false;}
-  if(clabeCheckState==='exists'){setError('fg-clabe',true);ok=false;}
-  if(clabeCheckState==='checking')return;
+  if(!EDIT_MODE&&clabeCheckState==='exists'){setError('fg-clabe',true);ok=false;}
+  if(!EDIT_MODE&&clabeCheckState==='checking')return;
   if(!ok)return;
   const bancoCode=clabe.substring(0,3),bancoData=BANCOS[bancoCode];
   $('step2-nombre-cuenta').textContent=nombreCuenta+($('alias').value.trim()?' · '+$('alias').value.trim():'');
@@ -928,7 +928,7 @@ function onClabeInput(){
   clabeCheckState='idle';const ring=$('clabe-checking-ring'),ver=$('clabe-verified'),cta=$('clabe-exists-cta');
   ring.classList.remove('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
   $('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';
-  if(len===18){$('fg-clabe').classList.remove('has-error');clearTimeout(clabeCheckTimer);clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500);}
+  if(len===18){$('fg-clabe').classList.remove('has-error');if(!EDIT_MODE){clearTimeout(clabeCheckTimer);clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500);}else{clabeCheckState='ok';}}
   const code=input.value.substring(0,3),wrap=$('banco-wrap'),bancoInput=$('banco'),iconEl=$('banco-icon'),lcBank=$('lc-bank');
   if(code.length===3&&BANCOS[code]){const b=BANCOS[code];bancoInput.value=b.nombre;iconEl.src=favicon(b.domain);iconEl.alt=b.nombre;wrap.classList.add('detected');$('lc-bank-icon').src=favicon(b.domain);$('lc-bank-icon').style.display='block';$('lc-bank-name').textContent=b.nombre;lcBank.style.display='flex';autoSetBankColor(code);}
   else{bancoInput.value='';iconEl.src='';wrap.classList.remove('detected');lcBank.style.display='none';const bancoSw=$('swatch-banco');if(bancoSw){bancoSw.dataset.gradient='linear-gradient(135deg,#004d38,#00c896)';bancoSw.style.background='#00a87a';bancoSw.classList.add('sin-banco');bancoSw.classList.remove('con-banco');if(!userPickedColor){selectedCardGradient='linear-gradient(135deg,#004d38,#00c896)';applyCardColor();}}}
