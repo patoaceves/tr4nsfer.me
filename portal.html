@@ -125,12 +125,12 @@
     .link-card-url span{font-size:12px;color:var(--teal);font-family:'Inter',monospace;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .url-edit-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px;margin-left:2px;flex-shrink:0;border-radius:5px;transition:color .15s,background .15s;display:flex;align-items:center;}
     .url-edit-btn:hover{color:var(--text-soft);background:rgba(255,255,255,.06);}
-    .link-card-url.editing{cursor:default;border-color:rgba(0,200,150,.3);padding:0 10px 0 12px;gap:0;}
+    .link-card-url.editing{cursor:default;border-color:rgba(0,200,150,.3);padding:0 36px 0 12px;gap:0;position:relative;}
     .link-card-url.editing:hover{border-color:rgba(0,200,150,.3);}
     .url-slug-prefix{font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0;font-family:'Inter',monospace;}
     .url-slug-input{flex:1;background:transparent;border:none;outline:none;font-size:12px;font-family:'Inter',monospace;color:var(--teal);padding:9px 2px;min-width:0;}
     .url-slug-input::placeholder{color:var(--muted2);}
-    .url-slug-status{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .url-slug-status{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;pointer-events:none;}
     @keyframes urlSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     .url-spin-ring{animation:urlSpin .7s linear infinite;transform-origin:center;}
     .url-edit-actions{display:none;gap:6px;margin-bottom:14px;}
@@ -824,16 +824,14 @@ let _urlCheckStates = {};   // slug → 'idle'|'checking'|'ok'|'taken'|'invalid'
 
 const URL_SLUG_RE = /^[a-z0-9-]{3,20}$/;
 
-const _urlStatusIcons = {
-  ok:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  taken:   `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>`,
-  checking:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path class="url-spin-ring" d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>`,
-};
 
 function setUrlStatus(slug, type) {
   const el = $('url-status-' + slug);
   if (!el) return;
-  el.innerHTML = _urlStatusIcons[type] || '';
+  if (type === 'ok')       el.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  else if (type === 'taken') el.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+  else if (type === 'checking') el.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="animation:urlSpin .7s linear infinite;transform-origin:center;display:block;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>`;
+  else el.innerHTML = '';
 }
 
 function startEditUrl(e, slug) {
@@ -849,7 +847,7 @@ function startEditUrl(e, slug) {
   actions.classList.add('visible');
   if (cardActions) cardActions.style.display = 'none';
   _urlCheckStates[slug] = 'idle';
-  $('url-status-' + slug).innerHTML = '';
+  setUrlStatus(slug, '');
   input.value = '';
   input.focus();
 }
@@ -868,6 +866,36 @@ function cancelEditUrl(slug) {
   _urlCheckStates[slug] = 'idle';
 }
 
+function onUrlKeydown(e, slug) {
+  if (e.key === 'Enter')  saveUrl(slug);
+  if (e.key === 'Escape') cancelEditUrl(slug);
+}
+
+async function checkUrlSlug(slug, val) {
+  _urlCheckStates[slug] = 'checking';
+  setUrlStatus(slug, 'checking');
+  try {
+    // Reutiliza get-link: 200 = existe (tomado), 404 = disponible
+    const resp = await fetch(
+      `${SUPABASE_URL}/functions/v1/get-link?slug=${encodeURIComponent(val)}`,
+      { headers: { 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY } }
+    );
+    if (resp.status === 200) {
+      // Existe — verificar si es el propio link del usuario (sería ok reasignarlo)
+      const data = await resp.json();
+      const isOwn = data.slug === slug || (_allLinks.some(l => l.slug === slug && l.custom_slug === val));
+      _urlCheckStates[slug] = isOwn ? 'ok' : 'taken';
+      setUrlStatus(slug, isOwn ? 'ok' : 'taken');
+    } else {
+      // 404 = disponible
+      _urlCheckStates[slug] = 'ok';
+      setUrlStatus(slug, 'ok');
+    }
+  } catch(e) {
+    _urlCheckStates[slug] = 'idle';
+    setUrlStatus(slug, '');
+  }
+}
 
 function onUrlInput(slug) {
   const input = $('url-input-' + slug);
@@ -875,18 +903,19 @@ function onUrlInput(slug) {
   let val = input.value.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
   if (input.value !== val) { input.value = val; try { input.setSelectionRange(pos, pos); } catch(e){} }
   clearTimeout(_urlCheckTimers[slug]);
-  // Validación solo de formato — la unicidad la verifica el servidor al guardar
-  if (!val) {
-    _urlCheckStates[slug] = 'idle';
-    setUrlStatus(slug, '');
-  } else if (val.length < 3 || !URL_SLUG_RE.test(val)) {
+  _urlCheckStates[slug] = 'idle';
+  setUrlStatus(slug, '');
+  if (!val) return;
+  if (val.length < 3 || !URL_SLUG_RE.test(val)) {
     _urlCheckStates[slug] = 'invalid';
-    setUrlStatus(slug, 'taken');   // rojo si formato inválido
-  } else {
-    _urlCheckStates[slug] = 'ok';
-    setUrlStatus(slug, 'ok');      // verde si formato OK (unicidad → servidor)
+    setUrlStatus(slug, 'taken');
+    return;
   }
+  // Formato OK → verificar disponibilidad en servidor con debounce
+  _urlCheckTimers[slug] = setTimeout(() => checkUrlSlug(slug, val), 500);
 }
+
+
 
 async function saveUrl(slug) {
   const input = $('url-input-' + slug);
