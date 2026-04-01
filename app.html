@@ -433,6 +433,13 @@
             <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios&#8230;" oninput="updateCard()"/>
           </div>
         </div>
+        <!-- Continue button shown only in edit mode, right below account data -->
+        <div id="edit-continue-wrap" style="display:none;padding:16px 0 4px;">
+          <button id="edit-continue-btn" onclick="floatingBtnClick()"
+            style="width:100%;background:var(--teal);color:#000;border:none;border-radius:999px;padding:14px 28px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .18s,transform .12s;">
+            Continuar &#8594;
+          </button>
+        </div>
       </div>
       <!-- PANEL 2 -->
       <div class="left-panel hidden" id="panel-step2">
@@ -597,10 +604,6 @@
             </div>
           </div>
         </div>
-      <!-- Inline continue button shown only in edit mode -->
-      <div id="edit-continue-wrap" style="display:none;padding:0 0 8px;">
-        <button class="btn" id="edit-continue-btn" onclick="floatingBtnClick()" style="border-radius:999px;margin-top:0;">Continuar &#8594;</button>
-      </div>
       </div>
       <div id="floating-btn-wrap"><button id="floating-btn" onclick="floatingBtnClick()"><span id="floating-btn-text">Continuar &#8594;</span></button></div>
     </div>
