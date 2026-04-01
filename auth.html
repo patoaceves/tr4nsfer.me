@@ -162,7 +162,7 @@
     <!-- ── STEP 1: EMAIL ── -->
     <div id="step-email" class="auth-step active">
       <div class="auth-title">Accede a tu cuenta</div>
-      <div class="auth-sub">Te enviaremos un link mágico a tu correo para entrar sin contraseña.</div>
+      <div class="auth-sub">Te enviaremos un link de acceso a tu correo para entrar sin contraseña.</div>
 
       <div class="auth-context" id="auth-context"></div>
 
@@ -321,13 +321,20 @@ async function sendLink() {
       options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
     });
     if (error) {
-      setMsg('msg-send', 'No se pudo enviar el link. Intenta de nuevo.', 'err');
+      console.error('[auth] signInWithOtp error:', error);
+      const msg = error.message || 'Error desconocido';
+      if (msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('too many')) {
+        setMsg('msg-send', 'Demasiados intentos. Espera unos minutos e intenta de nuevo.', 'err');
+      } else {
+        setMsg('msg-send', `Error: ${msg}`, 'err');
+      }
       return;
     }
     $('sent-email-display').textContent = email;
     showStep('step-sent');
   } catch (err) {
-    setMsg('msg-send', 'No se pudo enviar el link. Intenta de nuevo.', 'err');
+    console.error('[auth] catch error:', err);
+    setMsg('msg-send', `Error: ${err.message || 'No se pudo enviar el link.'}`, 'err');
   } finally {
     btn.disabled = false;
     btn.textContent = 'Enviar link de acceso';
