@@ -318,16 +318,10 @@ async function sendLink() {
   try {
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
     });
     if (error) {
-      /* user not found in auth */
-      if (error.message?.toLowerCase().includes('not found') || error.status === 400 || error.message?.toLowerCase().includes('signup')) {
-        errEl.textContent = 'No encontramos una cuenta ligada a ese correo. Crea tu link primero.';
-        fgEl.classList.add('has-error');
-      } else {
-        setMsg('msg-send', 'No se pudo enviar el link. Intenta de nuevo.', 'err');
-      }
+      setMsg('msg-send', 'No se pudo enviar el link. Intenta de nuevo.', 'err');
       return;
     }
     $('sent-email-display').textContent = email;
@@ -348,7 +342,7 @@ async function resendLink() {
   try {
     const { error } = await sb.auth.signInWithOtp({
       email: currentEmail,
-      options: { shouldCreateUser: false, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
     });
     if (error) throw error;
     btn.textContent = 'Link reenviado ✓';
