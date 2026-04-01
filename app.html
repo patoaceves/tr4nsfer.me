@@ -339,6 +339,18 @@
     .pl-stroke-diag{stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag 2.1s linear infinite;}
     .pl-stroke-vert{stroke-dasharray:750;stroke-dashoffset:750;animation:plVert 2.1s linear infinite;}
     .pl-dot{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear infinite;}
+    /* ── DUPLICATE CTAs (CLABE / email ya registrados) ─────────── */
+    .field-exists-cta { display:none; margin-top:8px; padding:9px 12px; background:rgba(255,200,0,0.04); border:1px solid rgba(255,200,0,0.14); border-radius:8px; }
+    .field-exists-cta .fec-text { font-size:11.5px; color:rgba(255,255,255,0.45); margin-bottom:7px; line-height:1.4; }
+    .fec-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:7px; border:1px solid rgba(0,200,150,0.28); background:rgba(0,200,150,0.07); color:var(--teal); font-size:11.5px; font-weight:600; cursor:pointer; transition:background .15s; font-family:'Inter',sans-serif; letter-spacing:-.01em; }
+    .fec-btn:hover { background:rgba(0,200,150,0.15); }
+    /* Email inline status icons */
+    .email-wrap { position:relative; }
+    .email-wrap input { padding-right:32px; }
+    .email-icon-abs { position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; display:none; }
+    .email-ring { position:absolute; right:10px; top:50%; margin-top:-8px; width:16px; height:16px; pointer-events:none; display:none; }
+    .email-ring.visible { display:block; animation:spin .7s linear infinite; }
+    /* ─────────────────────────────────────────────────────────── */
   </style>
 </head>
 <body>
@@ -354,7 +366,7 @@
 <header>
   <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
   <nav>
-    <div class="nav-links"><a href="index.html">Inicio</a><a href="index.html#pricing">Pricing</a><a href="index.html#ayuda">Ayuda</a></div>
+    <div class="nav-links"><a href="index.html">Inicio</a><a href="index.html#pricing">Pricing</a><a href="index.html#ayuda">Ayuda</a><a href="portal.html">Mi Cuenta</a></div>
     <a href="app.html" class="btn-nav">Crear mi Link</a>
   </nav>
 </header>
@@ -404,6 +416,10 @@
               <svg class="clabe-checking-ring" id="clabe-checking-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
             </div>
             <span class="field-error" id="clabe-error-msg">La CLABE debe tener exactamente 18 d&#237;gitos.</span>
+            <div class="field-exists-cta" id="clabe-exists-cta">
+              <div class="fec-text">¿La CLABE es tuya?</div>
+              <button class="fec-btn" onclick="goToAuthWithState('clabe')">Administrar mis Links &#8594;</button>
+            </div>
           </div>
           <div class="field" id="fg-banco">
             <label>Banco</label>
@@ -434,8 +450,16 @@
               <label>Correo electr&#243;nico <span class="req">*</span></label>
               <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)"><input type="checkbox" id="show_email"/><span class="show-toggle-track"><span class="show-toggle-thumb"></span></span><span class="show-toggle-label">Agregar</span></label>
             </div>
-            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview();onEmailInput()" onblur="onEmailBlur()"/>
-            <span class="field-error">Ingresa un correo v&#225;lido.</span>
+            <div class="email-wrap">
+              <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview();onEmailInput()" onblur="onEmailBlur()"/>
+              <svg class="email-ring" id="email-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+              <svg class="email-icon-abs" id="email-verified" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="field-error" id="email-error-msg">Ingresa un correo v&#225;lido.</span>
+            <div class="field-exists-cta" id="email-exists-cta">
+              <div class="fec-text">Este correo ya tiene una cuenta. ¿Es tuyo?</div>
+              <button class="fec-btn" onclick="goToAuthWithState('email')">Iniciar sesi&#243;n &#8594;</button>
+            </div>
           </div>
           <div class="field" id="fg-whatsapp">
             <div class="field-label-row">
@@ -641,6 +665,9 @@
 const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
 const $=id=>document.getElementById(id);
+/* ── EDIT MODE ── */
+const EDIT_SLUG = new URLSearchParams(location.search).get('edit') || null;
+const EDIT_MODE = !!EDIT_SLUG;
 
 /* ── QR helpers ── */
 function qrApiUrl(slug,size){return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent('https://tr4nsfer.me/'+slug)+'&margin=10&color=000000&bgcolor=ffffff';}
@@ -871,10 +898,28 @@ function onNombreNegocioToggle(){const checked=$('show_nombre_negocio').checked;
 function updateNombreNegocioPreview(){const val=$('nombre-negocio').value.trim();if(val&&$('show_nombre_negocio').checked){$('lc-negocio-val').textContent=val.toUpperCase();$('lc-negocio-group').style.display='flex';}else $('lc-negocio-group').style.display='none';}
 
 /* ── CLABE ── */
-async function checkClabeExists(clabe){clabeCheckState='checking';const ring=$('clabe-checking-ring'),ver=$('clabe-verified');ring.classList.add('visible');if(ver)ver.style.display='none';try{const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-clabe`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe})});const data=await resp.json();ring.classList.remove('visible');if(data.exists){clabeCheckState='exists';$('clabe-error-msg').textContent='Esta CLABE ya tiene un perfil registrado.';setError('fg-clabe',true);if(ver)ver.style.display='none';}else{clabeCheckState='ok';setError('fg-clabe',false);if(ver)ver.style.display='block';}}catch(e){clabeCheckState='idle';ring.classList.remove('visible');}}
+async function checkClabeExists(clabe){
+  clabeCheckState='checking';
+  const ring=$('clabe-checking-ring'),ver=$('clabe-verified'),cta=$('clabe-exists-cta');
+  ring.classList.add('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
+  try{
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-clabe`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe})});
+    const data=await resp.json();ring.classList.remove('visible');
+    if(data.exists){
+      clabeCheckState='exists';
+      $('clabe-error-msg').textContent='Esta CLABE ya tiene un perfil registrado.';
+      setError('fg-clabe',true);if(ver)ver.style.display='none';
+      if(cta)cta.style.display='block'; /* show ¿La CLABE es tuya? CTA */
+    }else{
+      clabeCheckState='ok';setError('fg-clabe',false);if(ver)ver.style.display='block';if(cta)cta.style.display='none';
+    }
+  }catch(e){clabeCheckState='idle';ring.classList.remove('visible');}
+}
 function onClabeInput(){
   const input=$('clabe');input.value=input.value.replace(/[\D\s]/g,'').substring(0,18);const len=input.value.length;input.classList.toggle('complete',len===18);
-  clabeCheckState='idle';const ring=$('clabe-checking-ring'),ver=$('clabe-verified');ring.classList.remove('visible');if(ver)ver.style.display='none';$('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';
+  clabeCheckState='idle';const ring=$('clabe-checking-ring'),ver=$('clabe-verified'),cta=$('clabe-exists-cta');
+  ring.classList.remove('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
+  $('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';
   if(len===18){$('fg-clabe').classList.remove('has-error');clearTimeout(clabeCheckTimer);clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500);}
   const code=input.value.substring(0,3),wrap=$('banco-wrap'),bancoInput=$('banco'),iconEl=$('banco-icon'),lcBank=$('lc-bank');
   if(code.length===3&&BANCOS[code]){const b=BANCOS[code];bancoInput.value=b.nombre;iconEl.src=favicon(b.domain);iconEl.alt=b.nombre;wrap.classList.add('detected');$('lc-bank-icon').src=favicon(b.domain);$('lc-bank-icon').style.display='block';$('lc-bank-name').textContent=b.nombre;lcBank.style.display='flex';autoSetBankColor(code);}
@@ -937,8 +982,82 @@ function onSlugInput(){const inp=$('slug-custom');const pos=inp.selectionStart;l
 const LADAS_2D=new Set(['55','56','81','33','99']);
 function fmtWA(d){if(!d)return '';if(LADAS_2D.has(d.substring(0,2)))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(p=>p).join(' ');return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(p=>p).join(' ');}
 function onWaInput(){var inp=$('whatsapp'),sel=$('wa-country');var max=sel?parseInt(sel.options[sel.selectedIndex].dataset.digits||'10'):10;var raw=inp.value.replace(/\D/g,'').substring(0,max);inp.dataset.raw=raw;var cc=sel?sel.value:'+52';inp.value=(cc==='+52')?fmtWA(raw):raw;var l=inp.value.length;inp.setSelectionRange(l,l);var fg=$('fg-whatsapp');if(fg){if(raw.length===0||raw.length===max)fg.classList.remove('has-error');else fg.classList.add('has-error');}updateContactPreview();}
-function onEmailInput(){var fg=$('fg-email'),val=$('email').value.trim();if(!val){fg.classList.remove('has-error');return;}/\S+@\S+\.\S+/.test(val)?fg.classList.remove('has-error'):fg.classList.add('has-error');}
-function onEmailBlur(){var fg=$('fg-email'),val=$('email').value.trim();if(!val)return;!/\S+@\S+\.\S+/.test(val)?fg.classList.add('has-error'):fg.classList.remove('has-error');}
+/* ── EMAIL CHECK ── */
+let emailCheckState='idle', emailCheckTimer=null;
+async function checkEmailExists(email){
+  emailCheckState='checking';
+  const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta'),errMsg=$('email-error-msg');
+  if(ring)ring.classList.add('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
+  try{
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-email`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({email})});
+    const data=await resp.json();
+    if(ring)ring.classList.remove('visible');
+    if(data.exists){
+      emailCheckState='exists';
+      if(errMsg)errMsg.textContent='Este correo ya tiene una cuenta registrada.';
+      setError('fg-email',true);if(ver)ver.style.display='none';
+      if(cta)cta.style.display='block';
+    }else{
+      emailCheckState='ok';setError('fg-email',false);
+      if(ver)ver.style.display='block';if(cta)cta.style.display='none';
+    }
+  }catch(e){emailCheckState='idle';if(ring)ring.classList.remove('visible');}
+}
+function onEmailInput(){
+  var fg=$('fg-email'),val=$('email').value.trim();
+  emailCheckState='idle';
+  const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta'),errMsg=$('email-error-msg');
+  if(ring)ring.classList.remove('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
+  if(!val){fg.classList.remove('has-error');return;}
+  if(!/\S+@\S+\.\S+/.test(val)){fg.classList.add('has-error');if(errMsg)errMsg.textContent='Ingresa un correo válido.';return;}
+  fg.classList.remove('has-error');
+  clearTimeout(emailCheckTimer);
+  emailCheckTimer=setTimeout(()=>checkEmailExists(val),600);
+}
+function onEmailBlur(){
+  var fg=$('fg-email'),val=$('email').value.trim();
+  if(!val)return;
+  if(!/\S+@\S+\.\S+/.test(val)){fg.classList.add('has-error');const errMsg=$('email-error-msg');if(errMsg)errMsg.textContent='Ingresa un correo válido.';}
+}
+
+/* ── FORM STATE SAVE / RESTORE ── */
+const FORM_DRAFT_KEY='tr4nsfer_form_draft';
+function saveFormState(){
+  const fields=['nombre','nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','instagram','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'];
+  const state={};
+  fields.forEach(id=>{const el=$(id);if(el)state[id]=el.value;});
+  ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio','consent1','consent2'].forEach(id=>{const el=$(id);if(el)state[id]=el.checked;});
+  state._step=currentStep;
+  state._profileType=profileType;
+  state._gradient=selectedCardGradient;
+  state._design=selectedDesign;
+  state._bgColor=selectedBgColor;
+  try{localStorage.setItem(FORM_DRAFT_KEY,JSON.stringify(state));}catch(e){}
+}
+function restoreFormState(){
+  let saved;try{saved=localStorage.getItem(FORM_DRAFT_KEY);}catch(e){return;}
+  if(!saved)return;
+  let state;try{state=JSON.parse(saved);}catch(e){return;}
+  localStorage.removeItem(FORM_DRAFT_KEY);
+  /* restore text fields */
+  ['nombre','nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','instagram','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.value=state[id];});
+  /* restore checkboxes */
+  ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio','consent1','consent2'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.checked=state[id];});
+  /* restore selections */
+  if(state._profileType){profileType=state._profileType;}
+  if(state._gradient){selectedCardGradient=state._gradient;}
+  if(state._design!==undefined){selectedDesign=state._design;}
+  if(state._bgColor){selectedBgColor=state._bgColor;}
+  /* re-trigger CLABE parsing */
+  if(state['clabe']){onClabeInput();}
+  updateCard();updateContactPreview();
+  /* go to step where user left off */
+  if(state._step===2)setTimeout(goToStep2,200);
+}
+function goToAuthWithState(reason){
+  saveFormState();
+  window.location.href='auth.html?return=app&reason='+(reason||'existing');
+}
 
 /* ── CONTACT PREVIEW ── */
 function updateContactPreview(){var sel=$('wa-country'),cc=sel?sel.value:'+52';var waInp=$('whatsapp'),waRaw=waInp?(waInp.dataset.raw||waInp.value.replace(/\D/g,'')):'';var emVal=$('email')?$('email').value.trim():'';var showWa=$('show_whatsapp')&&$('show_whatsapp').checked&&waRaw.length>0;var showEm=$('show_email')&&$('show_email').checked&&emVal.length>0;var showFiscal=$('show_fiscal')&&$('show_fiscal').checked;var cpWa=$('cp-wa'),cpEm=$('cp-email'),cpFiscal=$('cp-fiscal-row'),cp=$('contact-preview');if(!cpWa||!cpEm||!cp)return;if(showWa){$('cp-wa-text').textContent=(cc==='+52'?(cc+' '+fmtWA(waRaw)):(cc+' '+waRaw));cpWa.style.display='flex';}else cpWa.style.display='none';if(showEm){$('cp-email-text').textContent=emVal;cpEm.style.display='flex';}else cpEm.style.display='none';if(cpFiscal)cpFiscal.style.display=showFiscal?'flex':'none';cp.style.display=(showWa||showEm||showFiscal)?'flex':'none';}
@@ -947,6 +1066,7 @@ function setError(fgId,show){const fg=$(fgId);if(!fg)return show;show?fg.classLi
 
 /* ── SUBMIT ── */
 async function submitForm(){
+  if(EDIT_MODE){saveEditedLink();return;}
   const nombre=$('nombre').value.trim(),email=$('email').value.trim();
   let ok=true;
   if(setError('fg-nombre',nombre.length<3))ok=false;
@@ -959,6 +1079,8 @@ async function submitForm(){
   const slugVal=$('slug-custom').value.trim();
   if(slugVal.length>0&&slugVal.length<3){$('slug-error').textContent='Mínimo 3 caracteres.';setError('fg-slug',true);ok=false;}
   if(slugCheckState==='taken'||slugCheckState==='invalid')ok=false;if(slugCheckState==='checking')return;
+  if(emailCheckState==='exists'){setError('fg-email',true);ok=false;}
+  if(emailCheckState==='checking')return;
   const c1=$('fg-consent1'),c2=$('fg-consent2');
   if(!$('consent1').checked){c1.classList.add('has-error');ok=false;}else c1.classList.remove('has-error');
   if(!$('consent2').checked){c2.classList.add('has-error');ok=false;}else c2.classList.remove('has-error');
@@ -1165,9 +1287,140 @@ async function downloadPDF(){
   doc.save('tr4nsfer-me-'+_successSlug+'.pdf');
 }
 
+/* ── EDIT MODE INIT ── */
+async function initEditMode(){
+  /* hide type selector, show editor immediately */
+  $('view-type').style.display='none';
+  if($('type-back-btn'))$('type-back-btn').style.display='none';
+  $('app-hero').style.display='';
+  transitionHero('Editar mi Link','Actualiza el diseño y la información de tu perfil.');
+
+  /* hide consent block — not needed when editing */
+  const step2Footer=$('step2-footer');
+  if(step2Footer){
+    const consentBlock=step2Footer.querySelector('.consent-block');
+    if(consentBlock)consentBlock.style.display='none';
+    const securityNote=step2Footer.querySelector('div[style*="AES"]');
+    if(securityNote)securityNote.style.display='none';
+  }
+  /* swap button label */
+  const btnText=$('btn-text');
+  if(btnText)btnText.textContent='Guardar cambios';
+
+  /* fetch link data */
+  showPageLoader();
+  try{
+    const {data,error}=await supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
+      .from('links').select('nombre,alias,banco,banco_code,banco_domain,card_gradient,card_design,bg_color,profile_type,nombre_negocio,icon_id,icon_color,show_whatsapp,show_email,custom_slug,has_fiscal,razon_social,rfc,regimen_fiscal,cp_fiscal,ciudad_fiscal,estado_fiscal,colonia_fiscal,calle_fiscal').eq('slug',EDIT_SLUG).maybeSingle();
+    if(error)throw error;
+    if(!data){hidePageLoader(()=>{showToast('Link no encontrado.','error');});return;}
+
+    /* pre-fill non-encrypted fields */
+    profileType=data.profile_type||'personal';
+    if(data.nombre)$('nombre').value=data.nombre;
+    if(data.alias)$('alias').value=data.alias;
+    if(data.custom_slug)$('slug-custom').value=data.custom_slug;
+
+    /* mark encrypted fields as locked */
+    ['clabe','email','whatsapp'].forEach(id=>{
+      const el=$(id); if(!el)return;
+      el.placeholder='(guardado — no editable aquí)';
+      el.disabled=true;
+      el.style.opacity='.45';
+      /* hide any validation CTAs for these fields */
+    });
+    if($('clabe-exists-cta'))$('clabe-exists-cta').style.display='none';
+    if($('email-exists-cta'))$('email-exists-cta').style.display='none';
+
+    /* icon */
+    if(data.profile_type==='negocios'){
+      const iconSec=$('icon-editor-section');
+      if(iconSec)iconSec.style.display='block';
+    }
+    if(data.icon_id){selectedIconId=data.icon_id;selectedIconColor=data.icon_color||'rgba(255,255,255,1)';updateCardIcon(data.icon_id);}
+
+    /* card design */
+    if(data.card_design!=null&&data.card_design>=0){
+      selectedDesign=data.card_design;
+      document.querySelectorAll('.design-thumb').forEach((t,i)=>{t.classList.toggle('active',i===selectedDesign);});
+      renderDesign($('card-design-layer'),selectedDesign);
+    }
+    if(data.card_gradient){
+      selectedCardGradient=data.card_gradient;
+      document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
+    }
+    if(data.bg_color)selectedBgColor=data.bg_color;
+    applyCardColor();applyBgColor();
+
+    /* toggles */
+    if($('show_whatsapp'))$('show_whatsapp').checked=!!data.show_whatsapp;
+    if($('show_email'))$('show_email').checked=!!data.show_email;
+
+    /* fiscal */
+    if(data.has_fiscal&&$('show_fiscal')){
+      $('show_fiscal').checked=true;
+      $('show_fiscal').dispatchEvent(new Event('change'));
+      const fmap={razon_social:'razon-social',rfc:'rfc',regimen_fiscal:'regimen-fiscal',cp_fiscal:'cp-fiscal',ciudad_fiscal:'ciudad-fiscal',estado_fiscal:'estado-fiscal',calle_fiscal:'calle-fiscal'};
+      Object.entries(fmap).forEach(([k,id])=>{if(data[k]&&$(id))$(id).value=data[k];});
+    }
+
+    /* go to step 2 directly */
+    showMainLayout();
+    $('main-layout').classList.add('step2');
+    $('panel-step1').classList.add('hidden');
+    $('panel-step2').classList.remove('hidden','enter-right');
+    currentStep=2;
+    setFloatingBtn({visible:false});
+    updateContactPreview();
+    hidePageLoader(()=>{window.scrollTo({top:0,behavior:'smooth'});});
+
+  }catch(err){
+    console.error('initEditMode error',err);
+    hidePageLoader(()=>{showToast('Error al cargar el link.','error');});
+  }
+}
+
+/* ── EDIT MODE SAVE ── */
+async function saveEditedLink(){
+  const alias=$('alias').value.trim();
+  const nombre=$('nombre').value.trim();
+  let ok=true;
+  if(nombre.length<3){setError('fg-nombre',true);ok=false;}
+  if(!ok)return;
+  const btn=$('submit-btn'),textEl=$('btn-text');
+  btn.disabled=true;textEl.textContent='Guardando…';
+  showPageLoader();
+  try{
+    const payload={
+      slug:EDIT_SLUG,
+      nombre,alias:alias||null,
+      card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,
+      show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),
+      show_email:!!($('show_email')&&$('show_email').checked),
+      icon_id:selectedIconId||null,icon_color:selectedIconColor||null,
+    };
+    const showFiscal=$('show_fiscal')&&$('show_fiscal').checked;
+    if(showFiscal){
+      const rfcVal=$('rfc').value.trim();
+      if(!rfcVal||!validateRFC(rfcVal)){$('rfc-error').textContent='RFC inválido.';setError('fg-rfc',true);btn.disabled=false;textEl.textContent='Guardar cambios';hidePageLoader(null);return;}
+      Object.assign(payload,{has_fiscal:true,razon_social:$('razon-social').value.trim(),rfc:rfcVal,regimen_fiscal:$('regimen-fiscal').value,cp_fiscal:$('cp-fiscal').value,ciudad_fiscal:$('ciudad-fiscal')?$('ciudad-fiscal').value.trim():'',estado_fiscal:$('estado-fiscal')?$('estado-fiscal').value.trim():'',calle_fiscal:$('calle-fiscal')?$('calle-fiscal').value.trim():''});
+    }
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/update-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify(payload)});
+    if(!resp.ok)throw new Error('update failed');
+    hidePageLoader(()=>{
+      showToast('¡Cambios guardados!','ok');
+      btn.disabled=false;textEl.textContent='Guardar cambios';
+      setTimeout(()=>window.location.href='portal.html',1600);
+    });
+  }catch(e){
+    hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Error. Intenta de nuevo.';showToast('No se pudieron guardar los cambios.','error');});
+  }
+}
+
 /* ── INIT ── */
 buildDesignPicker();buildSwatches();initColorPickers();buildIconPicker();
 renderDesign($('card-design-layer'),0);applyCardColor();applyBgColor();
+if(EDIT_MODE){initEditMode();}else{restoreFormState();}
 $('app-hero').style.display='none';$('main-layout').style.display='none';
 
 /* ── SHAPES ── */
