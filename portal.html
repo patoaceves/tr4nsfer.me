@@ -520,21 +520,10 @@ async function loadLinks() {
   $('links-empty').style.display   = 'none';
 
   try {
-    if (!_accessToken) throw new Error('Sin sesión activa');
-
-    // Debug: log token prefix so we can verify it's a user JWT (not anon key)
-    console.log('[portal] loadLinks token prefix:', _accessToken.substring(0, 40) + '…');
-
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/user-links`, {
-      headers: { 'Authorization': `Bearer ${_accessToken}` }
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error || `HTTP ${resp.status}`);
-    }
-
-    const { links, expirable: expMap } = await resp.json();
+    // sb.functions.invoke sends both Authorization + apikey headers automatically
+    const { data, error: fnErr } = await sb.functions.invoke('user-links');
+    if (fnErr) throw fnErr;
+    const { links, expirable: expMap } = data;
     _allLinks = links || [];
 
     $('links-loading').style.display = 'none';
@@ -766,13 +755,12 @@ async function saveProfile() {
   msg.textContent = '';
 
   try {
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/update-link`, {
+    const { data: saveData, error: saveErr } = await sb.functions.invoke('update-link', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_accessToken}` },
-      body: JSON.stringify({ slug, nombre, whatsapp: whatsapp || null })
+      body: { slug, nombre, whatsapp: whatsapp || null }
     });
-    const result = await resp.json();
-    if (!resp.ok || result.error) throw new Error(result.error || 'Error al guardar');
+    if (saveErr) throw saveErr;
+    if (saveData?.error) throw new Error(saveData.error);
 
     // Update local cache so sidebar refreshes
     _allLinks[0].nombre   = nombre;
