@@ -458,16 +458,19 @@ async function loadLinks(email) {
 
   try {
     const hash = await hashEmail(email);
+    console.log('[portal] loadLinks email:', email, '| hash:', hash);
 
     /* query by email_hash first; fall back to plain email column for older links */
     let links = [], queryError = null;
     const { data: byHash, error: e1 } = await sb
       .from('links').select('*').eq('email_hash', hash).order('created_at', { ascending: false });
+    console.log('[portal] byHash result:', byHash?.length ?? 0, 'rows | error:', e1?.message);
     if (!e1 && byHash?.length > 0) {
       links = byHash;
     } else {
       const { data: byEmail, error: e2 } = await sb
         .from('links').select('*').eq('email', email).order('created_at', { ascending: false });
+      console.log('[portal] byEmail result:', byEmail?.length ?? 0, 'rows | error:', e2?.message);
       if (e2) queryError = e2; else links = byEmail || [];
     }
     if (queryError) throw queryError;
@@ -492,6 +495,8 @@ async function loadLinks(email) {
 
     if (_allLinks.length === 0) {
       $('links-empty').style.display = 'block';
+      $('links-empty').querySelector('h3').textContent = 'No encontramos links';
+      $('links-empty').querySelector('p').textContent = `No hay links asociados a ${email}. Si usaste un correo diferente al crear tu link, escríbenos a hola@tr4nsfer.me`;
       $('detail-links-count').textContent = '0';
       return;
     }
