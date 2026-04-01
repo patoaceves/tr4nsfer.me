@@ -1431,43 +1431,26 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
 
 /* ── CROSS-TAB SIGN-IN ─────────────────────────────────────────────────────
    When the user clicks the magic-link email in a different tab, Supabase
-   fires SIGNED_IN via localStorage. Update the nav link to show their name
+   fires SIGNED_IN via localStorage. Update the nav link to show their email
    so the editor reflects that they're now authenticated.                    */
 (function(){
   const sbCrossTab = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  sbCrossTab.auth.onAuthStateChange(async (event, session) => {
-    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
-      const navLink = document.getElementById('nav-account-link');
-      if (!navLink) return;
-      // Try to get the display name from their first link
-      try {
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/user-links`, {
-          headers: { 'Authorization': `Bearer ${session.access_token}` }
-        });
-        if (resp.ok) {
-          const { links } = await resp.json();
-          if (links && links.length > 0) {
-            const name = (links[0].nombre_negocio || links[0].nombre || '').toUpperCase();
-            if (name) { navLink.textContent = name; navLink.style.color = 'var(--teal)'; }
-          }
-        }
-      } catch(e) {
-        // fallback: show email prefix in uppercase
-        const prefix = session.user.email.split('@')[0].toUpperCase();
-        navLink.textContent = prefix;
-        navLink.style.color = 'var(--teal)';
-      }
-    }
-  });
-  // Check on load too in case already signed in
-  sbCrossTab.auth.getSession().then(({ data: { session } }) => {
-    if (!session) return;
-    sbCrossTab.auth.onAuthStateChange(null); // stop duplicate listener
+  function setNavEmail(email) {
     const navLink = document.getElementById('nav-account-link');
-    if (navLink) {
-      const prefix = session.user.email.split('@')[0].toUpperCase();
-      navLink.textContent = prefix;
-      navLink.style.color = 'var(--teal)';
+    if (navLink && email) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
+  }
+  // Check on load in case already signed in
+  sbCrossTab.auth.getSession().then(({ data: { session } }) => {
+    if (session?.user?.email) setNavEmail(session.user.email);
+  });
+  // Listen for sign-in from any tab
+  sbCrossTab.auth.onAuthStateChange((event, session) => {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
+      setNavEmail(session.user.email);
+    }
+    if (event === 'SIGNED_OUT') {
+      const navLink = document.getElementById('nav-account-link');
+      if (navLink) { navLink.textContent = 'Mi Cuenta'; navLink.style.color = ''; }
     }
   });
 })();
