@@ -447,11 +447,6 @@
         <div class="step2-badge"><div class="step2-badge-dot"></div><div><div class="step2-badge-text" id="step2-nombre-cuenta">&#8212;</div><div class="step2-badge-sub" id="step2-banco">&#8212;</div></div></div>
         <div class="card">
           <div class="card-header"><div class="n26-bar"></div><h1 id="step2-card-title">Informaci&#243;n personal</h1><p id="step2-card-subtitle">Completa tus datos para activar tu perfil.</p></div>
-          <div class="field" id="fg-nombre">
-            <label>Nombre completo <span class="req">*</span></label>
-            <input type="text" id="nombre" placeholder="Ej. Mar&#237;a Garc&#237;a L&#243;pez" autocomplete="name" oninput="if(this.value.trim().length>=3) $('fg-nombre').classList.remove('has-error')"/>
-            <span class="field-error">Ingresa tu nombre completo.</span>
-          </div>
           <div class="field" id="fg-email">
             <div class="field-label-row">
               <label>Correo electr&#243;nico <span class="req">*</span></label>
@@ -743,6 +738,7 @@ const BG_PRESETS=[{label:'Negro',value:'#000000'},{label:'Blanco',value:'#ffffff
 
 let selectedDesign=0,selectedCardGradient='linear-gradient(135deg,#004d38,#00c896)',selectedBgColor='#000000',currentStep=1;
 let selectedIconId=null,selectedIconColor='rgba(255,255,255,1)',userPickedColor=false;
+let EDIT_ORIGINAL_CLABE='';
 let clabeCheckState='idle',clabeCheckTimer=null,slugCheckState='idle',slugCheckTimer=null,cpLookupTimer=null;
 let logoBase64=null,profileType='personal';
 var _successSlug='',_successCardData={};
@@ -819,7 +815,7 @@ function clearStep2Fields(){
   // Slug state
   slugCheckState='idle';slugStatusIcon('');
   // Errors
-  ['fg-nombre','fg-email','fg-whatsapp','fg-slug','fg-razon-social','fg-rfc',
+  ['fg-email','fg-whatsapp','fg-slug','fg-razon-social','fg-rfc',
    'fg-regimen','fg-cp','fg-consent1','fg-consent2'].forEach(id=>{
     const el=$(id);if(el)el.classList.remove('has-error');
   });
@@ -844,8 +840,8 @@ function goToStep2(){
   let ok=true;
   if(setError('fg-nombre-cuenta',nombreCuenta.length<2))ok=false;
   if(clabe.length!==18){setError('fg-clabe',true);$('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';ok=false;}
-  if(!EDIT_MODE&&clabeCheckState==='exists'){setError('fg-clabe',true);ok=false;}
-  if(!EDIT_MODE&&clabeCheckState==='checking')return;
+  if(clabeCheckState==='exists'){setError('fg-clabe',true);ok=false;}
+  if(clabeCheckState==='checking')return;
   if(!ok)return;
   const bancoCode=clabe.substring(0,3),bancoData=BANCOS[bancoCode];
   $('step2-nombre-cuenta').textContent=nombreCuenta+($('alias').value.trim()?' · '+$('alias').value.trim():'');
@@ -859,9 +855,7 @@ function goToStep2(){
     if($('step2-card-subtitle'))$('step2-card-subtitle').textContent=isNeg?'Completa los datos de tu negocio para activar tu perfil.':'Completa tus datos para activar tu perfil.';
     $('fg-nombre-negocio').style.display=isNeg?'':'none';$('fg-logo').style.display=isNeg?'':'none';
     const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
-    const lbNombre=document.querySelector('#fg-nombre label');const inpNombre=$('nombre');
-    if(isNeg){if(lbNombre)lbNombre.childNodes[0].textContent='Nombre del negocio ';if(inpNombre){inpNombre.placeholder='Ej. Taquería El Güero SA de CV';inpNombre.style.textTransform='uppercase';inpNombre.oninput=function(){this.value=this.value.toUpperCase();if(this.value.trim().length>=2)$('fg-nombre').classList.remove('has-error');};}document.querySelector('#fg-nombre .field-error').textContent='Ingresa el nombre del negocio.';$('fg-nombre-negocio').style.display='none';if(div)div.style.display='none';}
-    else{if(lbNombre)lbNombre.childNodes[0].textContent='Nombre completo ';if(inpNombre){inpNombre.placeholder='Ej. María García López';inpNombre.style.textTransform='';inpNombre.oninput=function(){if(this.value.trim().length>=3)$('fg-nombre').classList.remove('has-error');};}document.querySelector('#fg-nombre .field-error').textContent='Ingresa tu nombre completo.';}
+    if(isNeg){$('fg-nombre-negocio').style.display='none';if(div)div.style.display='none';}
     const sfCb=$('show_fiscal');if(sfCb)sfCb.checked=false;const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');
     updateContactPreview();window.scrollTo({top:0,behavior:'smooth'});
   });
@@ -928,7 +922,7 @@ function onClabeInput(){
   clabeCheckState='idle';const ring=$('clabe-checking-ring'),ver=$('clabe-verified'),cta=$('clabe-exists-cta');
   ring.classList.remove('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
   $('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';
-  if(len===18){$('fg-clabe').classList.remove('has-error');if(!EDIT_MODE){clearTimeout(clabeCheckTimer);clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500);}else{clabeCheckState='ok';}}
+  if(len===18){$('fg-clabe').classList.remove('has-error');if(EDIT_MODE&&input.value===EDIT_ORIGINAL_CLABE){clabeCheckState='ok';}else{clearTimeout(clabeCheckTimer);clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500);}}
   const code=input.value.substring(0,3),wrap=$('banco-wrap'),bancoInput=$('banco'),iconEl=$('banco-icon'),lcBank=$('lc-bank');
   if(code.length===3&&BANCOS[code]){const b=BANCOS[code];bancoInput.value=b.nombre;iconEl.src=favicon(b.domain);iconEl.alt=b.nombre;wrap.classList.add('detected');$('lc-bank-icon').src=favicon(b.domain);$('lc-bank-icon').style.display='block';$('lc-bank-name').textContent=b.nombre;lcBank.style.display='flex';autoSetBankColor(code);}
   else{bancoInput.value='';iconEl.src='';wrap.classList.remove('detected');lcBank.style.display='none';const bancoSw=$('swatch-banco');if(bancoSw){bancoSw.dataset.gradient='linear-gradient(135deg,#004d38,#00c896)';bancoSw.style.background='#00a87a';bancoSw.classList.add('sin-banco');bancoSw.classList.remove('con-banco');if(!userPickedColor){selectedCardGradient='linear-gradient(135deg,#004d38,#00c896)';applyCardColor();}}}
@@ -1031,7 +1025,7 @@ function onEmailBlur(){
 /* ── FORM STATE SAVE / RESTORE ── */
 const FORM_DRAFT_KEY='tr4nsfer_form_draft';
 function saveFormState(){
-  const fields=['nombre','nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','instagram','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'];
+  const fields=['nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'];
   const state={};
   fields.forEach(id=>{const el=$(id);if(el)state[id]=el.value;});
   ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio','consent1','consent2'].forEach(id=>{const el=$(id);if(el)state[id]=el.checked;});
@@ -1048,7 +1042,7 @@ function restoreFormState(){
   let state;try{state=JSON.parse(saved);}catch(e){return;}
   localStorage.removeItem(FORM_DRAFT_KEY);
   /* restore text fields */
-  ['nombre','nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','instagram','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.value=state[id];});
+  ['nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.value=state[id];});
   /* restore checkboxes */
   ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio','consent1','consent2'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.checked=state[id];});
   /* restore selections */
@@ -1075,9 +1069,8 @@ function setError(fgId,show){const fg=$(fgId);if(!fg)return show;show?fg.classLi
 /* ── SUBMIT ── */
 async function submitForm(){
   if(EDIT_MODE){saveEditedLink();return;}
-  const nombre=$('nombre').value.trim(),email=$('email').value.trim();
+  const email=$('email').value.trim();
   let ok=true;
-  if(setError('fg-nombre',nombre.length<3))ok=false;
   if(setError('fg-email',!email||!/\S+@\S+\.\S+/.test(email)))ok=false;
   var waRawCheck=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
   var waSel=$('wa-country');var waMax=waSel?parseInt(waSel.options[waSel.selectedIndex].dataset.digits||'10'):10;
@@ -1103,7 +1096,9 @@ async function submitForm(){
   const customSlug=slugVal.length>=3?slugVal:'';
   let coloniaVal='';const colSel=$('colonia-fiscal');if(colSel){coloniaVal=colSel.value==='__otra__'?($('colonia-otra')?$('colonia-otra').value.trim():''):colSel.value;}
   const fiscalData=showFiscal?{razon_social:$('razon-social').value.trim(),rfc:$('rfc').value.trim(),regimen_fiscal:$('regimen-fiscal').value,cp_fiscal:$('cp-fiscal').value,ciudad_fiscal:$('ciudad-fiscal')?$('ciudad-fiscal').value.trim():'',estado_fiscal:$('estado-fiscal').value.trim(),colonia_fiscal:coloniaVal,calle_fiscal:$('calle-fiscal')?$('calle-fiscal').value.trim():''}:null;
-  const nombreNegocio=profileType==='negocios'?$('nombre').value.trim():null;
+  // nombre = titular_cuenta para personal; nombre del negocio para negocios
+  const nombre=profileType==='negocios'?($('nombre-negocio')&&$('nombre-negocio').value.trim()||nombreCuenta):nombreCuenta;
+  const nombreNegocio=profileType==='negocios'?nombre:null;
   const fnResp=await fetch(`${SUPABASE_URL}/functions/v1/create-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked),custom_slug:customSlug||null,profile_type:profileType,nombre_negocio:nombreNegocio,logo_url:logoBase64||null,icon_id:selectedIconId||null,icon_color:selectedIconColor||null,has_fiscal:showFiscal,...(fiscalData||{})})});
   if(fnResp.status===409){hidePageLoader(()=>{textEl.textContent='Generar mi Link';submitBtn.disabled=false;showMainLayout();$('main-layout').classList.add('step2');$('slug-error').textContent='Este link ya está en uso.';setError('fg-slug',true);slugCheckState='taken';slugStatusIcon('error');setFloatingBtn({visible:false});});return;}
   if(!fnResp.ok){hidePageLoader(()=>{textEl.textContent='Error. Intenta de nuevo.';submitBtn.disabled=false;setFloatingBtn({visible:true});});return;}
@@ -1348,10 +1343,12 @@ async function initEditMode(){
     }
 
     /* ── Step 1: pre-fill banking fields (readonly in edit mode) ── */
-    // CLABE — show value so preview card updates, but keep disabled
+    // CLABE — pre-fill y guardar valor original para comparar en el check
     if(data.clabe&&$('clabe')){
-      $('clabe').value=data.clabe.replace(/\s/g,'');
-      $('clabe').dispatchEvent(new Event('input')); // triggers preview + bank detect
+      const clabeClean=data.clabe.replace(/\s/g,'');
+      EDIT_ORIGINAL_CLABE=clabeClean;
+      $('clabe').value=clabeClean;
+      $('clabe').dispatchEvent(new Event('input'));
     }
     // Titular de la cuenta
     if(data.titular_cuenta&&$('nombre-cuenta')){
@@ -1361,25 +1358,11 @@ async function initEditMode(){
     // Alias
     if(data.alias)$('alias').value=data.alias;
 
-    /* Lock Step 1 fields that can't change (CLABE, banco, titular) */
-    ['clabe','nombre-cuenta','banco'].forEach(id=>{
-      const el=$(id); if(!el)return;
-      el.readOnly=true;
-      el.style.opacity='.65';
-      el.style.cursor='default';
-    });
     if($('clabe-exists-cta'))$('clabe-exists-cta').style.display='none';
     if($('email-exists-cta'))$('email-exists-cta').style.display='none';
 
     /* ── Step 2: pre-fill design + personal fields ── */
     profileType=data.profile_type||'personal';
-    // Nombre — show value but readonly (edit via Mi Cuenta > Editar perfil)
-    if(data.nombre&&$('nombre')){
-      $('nombre').value=data.nombre;
-      $('nombre').readOnly=true;
-      $('nombre').style.opacity='.65';
-      $('nombre').style.cursor='default';
-    }
     if(data.custom_slug)$('slug-custom').value=data.custom_slug;
 
     /* Lock encrypted contact fields */
@@ -1434,29 +1417,38 @@ async function initEditMode(){
 
 async function saveEditedLink(){
   const alias=$('alias').value.trim();
-  const nombre=$('nombre').value.trim();
-  let ok=true;
-  if(nombre.length<3){setError('fg-nombre',true);ok=false;}
-  if(!ok)return;
+  const nombreCuenta=$('nombre-cuenta').value.trim();
+  if(nombreCuenta.length<2){setError('fg-nombre-cuenta',true);return;}
   const btn=$('submit-btn'),textEl=$('btn-text');
   btn.disabled=true;textEl.textContent='Guardando…';
   showPageLoader();
   try{
-    // Obtener JWT del usuario para autenticar update-link
     const {data:{session}}=await sb.auth.getSession();
     const userJwt=session?.access_token||'';
     if(!userJwt){
       hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Guardar cambios';showToast('Debes iniciar sesión para guardar cambios.','error');});
       return;
     }
+    const clabe=$('clabe').value.replace(/\D/g,'');
+    const bancoCode=clabe.substring(0,3);
+    const bancoData=BANCOS[bancoCode]||null;
     const payload={
       slug:EDIT_SLUG,
-      nombre,alias:alias||null,
+      nombre:nombreCuenta||null,
+      alias:alias||null,
+      titular_cuenta:nombreCuenta||null,
       card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,
       show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),
       show_email:!!($('show_email')&&$('show_email').checked),
       icon_id:selectedIconId||null,icon_color:selectedIconColor||null,
     };
+    // Solo actualizar CLABE+banco si cambió
+    if(clabe.length===18&&clabe!==EDIT_ORIGINAL_CLABE){
+      payload.clabe=clabe;
+      payload.banco=bancoData?bancoData.nombre:$('banco').value;
+      payload.banco_code=bancoCode||null;
+      payload.banco_domain=bancoData?bancoData.domain:null;
+    }
     const showFiscal=$('show_fiscal')&&$('show_fiscal').checked;
     if(showFiscal){
       const rfcVal=$('rfc').value.trim();
