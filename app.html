@@ -664,6 +664,7 @@
 <script>
 const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);  // single shared client
 const $=id=>document.getElementById(id);
 /* ── EDIT MODE ── */
 const EDIT_SLUG = new URLSearchParams(location.search).get('edit') || null;
@@ -1307,13 +1308,35 @@ async function initEditMode(){
   const btnText=$('btn-text');
   if(btnText)btnText.textContent='Guardar cambios';
 
-  /* fetch link data */
+  /* fetch link data via edge functions (service role, bypasses RLS, decrypts fields) */
   showPageLoader();
   try{
-    const {data,error}=await supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
-      .from('links').select('nombre,alias,banco,banco_code,banco_domain,card_gradient,card_design,bg_color,profile_type,nombre_negocio,icon_id,icon_color,show_whatsapp,show_email,custom_slug,has_fiscal,razon_social,rfc,regimen_fiscal,cp_fiscal,ciudad_fiscal,estado_fiscal,colonia_fiscal,calle_fiscal').eq('slug',EDIT_SLUG).maybeSingle();
-    if(error)throw error;
-    if(!data){hidePageLoader(()=>{showToast('Link no encontrado.','error');});return;}
+    /* ── basic link data ── */
+    const linkResp=await fetch(`${SUPABASE_URL}/functions/v1/get-link?slug=${encodeURIComponent(EDIT_SLUG)}`,{
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY,'apikey':SUPABASE_ANON_KEY}
+    });
+    if(!linkResp.ok){hidePageLoader(()=>{showToast('Link no encontrado.','error');});return;}
+    const data=await linkResp.json();
+    if(data.error){hidePageLoader(()=>{showToast('Link no encontrado.','error');});return;}
+
+    /* ── fiscal data (if has_fiscal) ── */
+    let fiscalData={};
+    if(data.has_fiscal){
+      try{
+        const tokResp=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-token`,{
+          method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'apikey':SUPABASE_ANON_KEY},
+          body:JSON.stringify({slug:EDIT_SLUG})
+        });
+        if(tokResp.ok){
+          const {token}=await tokResp.json();
+          const fdResp=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-data`,{
+            method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'apikey':SUPABASE_ANON_KEY},
+            body:JSON.stringify({token})
+          });
+          if(fdResp.ok) fiscalData=await fdResp.json();
+        }
+      }catch(_){}
+    }
 
     /* pre-fill non-encrypted fields */
     profileType=data.profile_type||'personal';
@@ -1360,8 +1383,9 @@ async function initEditMode(){
     if(data.has_fiscal&&$('show_fiscal')){
       $('show_fiscal').checked=true;
       $('show_fiscal').dispatchEvent(new Event('change'));
+      const fd={...data,...fiscalData};
       const fmap={razon_social:'razon-social',rfc:'rfc',regimen_fiscal:'regimen-fiscal',cp_fiscal:'cp-fiscal',ciudad_fiscal:'ciudad-fiscal',estado_fiscal:'estado-fiscal',calle_fiscal:'calle-fiscal'};
-      Object.entries(fmap).forEach(([k,id])=>{if(data[k]&&$(id))$(id).value=data[k];});
+      Object.entries(fmap).forEach(([k,id])=>{if(fd[k]&&$(id))$(id).value=fd[k];});
     }
 
     /* go to step 2 directly */
@@ -1435,17 +1459,17 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
    fires SIGNED_IN via localStorage. Update the nav link to show their email
    so the editor reflects that they're now authenticated.                    */
 (function(){
-  const sbCrossTab = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Use the shared sb client — no new instance
   function setNavEmail(email) {
     const navLink = document.getElementById('nav-account-link');
     if (navLink && email) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
   }
   // Check on load in case already signed in
-  sbCrossTab.auth.getSession().then(({ data: { session } }) => {
+  sb.auth.getSession().then(({ data: { session } }) => {
     if (session?.user?.email) setNavEmail(session.user.email);
   });
   // Listen for sign-in from any tab
-  sbCrossTab.auth.onAuthStateChange((event, session) => {
+  sb.auth.onAuthStateChange((event, session) => {
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
       setNavEmail(session.user.email);
     }
