@@ -1113,7 +1113,7 @@ async function submitForm(){
     transitionHero('¡Todo listo!','');
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     $('view-success').classList.add('active');
-    const cardData={gradient:selectedCardGradient,bgColor:selectedBgColor,profileType,nombreNegocio,nombre,iconId:selectedIconId,iconColor:selectedIconColor};
+    const cardData={gradient:selectedCardGradient,bgColor:selectedBgColor,profileType,nombreNegocio,nombre,iconId:selectedIconId,iconColor:selectedIconColor,whatsapp:whatsapp||null};
     showSuccess(slug,email,cardData);
     sendEmailWithQR(slug,email,cardData);
     window.scrollTo({top:0,behavior:'smooth'});
@@ -1217,7 +1217,7 @@ async function sendEmailWithQR(slug,email,cardData){
   if(!qrDataUrl){
     showToast('El correo se envió sin QR (no se pudo generar).','warn');
   }
-  try{await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/send-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'},body:JSON.stringify({slug,email,nombre:cardData.nombre||'',profile_type:cardData.profileType||'personal',nombre_negocio:cardData.nombreNegocio||null,card_gradient:cardData.gradient,bg_color:cardData.bgColor,qr_data_url:qrDataUrl})});}
+  try{await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/send-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'},body:JSON.stringify({slug,email,nombre:cardData.nombre||'',profile_type:cardData.profileType||'personal',nombre_negocio:cardData.nombreNegocio||null,card_gradient:cardData.gradient,bg_color:cardData.bgColor,whatsapp:cardData.whatsapp||null,qr_data_url:qrDataUrl})});}
   catch(e){showToast('No se pudo enviar el correo de confirmación.','warn');console.warn('Email send failed:',e);}
 }
 
@@ -1432,7 +1432,6 @@ async function initEditMode(){
   }
 }
 
-/* ── EDIT MODE SAVE ── */
 async function saveEditedLink(){
   const alias=$('alias').value.trim();
   const nombre=$('nombre').value.trim();
@@ -1443,6 +1442,13 @@ async function saveEditedLink(){
   btn.disabled=true;textEl.textContent='Guardando…';
   showPageLoader();
   try{
+    // Obtener JWT del usuario para autenticar update-link
+    const {data:{session}}=await sb.auth.getSession();
+    const userJwt=session?.access_token||'';
+    if(!userJwt){
+      hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Guardar cambios';showToast('Debes iniciar sesión para guardar cambios.','error');});
+      return;
+    }
     const payload={
       slug:EDIT_SLUG,
       nombre,alias:alias||null,
@@ -1455,9 +1461,10 @@ async function saveEditedLink(){
     if(showFiscal){
       const rfcVal=$('rfc').value.trim();
       if(!rfcVal||!validateRFC(rfcVal)){$('rfc-error').textContent='RFC inválido.';setError('fg-rfc',true);btn.disabled=false;textEl.textContent='Guardar cambios';hidePageLoader(null);return;}
-      Object.assign(payload,{has_fiscal:true,razon_social:$('razon-social').value.trim(),rfc:rfcVal,regimen_fiscal:$('regimen-fiscal').value,cp_fiscal:$('cp-fiscal').value,ciudad_fiscal:$('ciudad-fiscal')?$('ciudad-fiscal').value.trim():'',estado_fiscal:$('estado-fiscal')?$('estado-fiscal').value.trim():'',calle_fiscal:$('calle-fiscal')?$('calle-fiscal').value.trim():''});
+      let coloniaVal='';const colSel=$('colonia-fiscal');if(colSel){coloniaVal=colSel.value==='__otra__'?($('colonia-otra')?$('colonia-otra').value.trim():''):colSel.value;}
+      Object.assign(payload,{has_fiscal:true,razon_social:$('razon-social').value.trim(),rfc:rfcVal,regimen_fiscal:$('regimen-fiscal').value,cp_fiscal:$('cp-fiscal').value,ciudad_fiscal:$('ciudad-fiscal')?$('ciudad-fiscal').value.trim():'',estado_fiscal:$('estado-fiscal')?$('estado-fiscal').value.trim():'',colonia_fiscal:coloniaVal,calle_fiscal:$('calle-fiscal')?$('calle-fiscal').value.trim():''});
     }
-    const resp=await fetch(`${SUPABASE_URL}/functions/v1/update-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify(payload)});
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/update-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'x-user-jwt':userJwt},body:JSON.stringify(payload)});
     if(!resp.ok)throw new Error('update failed');
     hidePageLoader(()=>{
       showToast('¡Cambios guardados!','ok');
