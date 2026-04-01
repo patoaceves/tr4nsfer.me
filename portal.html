@@ -558,7 +558,7 @@ async function loadLinks() {
     $('links-loading').style.display = 'none';
     $('links-empty').style.display   = 'block';
     $('links-empty').querySelector('h3').textContent = 'Error al cargar';
-    $('links-empty').querySelector('p').textContent  = 'No se pudieron cargar tus links. Intenta recargar la página.';
+    $('links-empty').querySelector('p').textContent  = String(err?.message || err);
   }
 }
 
