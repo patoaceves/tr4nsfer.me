@@ -521,7 +521,10 @@ async function loadLinks() {
 
   try {
     const { data, error: fnErr } = await sb.functions.invoke('user-links', {
-      headers: { 'Authorization': `Bearer ${_accessToken}` }
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,  // satisfies gateway
+        'x-user-jwt': _accessToken                        // our function reads this
+      }
     });
     if (fnErr) {
       console.error('[user-links] error:', JSON.stringify(fnErr));
@@ -761,7 +764,10 @@ async function saveProfile() {
   try {
     const { data: saveData, error: saveErr } = await sb.functions.invoke('update-link', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${_accessToken}` },
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'x-user-jwt': _accessToken
+      },
       body: { slug, nombre, whatsapp: whatsapp || null }
     });
     if (saveErr) throw saveErr;
