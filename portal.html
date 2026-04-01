@@ -53,7 +53,8 @@
     @media(max-width:860px){header{padding:0 24px;}.nav-links{display:none;}}
 
     /* ── LAYOUT ── */
-    .portal-shell{display:flex;min-height:100vh;padding-top:64px;}
+    .portal-shell{display:flex;min-height:100vh;padding-top:64px;visibility:hidden;opacity:0;transition:opacity .2s ease;}
+    .portal-shell.ready{visibility:visible;opacity:1;}
 
     /* ── SIDEBAR ── */
     .sidebar{width:var(--sidebar-w);flex-shrink:0;position:fixed;top:64px;left:0;bottom:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:28px 0 24px;z-index:50;overflow-y:auto;}
@@ -433,6 +434,9 @@ async function init() {
   _currentUser = user;
   populateUserInfo(user);
   loadLinks(user.email);
+  /* reveal portal only after auth confirmed — prevents flash */
+  const shell = document.querySelector('.portal-shell');
+  if (shell) shell.classList.add('ready');
 }
 
 function populateUserInfo(user) {
