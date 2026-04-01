@@ -125,12 +125,14 @@
     .link-card-url span{font-size:12px;color:var(--teal);font-family:'Inter',monospace;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .url-edit-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px 4px;margin-left:2px;flex-shrink:0;border-radius:5px;transition:color .15s,background .15s;display:flex;align-items:center;}
     .url-edit-btn:hover{color:var(--text-soft);background:rgba(255,255,255,.06);}
-    .link-card-url.editing{cursor:default;border-color:rgba(0,200,150,.3);background:var(--input-bg);gap:0;}
+    .link-card-url.editing{cursor:default;border-color:rgba(0,200,150,.3);padding:0 10px;gap:0;}
     .link-card-url.editing:hover{border-color:rgba(0,200,150,.3);}
-    .url-slug-prefix{font-size:11.5px;color:var(--muted);white-space:nowrap;flex-shrink:0;padding-left:2px;}
-    .url-slug-input{flex:1;background:transparent;border:none;outline:none;font-size:12px;font-family:'Inter',monospace;color:var(--teal);padding:0 4px;min-width:0;}
+    .url-slug-prefix{font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0;font-family:'Inter',monospace;line-height:1;}
+    .url-slug-input{flex:1;background:transparent;border:none;outline:none;font-size:12px;font-family:'Inter',monospace;color:var(--teal);padding:9px 4px;min-width:0;line-height:1;}
     .url-slug-input::placeholder{color:var(--muted2);}
-    .url-slug-status{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .url-slug-status{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-left:4px;}
+    @keyframes urlSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .url-spin-ring{animation:urlSpin .7s linear infinite;transform-origin:center;}
     .url-edit-actions{display:none;gap:6px;margin-bottom:14px;}
     .url-edit-actions.visible{display:flex;}
     .url-action-btn{flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:11.5px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .15s;}
@@ -638,7 +640,7 @@ function renderLinkCards(links, expMap) {
         </div>
       </div>
       ${chipsHTML ? `<div class="exp-chips">${chipsHTML}</div>` : ''}
-      <div class="link-card-actions">
+      <div class="link-card-actions" id="card-actions-${slug}">
         <button class="lc-btn primary" onclick="openExpirableModal('${slug}')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           Link Expirable
@@ -828,19 +830,27 @@ const URL_SLUG_RE = /^[a-z0-9-]{3,20}$/;
 const _urlStatusIcons = {
   ok:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   taken:   `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>`,
-  checking:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round" style="animation:spin .7s linear infinite;transform-origin:center;display:block;"/></svg>`,
+  checking:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path class="url-spin-ring" d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>`,
 };
+
+function setUrlStatus(slug, type) {
+  const el = $('url-status-' + slug);
+  if (!el) return;
+  el.innerHTML = _urlStatusIcons[type] || '';
+}
 
 function startEditUrl(e, slug) {
   e.stopPropagation();
-  const display  = $('url-display-' + slug);
-  const editor   = $('url-editor-'  + slug);
-  const actions  = $('url-actions-' + slug);
-  const input    = $('url-input-'   + slug);
+  const display     = $('url-display-' + slug);
+  const editor      = $('url-editor-'  + slug);
+  const actions     = $('url-actions-' + slug);
+  const cardActions = $('card-actions-' + slug);
+  const input       = $('url-input-'   + slug);
   if (!editor) return;
-  display.style.display = 'none';
-  editor.style.display  = 'flex';
+  display.style.display    = 'none';
+  editor.style.display     = 'flex';
   actions.classList.add('visible');
+  if (cardActions) cardActions.style.display = 'none';
   _urlCheckStates[slug] = 'idle';
   $('url-status-' + slug).innerHTML = '';
   input.value = '';
@@ -848,47 +858,31 @@ function startEditUrl(e, slug) {
 }
 
 function cancelEditUrl(slug) {
-  const display = $('url-display-' + slug);
-  const editor  = $('url-editor-'  + slug);
-  const actions = $('url-actions-' + slug);
+  const display     = $('url-display-' + slug);
+  const editor      = $('url-editor-'  + slug);
+  const actions     = $('url-actions-' + slug);
+  const cardActions = $('card-actions-' + slug);
   if (!editor) return;
   editor.style.display  = 'none';
   display.style.display = 'flex';
   actions.classList.remove('visible');
+  if (cardActions) cardActions.style.display = '';
   clearTimeout(_urlCheckTimers[slug]);
   _urlCheckStates[slug] = 'idle';
-}
-
-function onUrlKeydown(e, slug) {
-  if (e.key === 'Enter')  saveUrl(slug);
-  if (e.key === 'Escape') cancelEditUrl(slug);
-}
-
-function setUrlStatus(slug, type) {
-  const el = $('url-status-' + slug);
-  if (!el) return;
-  el.innerHTML = _urlStatusIcons[type] || '';
-  // spinning fix for CSS animation inside innerHTML
-  if (type === 'checking') {
-    const path = el.querySelector('path');
-    if (path) path.style.cssText = 'animation:spin .7s linear infinite;transform-origin:center;display:block;';
-  }
 }
 
 async function checkUrlSlug(slug, val) {
   _urlCheckStates[slug] = 'checking';
   setUrlStatus(slug, 'checking');
   try {
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/check-slug`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-      body: JSON.stringify({ slug: val, exclude_slug: slug })  // exclude current link's slug
-    });
-    if (!resp.ok) { _urlCheckStates[slug] = 'idle'; setUrlStatus(slug, ''); return; }
-    const data = await resp.json();
-    const available = data.available === true || data.available === 'true' || data.is_available === true;
-    _urlCheckStates[slug] = available ? 'ok' : 'taken';
-    setUrlStatus(slug, available ? 'ok' : 'taken');
+    // Check both slug and custom_slug columns, excluding current link
+    const [r1, r2] = await Promise.all([
+      sb.from('links').select('id').eq('slug', val).neq('slug', slug).maybeSingle(),
+      sb.from('links').select('id').eq('custom_slug', val).neq('slug', slug).maybeSingle(),
+    ]);
+    const taken = !!(r1.data || r2.data);
+    _urlCheckStates[slug] = taken ? 'taken' : 'ok';
+    setUrlStatus(slug, taken ? 'taken' : 'ok');
   } catch (e) {
     _urlCheckStates[slug] = 'idle';
     setUrlStatus(slug, '');
