@@ -43,7 +43,7 @@
     /* ── HEADER ── */
     header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
     .logo{display:inline-flex;align-items:center;text-decoration:none;}
-    .logo img{height:28px;width:auto;display:block;filter:brightness(0) invert(1);}
+    .logo img{height:28px;width:auto;display:block;}
     nav{display:flex;align-items:center;gap:36px;}
     .nav-links{display:flex;align-items:center;gap:28px;}
     nav a{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s;}
@@ -168,6 +168,11 @@
     .gen-copy-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;border-radius:9px;border:1px solid rgba(0,200,150,.25);background:rgba(0,200,150,.07);color:var(--teal);font-size:12.5px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s;}
     .gen-copy-btn:hover{background:rgba(0,200,150,.14);}
 
+    /* ── EDIT PROFILE FORM ── */
+    .fg-label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase;}
+    .fg-input{width:100%;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:10px;padding:10px 13px;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);outline:none;transition:border-color .15s;}
+    .fg-input:focus{border-color:var(--teal-border);}
+
     /* ── TOAST ── */
     .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid var(--border2);border-radius:100px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text-soft);z-index:9000;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -202,7 +207,6 @@
   <nav>
     <div class="nav-links">
       <a href="index.html">Inicio</a>
-      <a href="index.html#pricing">Pricing</a>
       <a href="index.html#ayuda">Ayuda</a>
       <a href="portal.html" style="color:var(--teal);" id="nav-account-link">Mi Cuenta</a>
     </div>
@@ -252,8 +256,10 @@
     <section id="tab-cuenta" class="portal-section active">
       <div class="section-header">
         <div class="section-title">Mi cuenta</div>
-        <div class="section-sub">Tu información de acceso en tr4nsfer.me.</div>
+        <div class="section-sub">Tu información de acceso y datos de contacto.</div>
       </div>
+
+      <!-- Read-only info -->
       <div class="cuenta-card">
         <div class="cuenta-row">
           <span class="cuenta-label">Correo</span>
@@ -267,10 +273,33 @@
           <span class="cuenta-label">Links activos</span>
           <span class="cuenta-value" id="detail-links-count">—</span>
         </div>
-        <div class="cuenta-row">
-          <span class="cuenta-label">Plan</span>
-          <span class="cuenta-value"><span class="tag-badge">Free</span></span>
+      </div>
+
+      <!-- Editable profile info -->
+      <div class="cuenta-card" id="edit-profile-card" style="display:none;">
+        <div class="config-title" style="margin-bottom:18px;">Editar perfil</div>
+
+        <div class="fg" style="margin-bottom:14px;">
+          <label class="fg-label">Nombre</label>
+          <input type="text" id="edit-nombre" class="fg-input" placeholder="Tu nombre completo"/>
         </div>
+        <div class="fg" style="margin-bottom:20px;">
+          <label class="fg-label">WhatsApp <span style="font-weight:400;text-transform:none;color:var(--dim);">(con código de país, ej. 521…)</span></label>
+          <input type="tel" id="edit-whatsapp" class="fg-input" placeholder="5219991234567"/>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button class="config-btn" style="flex:1;padding:10px;" onclick="cancelEditProfile()">Cancelar</button>
+          <button class="config-btn" id="btn-save-profile" style="flex:1;padding:10px;background:var(--teal-dim);border-color:var(--teal-border);color:var(--teal);" onclick="saveProfile()">Guardar</button>
+        </div>
+        <div id="edit-profile-msg" style="font-size:12px;text-align:center;margin-top:10px;min-height:16px;"></div>
+      </div>
+
+      <div id="btn-edit-profile-wrap">
+        <button class="config-btn" onclick="openEditProfile()" style="display:flex;align-items:center;gap:7px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Editar perfil
+        </button>
       </div>
     </section>
 
@@ -443,23 +472,28 @@ async function init() {
 }
 
 function populateUserInfo(user) {
-  const email    = user.email || '';
-  const initials = email.charAt(0).toUpperCase();
-  const shortName = email.split('@')[0];
-  $('user-avatar').textContent = initials;
-  $('user-name').textContent   = shortName;   // fallback hasta que carguen links
-  $('user-email').textContent  = email;
-  $('detail-email').textContent = email;
+  const email    = user.email || ''
+  const initial  = email.charAt(0).toUpperCase()
+  $('user-avatar').textContent  = initial
+  $('user-name').textContent    = email.split('@')[0].toUpperCase()  // fallback until links load
+  $('user-email').textContent   = email
+  $('detail-email').textContent = email
 
-  const since = user.created_at ? new Date(user.created_at).toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'}) : '—';
-  $('detail-since').textContent = since;
+  const since = user.created_at
+    ? new Date(user.created_at).toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'})
+    : '—'
+  $('detail-since').textContent = since
+
+  // Nav always shows email when logged in
+  const navLink = $('nav-account-link')
+  if (navLink) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
 }
 
-function updateUserDisplayName(name) {
-  if (!name) return;
-  $('user-name').textContent = name;
-  const navLink = $('nav-account-link');
-  if (navLink) navLink.textContent = name;
+function updateSidebarName(name) {
+  // Show only the first word (first name) in the sidebar, uppercase
+  if (!name) return
+  const firstName = name.trim().split(/\s+/)[0].toUpperCase()
+  if (firstName) $('user-name').textContent = firstName
 }
 
 /* ── LOAD LINKS ── */
@@ -500,10 +534,10 @@ async function loadLinks(email) {
     renderLinkCards(_allLinks, expMap || {});
     $('links-grid').style.display = 'grid';
 
-    /* Update sidebar / nav with the first link's name */
+    /* Update sidebar with the first profile's first name */
     const first = _allLinks[0];
     const displayName = first.nombre_negocio || first.nombre || '';
-    updateUserDisplayName(displayName);
+    updateSidebarName(displayName);
 
   } catch (err) {
     console.error('loadLinks error', err);
@@ -682,13 +716,64 @@ function relativeTime(iso) {
   return `en ${d}d`;
 }
 
+/* ── EDIT PROFILE ── */
+function openEditProfile() {
+  if (!_allLinks.length) { showToast('Carga tus links primero'); return; }
+  const link = _allLinks[0];
+  $('edit-nombre').value    = link.nombre   || '';
+  $('edit-whatsapp').value  = link.whatsapp || '';
+  $('edit-profile-card').style.display    = 'block';
+  $('btn-edit-profile-wrap').style.display = 'none';
+  $('edit-profile-msg').textContent = '';
+}
+
+function cancelEditProfile() {
+  $('edit-profile-card').style.display    = 'none';
+  $('btn-edit-profile-wrap').style.display = '';
+}
+
+async function saveProfile() {
+  if (!_allLinks.length) return;
+  const slug     = _allLinks[0].slug;
+  const nombre   = $('edit-nombre').value.trim();
+  const whatsapp = $('edit-whatsapp').value.trim();
+  const btn      = $('btn-save-profile');
+  const msg      = $('edit-profile-msg');
+
+  if (!nombre) { msg.style.color = 'var(--error)'; msg.textContent = 'El nombre no puede estar vacío.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  msg.textContent = '';
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const resp = await fetch(`${SUPABASE_URL}/functions/v1/update-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token ?? ''}` },
+      body: JSON.stringify({ slug, nombre, whatsapp: whatsapp || null })
+    });
+    const result = await resp.json();
+    if (!resp.ok || result.error) throw new Error(result.error || 'Error al guardar');
+
+    // Update local cache so sidebar refreshes
+    _allLinks[0].nombre   = nombre;
+    _allLinks[0].whatsapp = whatsapp || null;
+    updateSidebarName(nombre);
+
+    msg.style.color = 'var(--teal)'; msg.textContent = '¡Cambios guardados!';
+    btn.textContent = 'Guardar';
+    btn.disabled = false;
+    setTimeout(cancelEditProfile, 1200);
+  } catch (e) {
+    msg.style.color = 'var(--error)'; msg.textContent = e.message || 'Error al guardar.';
+    btn.textContent = 'Guardar'; btn.disabled = false;
+  }
+}
+
 /* ── INIT ── */
 init();
 
-/* ── CROSS-TAB SIGN-IN ─────────────────────────────────────────────────────
-   When the user clicks the magic-link email in another tab (or in this one
-   before the shell was ready), Supabase fires SIGNED_IN via localStorage.
-   We pick it up here so the portal shows without a manual reload.           */
+/* ── CROSS-TAB SIGN-IN ── */
 sb.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session && !_currentUser) {
     _currentUser = session.user;
