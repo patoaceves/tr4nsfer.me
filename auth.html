@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar sesión — tr4nsfer.me</title>
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#000;--surface:#111;--surface2:#191919;
+      --teal:#00c896;--teal-dark:#00a87a;--teal-dim:rgba(0,200,150,.09);--teal-border:rgba(0,200,150,.20);
+      --text:#f0f0f0;--text-soft:#c8c8c8;--muted:#888;--muted2:#333;--dim:#444;
+      --border:rgba(255,255,255,.07);--border2:#272727;--input-bg:#0c0c0c;--error:#f04040;
+    }
+    html,body{min-height:100%;}
+    body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+    /* ── KEYFRAMES ── */
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
+    @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(.4,0,.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(.4,0,.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(.4,0,.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+    /* ── PAGE LOADER ── */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:none;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
+    #page-loader.active{display:flex;}
+    #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
+    .pl-svg{width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,.38));opacity:0;animation:plCycle 2.1s linear 1 both;}
+    .pl-stroke-horiz{stroke-dasharray:737;stroke-dashoffset:737;animation:plHoriz 2.1s linear 1 both;}
+    .pl-stroke-diag{stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag 2.1s linear 1 both;}
+    .pl-stroke-vert{stroke-dasharray:750;stroke-dashoffset:750;animation:plVert 2.1s linear 1 both;}
+    .pl-dot{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear 1 both;}
+
+    /* ── HEADER ── */
+    header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+    .logo{display:inline-flex;align-items:center;text-decoration:none;}
+    .logo img{height:28px;width:auto;display:block;}
+    nav{display:flex;align-items:center;gap:36px;}
+    .nav-links{display:flex;align-items:center;gap:28px;}
+    nav a{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s;}
+    nav a:hover{color:var(--text);}
+    .btn-nav{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;background:var(--teal);color:#000;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
+    .btn-nav:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
+    @media(max-width:860px){header{padding:0 24px;}.nav-links{display:none;}}
+
+    /* ── PAGE SHELL ── */
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 60px;}
+
+    /* ── AUTH CARD ── */
+    .auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px 32px 32px;animation:fadeUp .35s ease both;}
+    @media(max-width:480px){.auth-card{padding:28px 20px 24px;border-radius:16px;}}
+
+    .auth-brand{display:flex;justify-content:center;margin-bottom:28px;}
+    .auth-brand img{height:26px;opacity:.9;}
+
+    .auth-step{display:none;}
+    .auth-step.active{display:block;}
+
+    .auth-title{font-size:20px;font-weight:800;letter-spacing:-.03em;margin-bottom:6px;text-align:center;}
+    .auth-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.55;margin-bottom:24px;}
+    .auth-sub strong{color:var(--text-soft);font-weight:500;}
+
+    /* ── CONTEXT BANNER ── */
+    .auth-context{display:none;margin-bottom:20px;padding:10px 14px;background:rgba(0,200,150,.05);border:1px solid rgba(0,200,150,.15);border-radius:10px;font-size:12px;color:rgba(255,255,255,.5);line-height:1.5;}
+    .auth-context.visible{display:block;}
+    .auth-context strong{color:var(--teal);font-weight:600;}
+
+    /* ── FORM ELEMENTS ── */
+    .fg{margin-bottom:14px;}
+    .fg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.02em;text-transform:uppercase;}
+    .fg input{width:100%;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:10px;padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);outline:none;transition:border-color .15s;}
+    .fg input:focus{border-color:var(--teal-border);}
+    .fg input.error{border-color:var(--error);}
+    .fg .field-error{display:none;font-size:11.5px;color:var(--error);margin-top:5px;}
+    .fg.has-error .field-error{display:block;}
+    .fg.has-error input{border-color:var(--error);}
+
+    /* ── OTP INPUT ── */
+    .otp-wrap{display:flex;gap:8px;justify-content:center;margin-bottom:8px;}
+    .otp-wrap input{width:44px;height:52px;text-align:center;font-size:20px;font-weight:700;letter-spacing:0;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);outline:none;transition:border-color .15s;font-family:'Inter',sans-serif;caret-color:var(--teal);}
+    .otp-wrap input:focus{border-color:var(--teal-border);}
+    .otp-wrap input.filled{border-color:rgba(0,200,150,.25);}
+    .otp-wrap.shake{animation:shake .35s ease;}
+    @media(max-width:380px){.otp-wrap input{width:38px;height:46px;font-size:18px;gap:6px;}}
+
+    .otp-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px;}
+
+    /* ── BUTTONS ── */
+    .btn-primary{width:100%;padding:12px;border-radius:12px;border:none;background:var(--teal);color:#000;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,transform .1s,box-shadow .15s;letter-spacing:-.01em;}
+    .btn-primary:hover:not(:disabled){background:#00daa6;box-shadow:0 6px 20px rgba(0,200,150,.35);}
+    .btn-primary:active:not(:disabled){transform:scale(.98);}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+    .btn-ghost{width:100%;padding:10px;border-radius:12px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:13px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:border-color .15s,color .15s;margin-top:10px;letter-spacing:-.01em;}
+    .btn-ghost:hover{border-color:var(--dim);color:var(--text-soft);}
+
+    /* ── SPINNER inside button ── */
+    .btn-spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+
+    /* ── STATUS MESSAGES ── */
+    .auth-msg{font-size:12.5px;text-align:center;margin-top:12px;min-height:18px;transition:opacity .2s;}
+    .auth-msg.ok{color:var(--teal);}
+    .auth-msg.err{color:var(--error);}
+
+    /* ── RESEND ROW ── */
+    .resend-row{text-align:center;margin-top:14px;font-size:12px;color:var(--muted);}
+    .resend-link{color:var(--teal);cursor:pointer;font-weight:600;background:none;border:none;font-family:'Inter',sans-serif;font-size:12px;padding:0;}
+    .resend-link:disabled{color:var(--muted);cursor:default;}
+    .resend-countdown{color:var(--muted);}
+
+    /* ── DIVIDER ── */
+    .auth-divider{height:1px;background:var(--border);margin:20px 0;}
+
+    /* ── BACK LINK ── */
+    .back-link{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;padding:0;margin:0 auto;transition:color .15s;}
+    .back-link:hover{color:var(--text-soft);}
+
+    /* ── SUCCESS STATE ── */
+    #step-success .success-icon{width:48px;height:48px;background:rgba(0,200,150,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  </style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader">
+  <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
+    <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
+    <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
+    <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
+  </svg>
+</div>
+
+<!-- HEADER -->
+<header>
+  <a href="index.html" class="logo"><img src="logo.png" alt="tr4nsfer.me"/></a>
+  <nav>
+    <div class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#ayuda">Ayuda</a>
+    </div>
+    <a href="app.html" class="btn-nav">Crear mi Link</a>
+  </nav>
+</header>
+
+<!-- PAGE -->
+<div class="page">
+  <div class="auth-card">
+
+    <div class="auth-brand">
+      <img src="logo.png" alt="tr4nsfer.me"/>
+    </div>
+
+    <!-- ── STEP 1: EMAIL ── -->
+    <div id="step-email" class="auth-step active">
+      <div class="auth-title">Accede a tu cuenta</div>
+      <div class="auth-sub">Te enviaremos un código de 6 dígitos a tu correo.</div>
+
+      <div class="auth-context" id="auth-context"></div>
+
+      <div class="fg" id="fg-auth-email">
+        <label for="auth-email">Correo electrónico</label>
+        <input type="email" id="auth-email" placeholder="tu@email.com" autocomplete="email" oninput="clearAuthMsg()" onkeydown="if(event.key==='Enter')sendOtp()"/>
+        <span class="field-error">Ingresa un correo válido.</span>
+      </div>
+
+      <button class="btn-primary" id="btn-send-otp" onclick="sendOtp()">Enviar código</button>
+      <div class="auth-msg" id="msg-send"></div>
+    </div>
+
+    <!-- ── STEP 2: OTP ── -->
+    <div id="step-otp" class="auth-step">
+      <div class="auth-title">Revisa tu correo</div>
+      <div class="auth-sub" id="otp-sub">Enviamos un código a <strong id="otp-email-display"></strong></div>
+
+      <div class="otp-wrap" id="otp-wrap">
+        <input type="text" inputmode="numeric" maxlength="1" id="otp0" oninput="otpInput(0)" onkeydown="otpKey(event,0)"/>
+        <input type="text" inputmode="numeric" maxlength="1" id="otp1" oninput="otpInput(1)" onkeydown="otpKey(event,1)"/>
+        <input type="text" inputmode="numeric" maxlength="1" id="otp2" oninput="otpInput(2)" onkeydown="otpKey(event,2)"/>
+        <input type="text" inputmode="numeric" maxlength="1" id="otp3" oninput="otpInput(3)" onkeydown="otpKey(event,3)"/>
+        <input type="text" inputmode="numeric" maxlength="1" id="otp4" oninput="otpInput(4)" onkeydown="otpKey(event,4)"/>
+        <input type="text" inputmode="numeric" maxlength="1" id="otp5" oninput="otpInput(5)" onkeydown="otpKey(event,5)"/>
+      </div>
+      <div class="otp-hint">Código de 6 dígitos</div>
+
+      <button class="btn-primary" id="btn-verify-otp" onclick="verifyOtp()" disabled>Verificar</button>
+      <div class="auth-msg" id="msg-verify"></div>
+
+      <div class="resend-row">
+        ¿No llegó?
+        <button class="resend-link" id="resend-btn" onclick="resendOtp()" disabled>
+          <span class="resend-countdown" id="resend-countdown">Reenviar en <span id="resend-timer">30</span>s</span>
+        </button>
+      </div>
+
+      <div class="auth-divider"></div>
+      <button class="back-link" onclick="goBack()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Cambiar correo
+      </button>
+    </div>
+
+    <!-- ── STEP 3: SUCCESS ── -->
+    <div id="step-success" class="auth-step">
+      <div class="success-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="auth-title">¡Listo!</div>
+      <div class="auth-sub" id="success-sub">Sesión iniciada. Redirigiendo…</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ── CONFIG ── */
+const SUPABASE_URL  = 'https://wtmwwbsjwdisalnzlsnc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ── QUERY PARAMS ── */
+const params   = new URLSearchParams(location.search);
+const RETURN   = params.get('return') || 'app';   // 'app' | 'portal'
+const REASON   = params.get('reason') || '';       // 'clabe' | 'email' | 'existing' | ''
+const RETURN_URL = RETURN === 'portal' ? 'portal.html' : 'app.html';
+
+/* ── STATE ── */
+let currentEmail = '';
+let resendTimer  = null;
+
+/* ── HELPERS ── */
+const $ = id => document.getElementById(id);
+function showStep(id) {
+  document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function setMsg(elId, text, type) {
+  const el = $(elId); el.textContent = text;
+  el.className = 'auth-msg' + (type ? ' ' + type : '');
+}
+function clearAuthMsg() { setMsg('msg-send', ''); $('fg-auth-email').classList.remove('has-error'); }
+
+/* ── CONTEXT BANNER ── */
+(function initContext() {
+  const ctx = $('auth-context');
+  const msgs = {
+    clabe:    'Para administrar los links vinculados a esta CLABE, inicia sesión.',
+    email:    'Este correo ya tiene una cuenta. Inicia sesión para continuar.',
+    existing: 'Inicia sesión para acceder a tu portal.',
+    portal:   'Inicia sesión para acceder a tu portal.',
+  };
+  if (msgs[REASON]) {
+    ctx.innerHTML = msgs[REASON]; ctx.classList.add('visible');
+  }
+
+  /* Pre-fill email from saved draft if reason=email */
+  if (REASON === 'email') {
+    try {
+      const draft = JSON.parse(localStorage.getItem('tr4nsfer_form_draft') || '{}');
+      if (draft.email) $('auth-email').value = draft.email;
+    } catch(e) {}
+  }
+})();
+
+/* ── PAGE LOADER CONTROLLER ── */
+(function(){
+  var loader = $('page-loader');
+  if (!loader) return;
+  var _done = false, _dismissed = false, _onDone = null;
+  function restartAnim() {
+    var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
+    els.forEach(el => el.style.animation = 'none');
+    loader.offsetHeight;
+    els.forEach(el => el.style.animation = '');
+  }
+  loader.querySelector('.pl-svg').addEventListener('animationiteration', function(e) {
+    if (e.animationName !== 'plCycle' || _dismissed) return;
+    if (_done) {
+      _dismissed = true;
+      loader.classList.add('hide');
+      setTimeout(() => {
+        loader.classList.remove('active','hide');
+        _done = false; _dismissed = false;
+        if (_onDone) { var cb = _onDone; _onDone = null; cb(); }
+      }, 380);
+    }
+  });
+  window.showPageLoader = () => { _done=false; _dismissed=false; _onDone=null; loader.classList.remove('hide'); loader.classList.add('active'); restartAnim(); };
+  window.hidePageLoader = cb => { _onDone = cb||null; _done = true; };
+})();
+
+/* ── RESEND COUNTDOWN ── */
+function startResendCountdown(seconds) {
+  const btn = $('resend-btn'), label = $('resend-countdown'), timer = $('resend-timer');
+  let t = seconds;
+  btn.disabled = true;
+  label.style.display = '';
+  timer.textContent = t;
+  clearInterval(resendTimer);
+  resendTimer = setInterval(() => {
+    t--;
+    timer.textContent = t;
+    if (t <= 0) {
+      clearInterval(resendTimer);
+      label.style.display = 'none';
+      btn.disabled = false;
+      btn.textContent = 'Reenviar código';
+    }
+  }, 1000);
+}
+
+/* ── SEND OTP ── */
+async function sendOtp() {
+  const emailEl = $('auth-email');
+  const email   = emailEl.value.trim();
+  const fgEl    = $('fg-auth-email');
+  if (!email || !/\S+@\S+\.\S+/.test(email)) {
+    fgEl.classList.add('has-error'); return;
+  }
+  fgEl.classList.remove('has-error');
+  currentEmail = email;
+
+  const btn = $('btn-send-otp');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-spinner"></span>Enviando…';
+  setMsg('msg-send', '', '');
+
+  try {
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true }
+    });
+    if (error) throw error;
+
+    $('otp-email-display').textContent = email;
+    showStep('step-otp');
+    setTimeout(() => $('otp0').focus(), 80);
+    startResendCountdown(30);
+  } catch (err) {
+    setMsg('msg-send', 'Error al enviar el código. Intenta de nuevo.', 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Enviar código';
+  }
+}
+
+/* ── RESEND OTP ── */
+async function resendOtp() {
+  const btn = $('resend-btn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+  setMsg('msg-verify', '', '');
+  try {
+    const { error } = await sb.auth.signInWithOtp({
+      email: currentEmail,
+      options: { shouldCreateUser: true }
+    });
+    if (error) throw error;
+    setMsg('msg-verify', 'Código reenviado.', 'ok');
+    startResendCountdown(30);
+  } catch (err) {
+    setMsg('msg-verify', 'No se pudo reenviar. Intenta de nuevo.', 'err');
+    btn.disabled = false;
+    btn.textContent = 'Reenviar código';
+  }
+}
+
+/* ── OTP INPUT HANDLERS ── */
+function otpInput(idx) {
+  const inp = $('otp' + idx);
+  /* allow only digits */
+  inp.value = inp.value.replace(/[^0-9]/g, '').slice(-1);
+  inp.classList.toggle('filled', inp.value.length > 0);
+  if (inp.value && idx < 5) $('otp' + (idx + 1)).focus();
+  updateVerifyBtn();
+}
+
+function otpKey(e, idx) {
+  if (e.key === 'Backspace' && !$('otp' + idx).value && idx > 0) {
+    $('otp' + (idx - 1)).focus();
+  }
+  if (e.key === 'Enter') verifyOtp();
+  /* handle paste */
+  if (e.ctrlKey && e.key === 'v') return;
+}
+
+/* Handle paste on any OTP box */
+document.addEventListener('paste', function(e) {
+  const focused = document.activeElement;
+  if (!focused || !focused.id.startsWith('otp')) return;
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+  [...text.slice(0,6)].forEach((ch, i) => {
+    const el = $('otp' + i); if (!el) return;
+    el.value = ch; el.classList.add('filled');
+  });
+  const last = Math.min(text.length - 1, 5);
+  if (last >= 0) $('otp' + last).focus();
+  updateVerifyBtn();
+});
+
+function updateVerifyBtn() {
+  const code = getOtpValue();
+  $('btn-verify-otp').disabled = code.length < 6;
+}
+
+function getOtpValue() {
+  return [0,1,2,3,4,5].map(i => $('otp'+i).value).join('');
+}
+
+function clearOtp() {
+  [0,1,2,3,4,5].forEach(i => { const el=$('otp'+i); el.value=''; el.classList.remove('filled'); });
+  updateVerifyBtn();
+}
+
+/* ── VERIFY OTP ── */
+async function verifyOtp() {
+  const token = getOtpValue();
+  if (token.length < 6) return;
+
+  const btn = $('btn-verify-otp');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-spinner"></span>Verificando…';
+  setMsg('msg-verify', '', '');
+
+  try {
+    const { data, error } = await sb.auth.verifyOtp({
+      email: currentEmail,
+      token,
+      type: 'email'
+    });
+    if (error) throw error;
+
+    /* ── SUCCESS ── */
+    clearInterval(resendTimer);
+    showStep('step-success');
+    $('success-sub').textContent = 'Sesión iniciada. Redirigiendo…';
+
+    setTimeout(() => {
+      window.location.href = RETURN_URL;
+    }, 1200);
+
+  } catch (err) {
+    /* shake the OTP boxes */
+    const wrap = $('otp-wrap');
+    wrap.classList.remove('shake');
+    wrap.offsetHeight; // reflow
+    wrap.classList.add('shake');
+    clearOtp();
+    $('otp0').focus();
+    setMsg('msg-verify', 'Código incorrecto o expirado. Inténtalo de nuevo.', 'err');
+    btn.disabled = false;
+    btn.textContent = 'Verificar';
+  }
+}
+
+/* ── BACK ── */
+function goBack() {
+  clearOtp();
+  clearInterval(resendTimer);
+  setMsg('msg-verify', '', '');
+  setMsg('msg-send', '', '');
+  showStep('step-email');
+  setTimeout(() => $('auth-email').focus(), 80);
+}
+</script>
+</body>
+</html>

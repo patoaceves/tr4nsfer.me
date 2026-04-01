@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Portal — tr4nsfer.me</title>
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#000;--surface:#111;--surface2:#191919;
+      --teal:#00c896;--teal-dark:#00a87a;--teal-dim:rgba(0,200,150,.09);--teal-border:rgba(0,200,150,.20);
+      --text:#f0f0f0;--text-soft:#c8c8c8;--muted:#888;--muted2:#333;--dim:#444;
+      --border:rgba(255,255,255,.07);--border2:#272727;--input-bg:#0c0c0c;--error:#f04040;
+      --sidebar-w:220px;
+    }
+    html,body{min-height:100%;}
+    body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+    /* ── KEYFRAMES ── */
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
+    @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(.4,0,.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(.4,0,.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(.4,0,.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+    @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
+    @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+    /* ── PAGE LOADER ── */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:none;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
+    #page-loader.active{display:flex;}
+    #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
+    .pl-svg{width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,.38));opacity:0;animation:plCycle 2.1s linear 1 both;}
+    .pl-stroke-horiz{stroke-dasharray:737;stroke-dashoffset:737;animation:plHoriz 2.1s linear 1 both;}
+    .pl-stroke-diag{stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag 2.1s linear 1 both;}
+    .pl-stroke-vert{stroke-dasharray:750;stroke-dashoffset:750;animation:plVert 2.1s linear 1 both;}
+    .pl-dot{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear 1 both;}
+
+    /* ── HEADER ── */
+    header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+    .logo{display:inline-flex;align-items:center;text-decoration:none;}
+    .logo img{height:28px;width:auto;display:block;}
+    nav{display:flex;align-items:center;gap:36px;}
+    .nav-links{display:flex;align-items:center;gap:28px;}
+    nav a{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s;}
+    nav a:hover{color:var(--text);}
+    .btn-nav{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;background:var(--teal);color:#000;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
+    .btn-nav:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
+    @media(max-width:860px){header{padding:0 24px;}.nav-links{display:none;}}
+
+    /* ── LAYOUT ── */
+    .portal-shell{display:flex;min-height:100vh;padding-top:64px;}
+
+    /* ── SIDEBAR ── */
+    .sidebar{width:var(--sidebar-w);flex-shrink:0;position:fixed;top:64px;left:0;bottom:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:28px 0 24px;z-index:50;overflow-y:auto;}
+    .sidebar-user{padding:0 20px 20px;border-bottom:1px solid var(--border);}
+    .sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:14px;font-weight:700;color:var(--teal);}
+    .sidebar-email{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+    .sidebar-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+    .sidebar-tabs{flex:1;padding:16px 12px 0;}
+    .sidebar-tab{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:background .15s,color .15s;user-select:none;border:none;background:none;width:100%;font-family:'Inter',sans-serif;text-align:left;}
+    .sidebar-tab:hover{background:rgba(255,255,255,.04);color:var(--text-soft);}
+    .sidebar-tab.active{background:var(--teal-dim);color:var(--teal);font-weight:600;}
+    .sidebar-tab svg{flex-shrink:0;opacity:.7;}
+    .sidebar-tab.active svg{opacity:1;}
+    .sidebar-bottom{padding:16px 12px 0;border-top:1px solid var(--border);margin-top:auto;}
+    .sidebar-signout{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:500;color:var(--muted);transition:color .15s;border:none;background:none;width:100%;font-family:'Inter',sans-serif;}
+    .sidebar-signout:hover{color:var(--error);}
+
+    /* ── MAIN CONTENT ── */
+    .portal-main{flex:1;margin-left:var(--sidebar-w);padding:36px 40px;max-width:calc(100vw - var(--sidebar-w));min-height:calc(100vh - 64px);}
+    .portal-section{display:none;animation:fadeUp .3s ease both;}
+    .portal-section.active{display:block;}
+
+    /* ── SECTION HEADER ── */
+    .section-header{margin-bottom:28px;}
+    .section-title{font-size:22px;font-weight:800;letter-spacing:-.04em;margin-bottom:4px;}
+    .section-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+
+    /* ── MI CUENTA ── */
+    .cuenta-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;max-width:520px;margin-bottom:16px;}
+    .cuenta-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+    .cuenta-row:last-child{border-bottom:none;padding-bottom:0;}
+    .cuenta-label{font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.04em;}
+    .cuenta-value{font-size:13.5px;font-weight:500;color:var(--text-soft);}
+    .tag-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(0,200,150,.1);color:var(--teal);border:1px solid rgba(0,200,150,.18);}
+
+    /* ── MIS LINKS ── */
+    .links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+    .link-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:20px;transition:border-color .2s;}
+    .link-card:hover{border-color:rgba(0,200,150,.2);}
+    .link-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+    .link-card-name{font-size:15px;font-weight:700;letter-spacing:-.02em;margin-bottom:3px;}
+    .link-card-banco{font-size:12px;color:var(--muted);}
+    .link-card-preview{width:36px;height:36px;border-radius:10px;flex-shrink:0;}
+    .link-card-url{display:flex;align-items:center;gap:7px;padding:8px 12px;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;margin-bottom:14px;cursor:pointer;transition:border-color .15s;}
+    .link-card-url:hover{border-color:rgba(0,200,150,.2);}
+    .link-card-url span{font-size:12px;color:var(--teal);font-family:'Inter',monospace;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .link-card-actions{display:flex;gap:8px;}
+    .lc-btn{flex:1;padding:8px 12px;border-radius:9px;border:1px solid var(--border2);background:transparent;color:var(--text-soft);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,border-color .15s,color .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+    .lc-btn:hover{background:rgba(255,255,255,.04);border-color:var(--dim);}
+    .lc-btn.primary{background:var(--teal-dim);border-color:var(--teal-border);color:var(--teal);}
+    .lc-btn.primary:hover{background:rgba(0,200,150,.14);}
+
+    /* expirable link chips on the card */
+    .exp-chips{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+    .exp-chip{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(0,200,150,.04);border:1px solid rgba(0,200,150,.1);border-radius:8px;font-size:11.5px;}
+    .exp-chip-code{font-family:monospace;font-weight:700;color:var(--teal);letter-spacing:.04em;}
+    .exp-chip-meta{color:var(--muted);}
+    .exp-chip-copy{cursor:pointer;color:var(--muted);background:none;border:none;font-size:11px;font-family:'Inter',sans-serif;padding:0;transition:color .15s;}
+    .exp-chip-copy:hover{color:var(--teal);}
+    .exp-chip.expired .exp-chip-code{color:var(--muted);text-decoration:line-through;}
+    .exp-chip.expired .exp-chip-meta{color:var(--error);}
+
+    /* empty state */
+    .links-empty{text-align:center;padding:64px 20px;color:var(--muted);}
+    .links-empty svg{margin:0 auto 16px;display:block;opacity:.3;}
+    .links-empty h3{font-size:16px;font-weight:700;color:var(--text-soft);margin-bottom:8px;}
+    .links-empty p{font-size:13px;line-height:1.6;}
+    .links-loading{display:flex;align-items:center;justify-content:center;padding:64px 0;gap:10px;color:var(--muted);font-size:13px;}
+    .mini-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;}
+
+    /* ── CONFIGURACIÓN ── */
+    .config-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px;max-width:520px;margin-bottom:16px;}
+    .config-title{font-size:13px;font-weight:700;margin-bottom:16px;color:var(--text-soft);}
+    .config-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+    .config-row:last-child{border-bottom:none;}
+    .config-row-label{font-size:13px;font-weight:500;}
+    .config-row-desc{font-size:11.5px;color:var(--muted);margin-top:2px;}
+    .config-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text-soft);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,color .15s;}
+    .config-btn:hover{background:rgba(255,255,255,.05);color:var(--text);}
+    .config-btn.danger{border-color:rgba(240,64,64,.2);color:var(--error);}
+    .config-btn.danger:hover{background:rgba(240,64,64,.06);}
+
+    /* ── MODAL ── */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;display:none;align-items:center;justify-content:center;padding:20px;}
+    .modal-backdrop.open{display:flex;}
+    .modal{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:28px;width:100%;max-width:400px;animation:modalIn .2s ease both;}
+    .modal-title{font-size:17px;font-weight:800;letter-spacing:-.03em;margin-bottom:6px;}
+    .modal-sub{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:22px;}
+    .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;}
+    .modal-close:hover{color:var(--text);}
+
+    /* Duration selector */
+    .dur-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+    .dur-opt{padding:10px 8px;border-radius:10px;border:1.5px solid var(--border2);background:transparent;cursor:pointer;text-align:center;transition:border-color .15s,background .15s;}
+    .dur-opt:hover{border-color:rgba(0,200,150,.25);}
+    .dur-opt.selected{border-color:var(--teal);background:var(--teal-dim);}
+    .dur-opt-label{font-size:14px;font-weight:700;color:var(--text);}
+    .dur-opt-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+    .dur-opt.selected .dur-opt-sub{color:rgba(0,200,150,.7);}
+
+    .btn-modal-primary{width:100%;padding:12px;border-radius:12px;border:none;background:var(--teal);color:#000;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s;}
+    .btn-modal-primary:hover:not(:disabled){background:#00daa6;}
+    .btn-modal-primary:disabled{opacity:.45;cursor:not-allowed;}
+
+    /* Generated link result */
+    .gen-result{display:none;margin-top:16px;padding:14px;background:var(--input-bg);border:1px solid rgba(0,200,150,.18);border-radius:12px;}
+    .gen-result.visible{display:block;}
+    .gen-result-url{font-size:13px;font-family:monospace;color:var(--teal);word-break:break-all;margin-bottom:10px;}
+    .gen-result-exp{font-size:11.5px;color:var(--muted);margin-bottom:12px;}
+    .gen-copy-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px;border-radius:9px;border:1px solid rgba(0,200,150,.25);background:rgba(0,200,150,.07);color:var(--teal);font-size:12.5px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s;}
+    .gen-copy-btn:hover{background:rgba(0,200,150,.14);}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid var(--border2);border-radius:100px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text-soft);z-index:9000;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:740px){
+      .sidebar{position:fixed;left:-100%;transition:left .25s;width:240px;}
+      .sidebar.open{left:0;}
+      .portal-main{margin-left:0;padding:20px 16px;}
+      .links-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:480px){
+      .portal-main{padding:16px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader">
+  <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
+    <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
+    <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
+    <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
+  </svg>
+</div>
+
+<!-- HEADER -->
+<header>
+  <a href="index.html" class="logo"><img src="logo.png" alt="tr4nsfer.me"/></a>
+  <nav>
+    <div class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#ayuda">Ayuda</a>
+      <a href="portal.html" style="color:var(--teal);">Mi Cuenta</a>
+    </div>
+    <a href="app.html" class="btn-nav">Crear mi Link</a>
+  </nav>
+</header>
+
+<!-- PORTAL SHELL -->
+<div class="portal-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="user-avatar">?</div>
+      <div class="sidebar-name" id="user-name">—</div>
+      <div class="sidebar-email" id="user-email">—</div>
+    </div>
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" data-tab="cuenta" onclick="switchTab('cuenta')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Mi cuenta
+      </button>
+      <button class="sidebar-tab" data-tab="links" onclick="switchTab('links')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Mis Links
+        <span id="links-count-badge" style="display:none;margin-left:auto;background:rgba(0,200,150,.15);color:var(--teal);font-size:10px;font-weight:700;padding:1px 7px;border-radius:100px;"></span>
+      </button>
+      <button class="sidebar-tab" data-tab="config" onclick="switchTab('config')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Configuración
+      </button>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="sidebar-signout" onclick="signOut()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="portal-main">
+
+    <!-- ── MI CUENTA ── -->
+    <section id="tab-cuenta" class="portal-section active">
+      <div class="section-header">
+        <div class="section-title">Mi cuenta</div>
+        <div class="section-sub">Tu información de acceso en tr4nsfer.me.</div>
+      </div>
+      <div class="cuenta-card">
+        <div class="cuenta-row">
+          <span class="cuenta-label">Correo</span>
+          <span class="cuenta-value" id="detail-email">—</span>
+        </div>
+        <div class="cuenta-row">
+          <span class="cuenta-label">Miembro desde</span>
+          <span class="cuenta-value" id="detail-since">—</span>
+        </div>
+        <div class="cuenta-row">
+          <span class="cuenta-label">Links activos</span>
+          <span class="cuenta-value" id="detail-links-count">—</span>
+        </div>
+        <div class="cuenta-row">
+          <span class="cuenta-label">Plan</span>
+          <span class="cuenta-value"><span class="tag-badge">Free</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── MIS LINKS ── -->
+    <section id="tab-links" class="portal-section">
+      <div class="section-header">
+        <div class="section-title">Mis Links</div>
+        <div class="section-sub">Administra, comparte y genera links expirables.</div>
+      </div>
+      <div id="links-loading" class="links-loading">
+        <div class="mini-spinner"></div> Cargando tus links…
+      </div>
+      <div id="links-empty" class="links-empty" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <h3>Aún no tienes links</h3>
+        <p>Crea tu primer link de pago y aparecerá aquí.</p>
+      </div>
+      <div id="links-grid" class="links-grid" style="display:none;"></div>
+    </section>
+
+    <!-- ── CONFIGURACIÓN ── -->
+    <section id="tab-config" class="portal-section">
+      <div class="section-header">
+        <div class="section-title">Configuración</div>
+        <div class="section-sub">Preferencias de tu cuenta.</div>
+      </div>
+      <div class="config-card">
+        <div class="config-title">Sesión</div>
+        <div class="config-row">
+          <div>
+            <div class="config-row-label">Cerrar sesión</div>
+            <div class="config-row-desc">Sal de tu cuenta en este dispositivo.</div>
+          </div>
+          <button class="config-btn danger" onclick="signOut()">Salir</button>
+        </div>
+      </div>
+      <div class="config-card">
+        <div class="config-title">Zona de peligro</div>
+        <div class="config-row">
+          <div>
+            <div class="config-row-label">Eliminar cuenta</div>
+            <div class="config-row-desc">Borra tu cuenta y todos tus datos permanentemente.</div>
+          </div>
+          <button class="config-btn danger" onclick="confirmDeleteAccount()">Eliminar</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── MODAL: Generar Link Expirable ── -->
+<div class="modal-backdrop" id="modal-expirable">
+  <div class="modal" style="position:relative;">
+    <button class="modal-close" onclick="closeModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="modal-title">Generar Link Expirable</div>
+    <div class="modal-sub">El link funcionará solo durante el período que elijas.</div>
+
+    <div class="dur-options" id="dur-options">
+      <div class="dur-opt selected" data-hours="12" onclick="selectDur(this)">
+        <div class="dur-opt-label">12h</div>
+        <div class="dur-opt-sub">12 horas</div>
+      </div>
+      <div class="dur-opt" data-hours="24" onclick="selectDur(this)">
+        <div class="dur-opt-label">24h</div>
+        <div class="dur-opt-sub">1 día</div>
+      </div>
+      <div class="dur-opt" data-hours="168" onclick="selectDur(this)">
+        <div class="dur-opt-label">7d</div>
+        <div class="dur-opt-sub">1 semana</div>
+      </div>
+    </div>
+
+    <button class="btn-modal-primary" id="btn-gen-exp" onclick="generateExpirable()">Generar link</button>
+
+    <div class="gen-result" id="gen-result">
+      <div class="gen-result-url" id="gen-result-url"></div>
+      <div class="gen-result-exp" id="gen-result-exp"></div>
+      <button class="gen-copy-btn" id="gen-copy-btn" onclick="copyGenResult()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Copiar link
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ── CONFIG ── */
+const SUPABASE_URL = 'https://wtmwwbsjwdisalnzlsnc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+const SITE_BASE = 'https://tr4nsfer.me/';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ── HELPERS ── */
+const $ = id => document.getElementById(id);
+let _currentUser = null;
+let _allLinks    = [];
+let _activeModal = null;  // slug of link in modal
+let _selectedHours = 12;
+
+/* ── PAGE LOADER ── */
+(function(){
+  var loader = $('page-loader');
+  if (!loader) return;
+  var _done = false, _dismissed = false, _onDone = null;
+  function restartAnim() {
+    var els = loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');
+    els.forEach(el => el.style.animation = 'none');
+    loader.offsetHeight;
+    els.forEach(el => el.style.animation = '');
+  }
+  loader.querySelector('.pl-svg').addEventListener('animationiteration', function(e) {
+    if (e.animationName !== 'plCycle' || _dismissed) return;
+    if (_done) {
+      _dismissed = true; loader.classList.add('hide');
+      setTimeout(() => {
+        loader.classList.remove('active','hide');
+        _done = false; _dismissed = false;
+        if (_onDone) { var cb = _onDone; _onDone = null; cb(); }
+      }, 380);
+    }
+  });
+  window.showPageLoader = () => { _done=false;_dismissed=false;_onDone=null;loader.classList.remove('hide');loader.classList.add('active');restartAnim(); };
+  window.hidePageLoader = cb => { _onDone=cb||null; _done=true; };
+})();
+
+/* ── TOAST ── */
+let _toastTimer;
+function showToast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ── HASH EMAIL ── */
+async function hashEmail(email) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email.toLowerCase().trim()));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ── RANDOM CODE ── */
+function randCode(len) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let s = '';
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  arr.forEach(b => s += chars[b % chars.length]);
+  return s;
+}
+
+/* ── AUTH GUARD ── */
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) {
+    window.location.href = 'auth.html?return=portal&reason=portal';
+    return;
+  }
+  _currentUser = user;
+  populateUserInfo(user);
+  loadLinks(user.email);
+}
+
+function populateUserInfo(user) {
+  const email  = user.email || '';
+  const initials = email.charAt(0).toUpperCase();
+  $('user-avatar').textContent = initials;
+  $('user-email').textContent  = email;
+  $('detail-email').textContent = email;
+
+  const since = user.created_at ? new Date(user.created_at).toLocaleDateString('es-MX', {year:'numeric',month:'long',day:'numeric'}) : '—';
+  $('detail-since').textContent = since;
+}
+
+/* ── LOAD LINKS ── */
+async function loadLinks(email) {
+  $('links-loading').style.display = 'flex';
+  $('links-grid').style.display    = 'none';
+  $('links-empty').style.display   = 'none';
+
+  try {
+    const hash = await hashEmail(email);
+    const { data: links, error } = await sb
+      .from('links')
+      .select('*')
+      .eq('email_hash', hash)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    _allLinks = links || [];
+
+    /* also load expirable links for these slugs */
+    let expMap = {};
+    if (_allLinks.length > 0) {
+      const slugs = _allLinks.map(l => l.slug);
+      const { data: expRows } = await sb
+        .from('expirable_links')
+        .select('*')
+        .in('slug', slugs)
+        .order('created_at', { ascending: false });
+      (expRows || []).forEach(r => {
+        if (!expMap[r.slug]) expMap[r.slug] = [];
+        expMap[r.slug].push(r);
+      });
+    }
+
+    $('links-loading').style.display = 'none';
+
+    if (_allLinks.length === 0) {
+      $('links-empty').style.display = 'block';
+      $('detail-links-count').textContent = '0';
+      return;
+    }
+
+    $('detail-links-count').textContent = _allLinks.length;
+    $('links-count-badge').textContent  = _allLinks.length;
+    $('links-count-badge').style.display = '';
+    renderLinkCards(_allLinks, expMap);
+    $('links-grid').style.display = 'grid';
+
+    /* also update sidebar name from first link */
+    const first = _allLinks[0];
+    const displayName = first.nombre_negocio || first.nombre || '';
+    if (displayName) {
+      $('user-name').textContent = displayName;
+    }
+
+  } catch (err) {
+    console.error('loadLinks error', err);
+    $('links-loading').style.display = 'none';
+    $('links-empty').style.display   = 'block';
+    $('links-empty').querySelector('h3').textContent = 'Error al cargar';
+    $('links-empty').querySelector('p').textContent  = 'No se pudieron cargar tus links. Intenta recargar.';
+  }
+}
+
+/* ── RENDER CARDS ── */
+function renderLinkCards(links, expMap) {
+  const grid = $('links-grid');
+  grid.innerHTML = '';
+  links.forEach(link => {
+    const slug = link.slug;
+    const expLinks = expMap[slug] || [];
+    const card = document.createElement('div');
+    card.className = 'link-card';
+    card.id = 'lcard-' + slug;
+
+    const displayName = link.nombre_negocio || link.nombre || '—';
+    const banco = link.banco || '—';
+    const url   = SITE_BASE + slug;
+
+    /* expirable chips */
+    const now = Date.now();
+    const activeExp = expLinks.filter(e => new Date(e.expires_at).getTime() > now);
+    const chipsHTML = expLinks.slice(0,3).map(e => {
+      const expired = new Date(e.expires_at).getTime() <= now;
+      const expLabel = expired
+        ? 'Expiró'
+        : 'Expira ' + relativeTime(e.expires_at);
+      return `<div class="exp-chip ${expired?'expired':''}">
+        <span class="exp-chip-code">${SITE_BASE}${slug}?exp=${e.code}</span>
+        <span class="exp-chip-meta">${expLabel}</span>
+        <button class="exp-chip-copy" onclick="copyText('${SITE_BASE}${slug}?exp=${e.code}','Copiado')">Copiar</button>
+      </div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="link-card-top">
+        <div>
+          <div class="link-card-name">${esc(displayName)}</div>
+          <div class="link-card-banco">${esc(banco)}</div>
+        </div>
+        <div class="link-card-preview" style="background:${link.card_gradient||'linear-gradient(135deg,#004d38,#00c896)'};border-radius:10px;"></div>
+      </div>
+      <div class="link-card-url" onclick="copyText('${url}','Link copiado')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>tr4nsfer.me/${esc(slug)}</span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      ${chipsHTML ? `<div class="exp-chips">${chipsHTML}</div>` : ''}
+      <div class="link-card-actions">
+        <button class="lc-btn primary" onclick="openExpirableModal('${slug}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Link Expirable
+        </button>
+        <button class="lc-btn" onclick="editLink('${slug}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Editar
+        </button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ── EXPIRABLE MODAL ── */
+function openExpirableModal(slug) {
+  _activeModal = slug;
+  _selectedHours = 12;
+  document.querySelectorAll('.dur-opt').forEach(o => o.classList.remove('selected'));
+  document.querySelector('.dur-opt[data-hours="12"]').classList.add('selected');
+  $('gen-result').classList.remove('visible');
+  $('btn-gen-exp').disabled = false;
+  $('btn-gen-exp').textContent = 'Generar link';
+  $('modal-expirable').classList.add('open');
+}
+
+function closeModal() {
+  $('modal-expirable').classList.remove('open');
+  _activeModal = null;
+}
+
+function selectDur(el) {
+  document.querySelectorAll('.dur-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  _selectedHours = parseInt(el.dataset.hours);
+  $('gen-result').classList.remove('visible');
+}
+
+async function generateExpirable() {
+  if (!_activeModal) return;
+  const btn = $('btn-gen-exp');
+  btn.disabled = true;
+  btn.textContent = 'Generando…';
+
+  const code = randCode(6);
+  const expiresAt = new Date(Date.now() + _selectedHours * 3600 * 1000);
+
+  try {
+    const { error } = await sb.from('expirable_links').insert({
+      slug:       _activeModal,
+      code,
+      expires_at: expiresAt.toISOString(),
+    });
+    if (error) throw error;
+
+    const url = `${SITE_BASE}${_activeModal}?exp=${code}`;
+    $('gen-result-url').textContent = url;
+    $('gen-result-exp').textContent = `Expira el ${expiresAt.toLocaleDateString('es-MX',{weekday:'long',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+    $('gen-copy-btn').textContent   = 'Copiar link';
+    $('gen-result').classList.add('visible');
+    $('gen-result').__url = url;
+
+  } catch(err) {
+    console.error(err);
+    btn.textContent = 'Error. Intenta de nuevo.';
+    btn.disabled = false;
+  }
+}
+
+function copyGenResult() {
+  const url = $('gen-result').__url;
+  if (!url) return;
+  copyText(url, 'Link copiado');
+}
+
+/* ── EDIT LINK ── */
+function editLink(slug) {
+  window.location.href = `app.html?edit=${encodeURIComponent(slug)}`;
+}
+
+/* ── COPY TEXT ── */
+function copyText(text, msg) {
+  navigator.clipboard.writeText(text).then(() => showToast(msg || 'Copiado')).catch(() => showToast('Error al copiar'));
+}
+
+/* ── SIGN OUT ── */
+async function signOut() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+/* ── DELETE ACCOUNT ── */
+function confirmDeleteAccount() {
+  if (!confirm('¿Estás seguro? Esta acción es irreversible. Se eliminarán tu cuenta y todos tus datos.')) return;
+  showToast('Contacta support@tr4nsfer.me para eliminar tu cuenta.');
+}
+
+/* ── TAB SWITCH ── */
+function switchTab(id) {
+  document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.portal-section').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const target = $('tab-' + id);
+  if (target) { target.style.display = 'block'; target.classList.add('active'); }
+  if (id === 'links' && _allLinks.length === 0 && _currentUser) {
+    loadLinks(_currentUser.email);
+  }
+}
+
+/* ── HELPERS ── */
+function esc(s) { const d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+
+function relativeTime(iso) {
+  const diff = new Date(iso).getTime() - Date.now();
+  if (diff <= 0) return 'pronto';
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return 'en menos de 1h';
+  if (h < 24) return `en ${h}h`;
+  const d = Math.floor(h / 24);
+  return `en ${d}d`;
+}
+
+/* ── INIT ── */
+init();
+</script>
+</body>
+</html>
