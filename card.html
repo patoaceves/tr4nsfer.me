@@ -10,12 +10,12 @@
   <meta property="og:type" content="website"/>
   <meta property="og:title" id="og-title" content="tr4nsfer.me — Recibe transferencias fácil"/>
   <meta property="og:description" id="og-desc" content="Comparte tu CLABE de forma segura con tr4nsfer.me"/>
-  <meta property="og:image" id="og-image" content="https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/og-image"/>
+  <meta property="og:image" id="og-image" content="https://tr4nsfer.me/og-default.png"/>
   <meta property="og:image:width" content="1200"/>
   <meta property="og:image:height" content="630"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" id="tw-title" content="tr4nsfer.me"/>
-  <meta name="twitter:image" id="tw-image" content="https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/og-image"/>
+  <meta name="twitter:image" id="tw-image" content="https://tr4nsfer.me/og-default.png"/>
   <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="apple-touch-icon" href="favicon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -502,7 +502,7 @@ function renderProfile(d){
   const ogDesc    = ogBanco ? `${ogBanco} · Copia la CLABE y transfiere directo` : 'Recibe transferencias SPEI fácil y seguro';
   const ogImgUrl  = `https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/og-image?slug=${encodeURIComponent(ogSlug)}`;
   const setMeta   = (id, content) => { const el = document.getElementById(id); if (el) el.setAttribute('content', content); };
-  document.title = ogName ? 'tr4nsfer.me — ' + ogName : 'tr4nsfer.me';
+  document.title = ogName ? 'tr4nsfer.me · ' + ogName : 'tr4nsfer.me';
   setMeta('og-title',  ogTitle);
   setMeta('og-desc',   ogDesc);
   setMeta('og-image',  ogImgUrl);
