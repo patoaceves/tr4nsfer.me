@@ -613,7 +613,6 @@
         <span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);">AES-256-GCM</strong> antes de guardarse.</span>
       </div>
       <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span id="btn-text">Generar mi Link</span>
       </button>
     </div>
@@ -1365,12 +1364,9 @@ async function initEditMode(){
     profileType=data.profile_type||'personal';
     if(data.custom_slug)$('slug-custom').value=data.custom_slug;
 
-    /* Lock encrypted contact fields */
-    ['email','whatsapp'].forEach(id=>{
-      const el=$(id); if(!el)return;
-      el.disabled=true;
-      el.style.opacity='.45';
-    });
+    /* Fill email/whatsapp if available (show_* toggles) */
+    if($('show_whatsapp'))$('show_whatsapp').checked=!!data.show_whatsapp;
+    if($('show_email'))$('show_email').checked=!!data.show_email;
 
     /* icon */
     if(data.profile_type==='negocios'){const iconSec=$('icon-editor-section');if(iconSec)iconSec.style.display='block';}
@@ -1389,9 +1385,9 @@ async function initEditMode(){
     if(data.bg_color)selectedBgColor=data.bg_color;
     applyCardColor();applyBgColor();
 
-    /* toggles */
-    if($('show_whatsapp'))$('show_whatsapp').checked=!!data.show_whatsapp;
-    if($('show_email'))$('show_email').checked=!!data.show_email;
+    /* pre-fill email / whatsapp — editable in edit mode */
+    if(data.show_email&&$('email')){$('email').value='';}   // encrypted, can't prefill — user re-enters if changing
+    if(data.show_whatsapp&&$('whatsapp')){$('whatsapp').value='';}
 
     /* fiscal */
     if(data.has_fiscal&&$('show_fiscal')){
@@ -1458,10 +1454,11 @@ async function saveEditedLink(){
     }
     const resp=await fetch(`${SUPABASE_URL}/functions/v1/update-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'x-user-jwt':userJwt},body:JSON.stringify(payload)});
     if(!resp.ok)throw new Error('update failed');
+    btn.textContent='✓ Guardado';
+    btn.style.background='#00a87a';
     hidePageLoader(()=>{
       showToast('¡Cambios guardados!','ok');
-      btn.disabled=false;textEl.textContent='Guardar cambios';
-      setTimeout(()=>window.location.href='portal.html',1600);
+      setTimeout(()=>window.location.href='portal.html#links',1400);
     });
   }catch(e){
     hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Error. Intenta de nuevo.';showToast('No se pudieron guardar los cambios.','error');});
