@@ -290,7 +290,7 @@
     .consent-row input:checked~.consent-check svg{opacity:1;}
     .consent-row.has-error .consent-check{border-color:var(--error);}
     .consent-row.has-error .field-error{display:block;}
-    .consent-row .field-error{position:absolute;bottom:-16px;left:28px;text-transform:none;letter-spacing:0;}
+    .consent-row .field-error{position:absolute;bottom:-16px;left:28px;}
     .consent-text{font-size:11.5px;color:rgba(255,255,255,.5);line-height:1.55;flex:1;text-transform:none;letter-spacing:normal;}
     .consent-link{color:var(--teal);text-decoration:none;opacity:.85;text-transform:none;letter-spacing:normal;}
     /* SUCCESS */
@@ -681,6 +681,8 @@ const $=id=>document.getElementById(id);
 /* ── EDIT MODE ── */
 const EDIT_SLUG = new URLSearchParams(location.search).get('edit') || null;
 const EDIT_MODE = !!EDIT_SLUG;
+let CURRENT_USER_EMAIL = '';  // populated on load if already authenticated
+sb.auth.getSession().then(({data:{session}})=>{ if(session?.user?.email) CURRENT_USER_EMAIL=session.user.email.toLowerCase().trim(); });
 
 /* ── QR helpers ── */
 function qrApiUrl(slug,size){return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent('https://tr4nsfer.me/'+slug)+'&margin=10&color=000000&bgcolor=ffffff';}
@@ -1000,6 +1002,14 @@ function onWaInput(){var inp=$('whatsapp'),sel=$('wa-country');var max=sel?parse
 /* ── EMAIL CHECK ── */
 let emailCheckState='idle', emailCheckTimer=null;
 async function checkEmailExists(email){
+  // Si el usuario ya está autenticado con ese correo, no bloquear — puede crear otro link
+  if(CURRENT_USER_EMAIL && email.toLowerCase().trim()===CURRENT_USER_EMAIL){
+    emailCheckState='ok';
+    const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta');
+    if(ring)ring.classList.remove('visible');if(cta)cta.style.display='none';
+    setError('fg-email',false);if(ver)ver.style.display='block';
+    return;
+  }
   emailCheckState='checking';
   const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta'),errMsg=$('email-error-msg');
   if(ring)ring.classList.add('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
@@ -1093,7 +1103,7 @@ async function submitForm(){
   const slugVal=$('slug-custom').value.trim();
   if(slugVal.length>0&&slugVal.length<3){$('slug-error').textContent='Mínimo 3 caracteres.';setError('fg-slug',true);ok=false;}
   if(slugCheckState==='taken'||slugCheckState==='invalid')ok=false;if(slugCheckState==='checking')return;
-  if(emailCheckState==='exists'){setError('fg-email',true);ok=false;}
+  if(emailCheckState==='exists'&&!(CURRENT_USER_EMAIL&&email.toLowerCase().trim()===CURRENT_USER_EMAIL)){setError('fg-email',true);ok=false;}
   if(emailCheckState==='checking')return;
   const c1=$('fg-consent1'),c2=$('fg-consent2');
   if(!$('consent1').checked){c1.classList.add('has-error');ok=false;}else c1.classList.remove('has-error');
