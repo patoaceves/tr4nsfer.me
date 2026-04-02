@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="robots" content="noindex, nofollow"/>
   <title>tr4nsfer.me</title>
+  <!-- OG / social preview — filled dynamically after data loads -->
+  <meta property="og:site_name" content="tr4nsfer.me"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" id="og-title" content="tr4nsfer.me — Recibe transferencias fácil"/>
+  <meta property="og:description" id="og-desc" content="Comparte tu CLABE de forma segura con tr4nsfer.me"/>
+  <meta property="og:image" id="og-image" content="https://tr4nsfer.me/og-default.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" id="tw-title" content="tr4nsfer.me"/>
+  <meta name="twitter:image" id="tw-image" content="https://tr4nsfer.me/og-default.png"/>
   <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="apple-touch-icon" href="favicon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -481,6 +492,23 @@ function renderProfile(d){
       }
     }
   }
+
+  // ── OG / Social preview meta tags ──────────────────────────────────────────
+  // WhatsApp, iMessage, Telegram re-scrape when JS has run, so this works.
+  const ogSlug    = d.custom_slug || d.slug || '';
+  const ogName    = d.nombre_negocio || d.titular_cuenta || d.nombre || '';
+  const ogBanco   = d.banco || '';
+  const ogTitle   = ogName ? `Paga a ${ogName}` : 'tr4nsfer.me';
+  const ogDesc    = ogBanco ? `${ogBanco} · Copia la CLABE y transfiere directo` : 'Recibe transferencias SPEI fácil y seguro';
+  const ogImgUrl  = `https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/og-image?slug=${encodeURIComponent(ogSlug)}`;
+  const setMeta   = (id, content) => { const el = document.getElementById(id); if (el) el.setAttribute('content', content); };
+  document.title = ogTitle + ' — tr4nsfer.me';
+  setMeta('og-title',  ogTitle);
+  setMeta('og-desc',   ogDesc);
+  setMeta('og-image',  ogImgUrl);
+  setMeta('tw-title',  ogTitle);
+  setMeta('tw-image',  ogImgUrl);
+  // ────────────────────────────────────────────────────────────────────────────
 
   hideLoader();
   $('state-profile').style.display='flex';
