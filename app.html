@@ -6,7 +6,6 @@
   <title>tr4nsfer.me</title>
   <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="apple-touch-icon" href="favicon.png"/>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -597,7 +596,7 @@
               <div id="icon-btn-preview" style="display:flex;align-items:center;gap:8px;"><span id="icon-btn-icon" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;"></span><span id="icon-btn-label" style="font-size:11.5px;color:var(--muted);">Seleccionar</span></div>
               <svg id="icon-btn-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;transition:transform .18s;"><path d="M6 9l6 6 6-6" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-            <div id="icon-color-btn" onclick="toggleIconColorDropdown()" style="width:38px;height:38px;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .18s;flex-shrink:0;"><div id="icon-color-preview" style="width:20px;height:20px;border-radius:5px;background:#fff;border:1.5px solid rgba(255,255,255,.3);"></div></div>
+            <div id="icon-color-btn" onclick="toggleIconColorDropdown()" style="width:38px;height:38px;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .18s;flex-shrink:0;"><div id="icon-color-preview" style="width:20px;height:20px;border-radius:5px;background:#00c896;border:1.5px solid rgba(0,200,150,.5);"></div></div>
           </div>
           <div id="icon-dropdown" style="display:none;margin-top:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:11px;padding:10px;z-index:10;position:relative;"><div id="icon-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;"></div></div>
           <div id="icon-color-dropdown" style="display:none;margin-top:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:11px;padding:10px;z-index:10;position:relative;">
@@ -627,6 +626,7 @@
         <span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);">AES-256-GCM</strong> antes de guardarse.</span>
       </div>
       <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
+        <svg id="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span id="btn-text">Generar mi Link</span>
       </button>
     </div>
@@ -653,12 +653,9 @@
         <div class="success-qr-logo"><svg viewBox="100 100 1280 1280" width="30" height="30" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.5 183.5 L 920.4 183.5" stroke="#00c896" stroke-width="367"/><path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.6 183.5 L 183.5 183.5" stroke="#ffffff" stroke-width="367"/><path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.5 183.5 L 1945.4 183.5" stroke="#00c896" stroke-width="367"/><g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896"/></g></svg></div>
       </div>
       <p style="font-size:10.5px;color:var(--muted);margin-bottom:20px;">Escanea para abrir tu link directamente</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-        <button class="btn btn-outline" onclick="downloadQR()" style="margin-top:0;font-size:12px;padding:10px 12px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>QR (.png)
-        </button>
-        <button class="btn btn-outline" onclick="downloadPDF()" style="margin-top:0;font-size:12px;padding:10px 12px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF (.pdf)
+      <div style="margin-bottom:12px;">
+        <button class="btn btn-outline" onclick="downloadQR()" style="margin-top:0;font-size:12px;padding:10px 12px;width:100%;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Descargar QR (.png)
         </button>
       </div>
       <button class="btn btn-outline" onclick="resetToStep1()" style="margin-top:0;">+ Crear otro link</button>
@@ -993,7 +990,7 @@ function slugStatusIcon(type){
   else if(type==='ok'){ok.style.display='block';}
   else if(type==='error'){err.style.display='block';}
 }
-async function checkSlugAvailable(slug){if(!slug||slug.length<3)return;slugCheckState='checking';slugStatusIcon('checking');try{const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-slug`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({slug})});if(!resp.ok){slugCheckState='idle';slugStatusIcon('');return;}const data=await resp.json();const isAvailable=data.available===true||data.available==='true'||data.is_available===true;if(isAvailable){slugCheckState='ok';slugStatusIcon('ok');$('fg-slug').classList.remove('has-error');}else{slugCheckState='taken';slugStatusIcon('error');$('slug-error').textContent='Este link ya está en uso.';setError('fg-slug',true);}}catch(e){slugCheckState='idle';slugStatusIcon('');}}
+async function checkSlugAvailable(slug){if(!slug||slug.length<3)return;slugCheckState='checking';slugStatusIcon('checking');try{const resp=await fetch(`${SUPABASE_URL}/functions/v1/get-link?slug=${encodeURIComponent(slug)}`,{headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}});if(resp.status===404){slugCheckState='ok';slugStatusIcon('ok');$('fg-slug').classList.remove('has-error');}else if(resp.status===200){slugCheckState='taken';slugStatusIcon('error');$('slug-error').textContent='Este link ya está en uso.';setError('fg-slug',true);}else{slugCheckState='idle';slugStatusIcon('');}}catch(e){slugCheckState='idle';slugStatusIcon('');}}
 function onSlugInput(){const inp=$('slug-custom');const pos=inp.selectionStart;let val=inp.value.toLowerCase().replace(/ /g,'-').replace(/[^a-z0-9-]/g,'');if(inp.value!==val){inp.value=val;try{inp.setSelectionRange(pos,pos);}catch(e){}}slugCheckState='idle';slugStatusIcon('');$('fg-slug').classList.remove('has-error');clearTimeout(slugCheckTimer);if(val.length>=3&&/^[a-z0-9-]{3,20}$/.test(val))slugCheckTimer=setTimeout(()=>checkSlugAvailable(val),600);}
 
 /* ── WA / EMAIL ── */
@@ -1199,7 +1196,7 @@ function toggleIconColorDropdown(){var d=$('icon-color-dropdown'),id=$('icon-dro
 function buildIconPicker(){
   document.querySelectorAll('[data-icolor]').forEach(function(sw){sw.addEventListener('click',function(){document.querySelectorAll('[data-icolor]').forEach(function(s){s.classList.remove('active');});sw.classList.add('active');selectedIconColor=sw.dataset.icolor;var preview=$('icon-color-preview');if(preview)preview.style.background=sw.style.background;document.querySelectorAll('.icon-chip[data-icon-id]').forEach(function(ch){var ico=INDUSTRY_ICONS.find(function(i){return i.id===ch.dataset.iconId;});if(ico){ch.innerHTML=iconSVG(ico,22,selectedIconColor,1.5)+'<span class="icon-chip-lbl">'+ico.label+'</span>';}});if(selectedIconId)updateCardIcon(selectedIconId);setTimeout(function(){$('icon-color-dropdown').style.display='none';},220);});});
   const grid=$('icon-grid');if(!grid)return;
-  INDUSTRY_ICONS.forEach(function(icon){const chip=document.createElement('div');chip.className='icon-chip';chip.dataset.iconId=icon.id;chip.innerHTML=iconSVG(icon,22,'rgba(255,255,255,0.85)',1.5)+'<span class="icon-chip-lbl">'+icon.label+'</span>';chip.onclick=function(){if(selectedIconId===icon.id){selectedIconId=null;updateCardIcon(null);document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});$('icon-btn-label').textContent='Seleccionar';$('icon-btn-icon').innerHTML='';$('icon-dropdown').style.display='none';$('icon-btn-caret').style.transform='';}else{document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});chip.classList.add('active');selectedIconId=icon.id;updateCardIcon(icon.id);$('icon-btn-label').textContent=icon.label;$('icon-btn-icon').innerHTML=iconSVG(icon,16,selectedIconColor||'rgba(255,255,255,0.85)',1.5);$('icon-dropdown').style.display='none';$('icon-btn-caret').style.transform='';}};grid.appendChild(chip);});
+  INDUSTRY_ICONS.forEach(function(icon){const chip=document.createElement('div');chip.className='icon-chip';chip.dataset.iconId=icon.id;chip.innerHTML=iconSVG(icon,22,selectedIconColor,1.5)+'<span class="icon-chip-lbl">'+icon.label+'</span>';chip.onclick=function(){if(selectedIconId===icon.id){selectedIconId=null;updateCardIcon(null);document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});$('icon-btn-label').textContent='Seleccionar';$('icon-btn-icon').innerHTML='';$('icon-dropdown').style.display='none';$('icon-btn-caret').style.transform='';}else{document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});chip.classList.add('active');selectedIconId=icon.id;updateCardIcon(icon.id);$('icon-btn-label').textContent=icon.label;$('icon-btn-icon').innerHTML=iconSVG(icon,16,selectedIconColor||'rgba(0,200,150,0.9)',1.5);$('icon-dropdown').style.display='none';$('icon-btn-caret').style.transform='';}};grid.appendChild(chip);});
 }
 var _iconShapeEls=[];
 function updateCardIcon(iconId){_iconShapeEls.forEach(function(el){if(el.parentNode)el.parentNode.removeChild(el);});_iconShapeEls=[];if(!iconId)return;const icon=INDUSTRY_ICONS.find(function(i){return i.id===iconId;});if(!icon)return;const frame=document.getElementById('card-frame');if(!frame)return;const col=selectedIconColor||'rgba(255,255,255,1)';for(var i=0;i<10;i++){var sz=Math.round(16+Math.random()*28);var left=(i*(90/10)+2+Math.random()*7).toFixed(2);var dur=(13+(i%5)*2.2+Math.random()*4).toFixed(1);var del=(-(i*(dur/10))-Math.random()*4).toFixed(1);var el=document.createElement('div');el.className='card-icon-shape';el.style.cssText='left:'+left+'%;animation-duration:'+dur+'s;animation-delay:'+del+'s;width:'+sz+'px;height:'+sz+'px;';el.innerHTML=iconSVG(icon,sz,col,0.75);frame.appendChild(el);_iconShapeEls.push(el);}}
@@ -1217,8 +1214,34 @@ function successCopyLink(){const url='https://tr4nsfer.me/'+_successSlug;navigat
 function successVisitLink(){window.open('https://tr4nsfer.me/'+_successSlug,'_blank');}
 
 async function downloadQR(){
-  try{const r=await fetch(qrApiUrl(_successSlug,600));const blob=await r.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='tr4nsfer-me-qr-'+_successSlug+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),1000);}
-  catch(e){window.open(qrApiUrl(_successSlug,600),'_blank');}
+  const size=600;
+  try{
+    // Fetch QR image
+    const r=await fetch(qrApiUrl(_successSlug,size));
+    const qrBlob=await r.blob();
+    const qrDataUrl=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(qrBlob);});
+    // Render isotipo to PNG
+    const isoSize=Math.round(size*0.22);
+    const isoDataUrl=await _isotipoToPng(isoSize);
+    // Composite on canvas
+    const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+    const ctx=canvas.getContext('2d');
+    const qrImg=new Image();
+    await new Promise(res=>{qrImg.onload=res;qrImg.src=qrDataUrl;});
+    ctx.drawImage(qrImg,0,0,size,size);
+    if(isoDataUrl){
+      const isoImg=new Image();
+      await new Promise(res=>{isoImg.onload=res;isoImg.src=isoDataUrl;});
+      const x=(size-isoSize)/2,y=(size-isoSize)/2;
+      ctx.drawImage(isoImg,x,y,isoSize,isoSize);
+    }
+    canvas.toBlob(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download='tr4nsfer-me-qr-'+_successSlug+'.png';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    },'image/png');
+  }catch(e){window.open(qrApiUrl(_successSlug,600),'_blank');}
 }
 
 // ── FIX: avisa al usuario si el QR no pudo generarse ──
@@ -1256,57 +1279,6 @@ async function _logoPng(){
   }catch(e){return '';}
 }
 
-async function downloadPDF(){
-  let qrDataUrl=window._qrBase64||'';
-  if(!qrDataUrl){try{qrDataUrl=await qrToBase64(_successSlug);}catch(e){}}
-  if(!qrDataUrl){showToast('El QR aún se está generando, espera un momento.','warn');return;}
-  const jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
-  if(!jsPDF){showToast('PDF no disponible.','error');return;}
-
-  // Cargar recursos en paralelo
-  const [isotipoUrl,logoUrl]=await Promise.all([_isotipoToPng(120),_logoPng()]);
-
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:[85,120]});
-  const W=85,H=120;
-
-  // Fondo negro puro
-  doc.setFillColor(0,0,0);
-  doc.rect(0,0,W,H,'F');
-
-  // Texto muted en dos líneas
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(8);
-  doc.setTextColor(155,155,155);
-  doc.text('Escanéame para mis',W/2,15,{align:'center'});
-  doc.text('datos bancarios',W/2,21,{align:'center'});
-
-  // QR grande centrado
-  const qrSize=62;
-  const qrX=(W-qrSize)/2;
-  const qrY=27;
-  doc.setFillColor(255,255,255);
-  doc.roundedRect(qrX-2,qrY-2,qrSize+4,qrSize+4,3,3,'F');
-  doc.addImage(qrDataUrl,'PNG',qrX,qrY,qrSize,qrSize);
-
-  // Isotipo sobre el centro del QR
-  if(isotipoUrl){
-    const isoMm=13;
-    doc.addImage(isotipoUrl,'PNG',qrX+(qrSize-isoMm)/2,qrY+(qrSize-isoMm)/2,isoMm,isoMm);
-  }
-
-  // Logo tr4nsfer.me en la base
-  if(logoUrl){
-    // Dimensiones estimadas del logo: ~4:1 ratio (wordmark horizontal)
-    const lW=32,lH=8;
-    doc.addImage(logoUrl,'PNG',(W-lW)/2,H-lH-8,lW,lH);
-  }else{
-    doc.setFont('helvetica','bold');doc.setFontSize(9);
-    doc.setTextColor(0,200,150);
-    doc.text('tr4nsfer.me',W/2,H-10,{align:'center'});
-  }
-
-  doc.save('tr4nsfer-me-'+_successSlug+'.pdf');
-}
 
 /* ── EDIT MODE INIT ── */
 async function initEditMode(){
@@ -1327,6 +1299,8 @@ async function initEditMode(){
   /* swap button label */
   const btnText=$('btn-text');
   if(btnText)btnText.textContent='Guardar cambios';
+  const btnIcon=$('btn-icon');
+  if(btnIcon)btnIcon.style.display='none';
 
   /* fetch link data via edge functions (service role, bypasses RLS, decrypts fields) */
   showPageLoader();
