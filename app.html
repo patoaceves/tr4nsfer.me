@@ -3,548 +3,1496 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="robots" content="noindex, nofollow"/>
   <title>tr4nsfer.me</title>
-  <!-- OG / social preview — filled dynamically after data loads -->
-  <meta property="og:site_name" content="tr4nsfer.me"/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:title" id="og-title" content="tr4nsfer.me — Recibe transferencias fácil"/>
-  <meta property="og:description" id="og-desc" content="Comparte tu CLABE de forma segura con tr4nsfer.me"/>
-  <meta property="og:image" id="og-image" content="https://tr4nsfer.me/og-default.png"/>
-  <meta property="og:image:width" content="1200"/>
-  <meta property="og:image:height" content="630"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" id="tw-title" content="tr4nsfer.me"/>
-  <meta name="twitter:image" id="tw-image" content="https://tr4nsfer.me/og-default.png"/>
   <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="apple-touch-icon" href="favicon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    :root{--teal:#00c896;--bg:#000;--muted:rgba(255,255,255,0.45);--text:#fff;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 48px;}
-    .geo-shape{position:absolute;bottom:-60px;pointer-events:none;animation:riseShape linear infinite;}
-    @keyframes riseShape{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}88%{opacity:.6}100%{transform:translateY(-110vh) rotate(360deg);opacity:0}}
-    @media(max-width:600px){body{justify-content:flex-start;padding-top:48px;}}
+    :root{
+      --bg:#000;--surface:#111;--surface2:#191919;
+      --teal:#00c896;--teal-dark:#00a87a;--teal-dim:rgba(0,200,150,.09);--teal-border:rgba(0,200,150,.20);
+      --text:#f0f0f0;--text-soft:#c8c8c8;--muted:#888;--muted2:#333;--dim:#444;
+      --border:rgba(255,255,255,.07);--border2:#272727;--input-bg:#0c0c0c;--error:#f04040;
+    }
+    html,body{min-height:100%;}
+    body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+    .shapes{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .geo-shape{position:absolute;bottom:-100px;animation:riseShape linear infinite;}
+    .geo-square{border:1px solid rgba(0,200,150,.18);}
+    .geo-square.filled{background:rgba(0,200,150,.06);}
+    @keyframes riseShape{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}88%{opacity:.65}100%{transform:translateY(-110vh) rotate(360deg);opacity:0}}
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes successFadeIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
     @keyframes plCycle{0%{opacity:0}5%{opacity:1}89%{opacity:1}100%{opacity:0}}
     @keyframes plHoriz{0%,5%{stroke-dashoffset:737;animation-timing-function:cubic-bezier(.4,0,.2,1)}15%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
     @keyframes plDiag{0%,15%{stroke-dashoffset:1762;animation-timing-function:cubic-bezier(.4,0,.2,1)}32%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
     @keyframes plVert{0%,32%{stroke-dashoffset:750;animation-timing-function:cubic-bezier(.4,0,.2,1)}42%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
     @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    /* HEADER */
+    header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+    .logo{display:inline-flex;align-items:center;text-decoration:none;}
+    .logo img{height:28px;width:auto;display:block;}
+    nav{display:flex;align-items:center;gap:36px;}
+    .nav-links{display:flex;align-items:center;gap:28px;}
+    nav a{font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s;}
+    nav a:hover{color:var(--text);}
+    .btn-nav{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;background:var(--teal);color:#000;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
+    .btn-nav:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
+    @media(max-width:860px){header{padding:0 24px;}.nav-links{display:none;}}
+    /* PAGE */
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:100px 20px 60px;}
+    /* TYPE SELECTOR */
+    #view-type{width:100%;display:none;flex-direction:column;align-items:center;justify-content:center;min-height:72vh;padding:0 0 48px;animation:fadeUp .4s ease both;}
+    #view-type.active{display:flex;}
+    .type-hero{text-align:center;margin-bottom:36px;}
+    .type-hero h1{font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-1.5px;margin-bottom:10px;}
+    .type-hero p{font-size:15px;color:var(--muted);}
+    .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:560px;}
+    .type-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:32px 24px 28px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;text-align:center;}
+    .type-card:hover{border-color:rgba(0,200,150,.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,200,150,.08);}
+    .type-card-icon{margin-bottom:14px;display:flex;justify-content:center;}
+    .type-card-title{font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.02em;}
+    .type-card-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+    @media(max-width:500px){.type-grid{grid-template-columns:1fr;max-width:100%;}}
+    /* HERO */
+    .app-hero{width:100%;text-align:center;padding:48px 20px 44px;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(0,200,150,.08) 0%,transparent 70%);animation:fadeUp .4s ease both;transition:opacity .28s ease,transform .28s ease;display:flex;flex-direction:column;align-items:center;}
+    .app-hero.hero-exit{opacity:0;transform:translateY(-8px);pointer-events:none;}
+    .app-hero.hero-enter{opacity:0;transform:translateY(8px);}
+    .app-hero h1{font-size:clamp(34px,4.5vw,56px);font-weight:900;letter-spacing:-2px;line-height:1.1;margin-bottom:14px;}
+    .app-hero p{font-size:16px;color:var(--muted);line-height:1.6;}
+    /* VIEWS */
+    .view{display:none;width:100%;}
+    .view.active{display:flex;flex-direction:column;align-items:center;}
+    /* GRID */
+    #main-layout{display:none;width:100%;max-width:960px;animation:fadeUp .4s ease .08s both;}
+    #main-layout.active{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"left right";gap:24px;align-items:start;}
+    #main-layout.step2.active{grid-template-areas:"left right" "foot right";grid-template-rows:auto auto;}
+    .left-col{grid-area:left;position:relative;min-height:0;}
+    .right-col{grid-area:right;position:sticky;top:32px;display:flex;flex-direction:column;gap:16px;}
+    .step2-footer{grid-area:foot;display:none;}
+    #main-layout.step2>.step2-footer{display:block;}
+    .left-panel{width:100%;transition:opacity .3s ease,transform .3s ease;}
+    .left-panel.exit-left{position:absolute;top:0;left:0;width:100%;opacity:0;transform:translateX(-18px);pointer-events:none;}
+    .left-panel.hidden{display:none;}
+    .left-panel.enter-right{opacity:0;transform:translateX(18px);}
+    @media(max-width:700px){
+      #main-layout.active,#main-layout.step2.active{grid-template-columns:1fr;grid-template-areas:"left" "right" "foot";max-width:100%;gap:6px;}
+      .right-col{position:static;}
+      #main-layout.step2 .color-editor{display:none;}
+      .page{padding:80px 14px 100px;}
+      .app-hero{padding:32px 16px 28px;}
+      .app-hero h1{font-size:30px;letter-spacing:-1.2px;}
+      .card{padding:18px 16px;}
+      .card-frame{padding:28px 16px 24px;}
+      .live-card{width:min(300px,88vw);}
+      .contact-preview{width:min(300px,88vw);}
+      .form-row{grid-template-columns:1fr;}
+      #floating-btn-wrap{justify-content:stretch;}
+      #floating-btn{width:100%;}
+    }
+    /* CARD */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px 26px 24px;box-shadow:0 0 0 1px rgba(0,200,150,.03),0 20px 60px rgba(0,0,0,.55);}
+    .card-header{margin-bottom:22px;}
+    .n26-bar{width:22px;height:2.5px;background:var(--teal);border-radius:2px;margin-bottom:14px;box-shadow:0 0 8px rgba(0,200,150,.4);}
+    .card-header h1{font-size:17px;font-weight:600;margin-bottom:4px;letter-spacing:-.025em;}
+    .card-header p{font-size:12px;color:var(--muted);line-height:1.6;}
+    /* FORM */
+    .field{margin-bottom:13px;}
+    label{display:block;font-size:10.5px;font-weight:500;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+    label .req{color:var(--teal);margin-left:1px;opacity:.8;}
+    label .opt{color:var(--muted2);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;margin-left:4px;}
+    input[type="text"],input[type="tel"],input[type="email"]{width:100%;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;color:var(--text-soft);font-size:13.5px;font-family:"Inter",sans-serif;padding:10px 12px;transition:border-color .18s,box-shadow .18s;appearance:none;outline:none;letter-spacing:-.01em;}
+    input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    input::placeholder{color:#222;}
+    input[readonly]{cursor:default;}
+    input[readonly]:focus{border-color:var(--border2);box-shadow:none;}
+    select{width:100%;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;color:var(--text-soft);font-size:13px;font-family:"Inter",sans-serif;padding:10px 12px;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .18s;cursor:pointer;}
+    select:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .field-error{font-size:10.5px;color:var(--error);display:none;margin-top:4px;}
+    .has-error input,.has-error select{border-color:var(--error)!important;box-shadow:0 0 0 3px rgba(240,64,64,.08)!important;}
+    .has-error .field-error{display:block;}
+    .field-label-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .field-label-row label{margin-bottom:0;}
+    /* CLABE */
+    .banco-wrap{position:relative;}
+    .banco-wrap input{padding-right:40px;}
+    .banco-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:4px;object-fit:contain;display:none;background:var(--surface2);}
+    .banco-wrap.detected input{color:var(--teal);border-color:var(--teal-border);}
+    #clabe.complete{color:var(--teal);border-color:var(--teal-border);box-shadow:0 0 0 3px var(--teal-dim);}
+    .clabe-wrap{position:relative;}
+    .clabe-verified{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:none;pointer-events:none;}
+    .clabe-checking-ring{position:absolute;right:10px;top:50%;margin-top:-8px;width:16px;height:16px;display:none;pointer-events:none;}
+    .clabe-checking-ring.visible{display:block;animation:spin .7s linear infinite;}
+    .banco-wrap.detected .banco-icon{display:block;}
+    /* SLUG */
+    .slug-wrap{display:flex;align-items:stretch;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;overflow:hidden;transition:border-color .18s,box-shadow .18s;}
+    .slug-wrap:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    .slug-prefix{display:flex;align-items:center;padding:10px 8px 10px 12px;font-size:11.5px;color:var(--muted);white-space:nowrap;flex-shrink:0;user-select:none;}
+    .slug-wrap input{flex:1;background:transparent;border:none;border-radius:0;padding:10px 8px 10px 0;font-size:13.5px;color:var(--text-soft);font-family:"Inter",sans-serif;outline:none;min-width:0;}
+    .slug-wrap input:focus{border-color:transparent;box-shadow:none;}
+    .slug-status{display:flex;align-items:center;padding-right:10px;flex-shrink:0;}
+    .has-error .slug-wrap{border-color:var(--error)!important;box-shadow:0 0 0 3px rgba(240,64,64,.08)!important;}
+    /* LOGO UPLOAD */
+    .logo-upload-area{display:none;margin-top:8px;}
+    .logo-upload-area.visible{display:block;}
+    .logo-dropzone{border:1.5px dashed var(--border2);border-radius:9px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .18s,background .18s;}
+    .logo-dropzone:hover{border-color:var(--teal-border);background:var(--teal-dim);}
+    .logo-dz-square{width:96px;height:96px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .logo-dz-square img{width:100%;height:100%;object-fit:cover;display:none;}
+    .logo-dz-text{font-size:12px;color:var(--muted);line-height:1.5;}
+    .logo-dz-text strong{color:var(--teal);font-weight:600;display:block;margin-bottom:1px;}
+    /* FISCAL */
+    .fiscal-fields{overflow:hidden;max-height:0;transition:max-height .4s ease,opacity .3s ease;opacity:0;pointer-events:none;}
+    .fiscal-fields.visible{max-height:1100px;opacity:1;pointer-events:auto;}
+    .cp-spinner{display:none;}
+    .cp-spinner.visible{display:block;animation:spin .7s linear infinite;}
+    /* LIVE CARD FRAME */
+    .card-frame{
+      width:100%;padding:52px 28px 48px;border-radius:18px;
+      display:flex;align-items:center;justify-content:center;
+      background:#000;transition:background .4s,box-shadow .4s;
+      border:1px solid rgba(255,255,255,.12);
+      position:relative;overflow:hidden;
+    }
+    .card-frame-stack{display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;z-index:1;}
+    .contact-preview{position:relative;z-index:2;}
+    .card-icon-shape{position:absolute;bottom:-60px;pointer-events:none;animation:riseShape linear infinite;z-index:0;}
+    .live-card{width:330px;aspect-ratio:1/1.2;border-radius:14px;position:relative;z-index:1;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.08);transition:background .3s;background:linear-gradient(135deg,#004d38,#00c896);cursor:default;user-select:none;}
+    .card-design-layer{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;overflow:hidden;}
+    .lc-inner{position:relative;z-index:1;height:100%;padding:20px 22px 24px;display:flex;flex-direction:column;justify-content:space-between;}
+    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
+    .lc-logo-sq{width:96px;height:96px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
+    .lc-logo-sq.visible{display:block;}
+    .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
+    .lc-logo-dot{position:absolute;top:0;right:0;}
+    .lc-logo-dot img{height:14px;width:auto;display:block;opacity:.75;}
+    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.40);border-radius:24px;padding:7px 16px 7px 8px;margin-bottom:4px;align-self:flex-start;}
+    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.95);padding:2px;display:none;}
+    .lc-bank-name{font-size:16px;font-weight:600;opacity:.92;}
+    .lc-middle{text-align:left;flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-evenly;padding:6px 0;}
+    .lc-group{display:flex;flex-direction:column;align-items:flex-start;gap:1px;}
+    .lc-section-label,.lc-clabe-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;opacity:.55;font-weight:600;}
+    .lc-clabe{font-size:18px;font-weight:600;letter-spacing:.04em;font-family:"Inter",sans-serif;line-height:1.3;white-space:nowrap;}
+    .lc-copy-row{display:flex;align-items:center;gap:6px;}
+    .lc-copy-btn{background:none;border:none;padding:3px;cursor:pointer;display:flex;align-items:center;opacity:.5;transition:opacity .2s;flex-shrink:0;}
+    .lc-copy-btn:hover{opacity:1;}
+    .lc-name{font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:"Inter",sans-serif;white-space:nowrap;transition:font-size .15s;}
+    .lc-negocio-name{font-size:14px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-family:"Inter",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+    .lc-alias{font-size:12px;opacity:.6;letter-spacing:2.5px;text-transform:uppercase;font-family:"Inter",sans-serif;font-weight:700;}
+    .live-card.light-text{color:#fff;}
+    .live-card.dark-text{color:#1a1a1a;}
+    /* COLOR EDITOR */
+    .color-editor{
+      background:var(--surface);border:1px solid var(--border);border-radius:14px;
+      padding:18px 18px 16px;
+      transition:opacity .3s ease,transform .3s ease,max-height .35s ease;
+      overflow:hidden;max-height:560px;
+      position:relative;z-index:2;
+    }
+    .color-editor.fade-out{opacity:0;transform:translateY(-8px);max-height:0;padding-top:0;padding-bottom:0;border-color:transparent;pointer-events:none;}
+    .color-editor-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:16px;}
+    .color-section{margin-bottom:16px;}
+    .color-section:last-child{margin-bottom:0;}
+    .color-section-label{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:9px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;}
+    .design-picker{display:flex;gap:9px;flex-wrap:wrap;}
+    .design-thumb-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;}
+    .design-thumb{width:54px;height:60px;border-radius:6px;cursor:pointer;border:2px solid transparent;overflow:hidden;position:relative;background:linear-gradient(135deg,#004d38,#00c896);transition:transform .15s,border-color .15s;}
+    .design-thumb:hover{transform:scale(1.1);}
+    .design-thumb.active{border-color:#fff;}
+    .design-thumb-label{font-size:7.5px;color:var(--muted);letter-spacing:.04em;text-align:center;}
+    .swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+    .swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s,opacity .25s;flex-shrink:0;position:relative;}
+    .swatch:hover{transform:scale(1.12);}
+    .swatch.active{border-color:#fff;}
+    #swatch-banco{overflow:visible;}
+    #swatch-banco.sin-banco{opacity:.35;}
+    #swatch-banco.con-banco{opacity:1;}
+    .swatch-add{width:26px;height:26px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--surface2)!important;border:1.5px dashed var(--muted2)!important;color:var(--muted);flex-shrink:0;transition:transform .15s,border-color .15s,color .15s;}
+    .swatch-add:hover{color:var(--text);border-color:var(--dim)!important;transform:scale(1.12);}
+    .swatch-add.active{border-color:#fff!important;color:#fff;}
+    .native-color-input{position:absolute;width:0;height:0;opacity:0;pointer-events:none;border:none;padding:0;}
+    /* CONTACT PREVIEW */
+    .contact-preview{display:flex;flex-direction:column;gap:10px;width:330px;padding:0;position:relative;z-index:3;}
+    .cp-row{
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--cp-row-bg,rgba(0,200,150,.20));
+      border:1px solid var(--cp-row-border,rgba(0,200,150,.32));
+      border-radius:14px;padding:14px 16px;
+      transition:border-color .3s,background .3s;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+    }
+    .cp-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
+    .cp-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--cp-label-color,rgba(255,255,255,.5));}
+    .cp-value{font-size:14px;font-weight:700;color:var(--cp-value-color,rgba(255,255,255,.95));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;}
+    .cp-copy{
+      background:rgba(255,255,255,.10);
+      color:var(--cp-accent,var(--teal));
+      border:1.5px solid var(--cp-btn-border,rgba(255,255,255,.30));
+      border-radius:8px;padding:7px 14px;
+      font-size:11px;font-weight:700;
+      font-family:"Inter",sans-serif;cursor:pointer;
+      white-space:nowrap;flex-shrink:0;
+      transition:background .15s,border-color .3s;
+    }
+    .cp-copy:hover{background:rgba(255,255,255,.20);}
+    .cp-copy.copied{color:rgba(255,255,255,.4);}
+    /* TOGGLES */
+    .show-toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+    .show-toggle input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
+    .show-toggle-track{width:38px;height:22px;border-radius:11px;background:var(--muted2);border:1px solid rgba(255,255,255,.1);position:relative;transition:background .18s;flex-shrink:0;}
+    .show-toggle-thumb{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .18s;}
+    .show-toggle input:checked~.show-toggle-track{background:var(--teal);border-color:var(--teal);}
+    .show-toggle input:checked~.show-toggle-track .show-toggle-thumb{transform:translateX(16px);}
+    .show-toggle-label{font-size:11px;font-weight:600;color:var(--muted);transition:color .18s;text-transform:none!important;letter-spacing:0!important;}
+    .show-toggle:has(input:checked) .show-toggle-label{color:var(--teal);}
+    /* WA */
+    .wa-input-wrap{display:flex;gap:8px;align-items:stretch;}
+    .wa-country-select{background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;color:var(--text-soft);font-size:13px;font-family:"Inter",sans-serif;padding:10px 8px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .18s;flex-shrink:0;width:90px;text-align:center;}
+    .wa-country-select:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+    .wa-input-wrap input{flex:1;}
+    /* BUTTONS */
+    .btn{width:100%;background:var(--teal);color:#000;border:none;border-radius:9px;padding:12px 18px;font-size:13.5px;font-weight:600;font-family:"Inter",sans-serif;cursor:pointer;letter-spacing:-.01em;transition:background .18s,transform .1s,box-shadow .18s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
+    .btn:active{transform:scale(.98);}
+    .btn:disabled{opacity:.38;cursor:not-allowed;box-shadow:none;}
+    .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:12.5px;padding:11px 18px;margin-top:8px;}
+    .btn-outline:hover{border-color:var(--muted2);color:var(--text-soft);background:transparent;box-shadow:none;}
+    #floating-btn-wrap{display:flex;justify-content:flex-end;padding:16px 12px;margin:-16px -12px;transition:opacity .25s;overflow:visible;position:relative;z-index:2;}
+    #floating-btn-wrap.hidden{opacity:0;pointer-events:none;}
+    #floating-btn{background:var(--teal);color:#000;border:none;border-radius:999px;padding:14px 28px;font-size:14px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;letter-spacing:-.01em;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;transition:background .18s,transform .12s,box-shadow .2s;}
+    #floating-btn:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
+    #floating-btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-submit-form{width:100%;background:var(--teal);color:#000;border:none;border-radius:999px;padding:14px 24px;font-size:14px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:20px;transition:transform .1s,box-shadow .18s;box-shadow:0 2px 12px rgba(0,200,150,.25);}
+    .btn-submit-form:hover{background:#00daa6!important;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
+    .btn-submit-form:disabled{opacity:.4;cursor:not-allowed;}
+    /* STEP 2 */
+    .step2-back{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--text-soft);cursor:pointer;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:999px;font-family:"Inter",sans-serif;padding:11px 20px;margin-bottom:16px;transition:background .18s,transform .1s;}
+    .step2-back:hover{background:#222;border-color:#333;transform:translateY(-1px);}
+    .step2-badge{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .step2-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);flex-shrink:0;}
+    .step2-badge-text{font-size:12px;color:var(--text-soft);font-weight:500;}
+    .step2-badge-sub{font-size:10.5px;color:var(--muted);margin-top:1px;}
+    .security-notice{display:flex;align-items:flex-start;gap:8px;background:rgba(0,200,150,.05);border:1px solid rgba(0,200,150,.18);border-radius:10px;padding:11px 13px;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.55;margin-bottom:18px;}
+    .security-notice svg{flex-shrink:0;margin-top:1px;}
+    .consent-block{margin-top:8px;display:flex;flex-direction:column;gap:14px;}
+    .consent-row{display:flex;align-items:flex-start;gap:10px;cursor:pointer;position:relative;flex-wrap:wrap;}
+    .consent-row input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
+    .consent-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);background:var(--input-bg);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;}
+    .consent-check svg{opacity:0;transition:opacity .15s;}
+    .consent-row input:checked~.consent-check{background:var(--teal);border-color:var(--teal);}
+    .consent-row input:checked~.consent-check svg{opacity:1;}
+    .consent-row.has-error .consent-check{border-color:var(--error);}
+    .consent-row.has-error .field-error{display:block;}
+    .consent-row .field-error{position:absolute;bottom:-16px;left:28px;text-transform:none;letter-spacing:0;}
+    .consent-text{font-size:11.5px;color:rgba(255,255,255,.5);line-height:1.55;flex:1;text-transform:none;letter-spacing:normal;}
+    .consent-link{color:var(--teal);text-decoration:none;opacity:.85;text-transform:none;letter-spacing:normal;}
+    /* SUCCESS */
+    #view-success.active{animation:successFadeIn .45s cubic-bezier(.22,1,.36,1) both;}
+    .success-qr-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+    .success-qr-wrap img.qr-img{display:block;border-radius:14px;width:200px;height:200px;background:#f5f5f5;}
+    .success-qr-logo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:5px;}
+    .success-qr-logo img{width:100%;height:auto;display:block;}
+    .success-link-box{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--teal-border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+    .success-link-text{flex:1;padding:10px 12px;font-size:13px;font-weight:600;color:var(--teal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;letter-spacing:-.01em;}
+    .success-link-actions{display:flex;flex-shrink:0;border-left:1px solid var(--border2);}
+    .success-link-btn{background:transparent;border:none;cursor:pointer;padding:10px 12px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;gap:5px;}
+    .success-link-btn:hover{background:var(--surface);color:var(--text);}
+    .success-link-btn+.success-link-btn{border-left:1px solid var(--border2);}
+    .success-icon{width:56px;height:56px;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+    /* ICON CHIPS */
+    .icon-chip{width:100%;aspect-ratio:1;border-radius:8px;border:1.5px solid var(--border2);background:var(--input-bg);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:border-color .18s,background .18s;}
+    .icon-chip:hover{border-color:var(--teal-border);background:var(--teal-dim);}
+    .icon-chip.active{border-color:var(--teal)!important;background:var(--teal-dim)!important;}
+    .icon-chip-lbl{font-size:8px;color:var(--muted);text-align:center;line-height:1.2;}
+    /* TOAST */
+    .app-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 18px;border-radius:9px;font-size:12px;font-weight:600;font-family:"Inter",sans-serif;pointer-events:none;animation:toastIn .25s ease both;}
+    .app-toast.toast-error{background:#1a0505;border:1px solid rgba(240,64,64,.4);color:#f04040;}
+    .app-toast.toast-warn{background:#1a1005;border:1px solid rgba(255,180,0,.3);color:#ffb400;}
+    .app-toast.toast-ok{background:#051a10;border:1px solid rgba(0,200,150,.3);color:var(--teal);}
+    /* FOOTER */
+    footer{position:relative;z-index:1;width:100%;border-top:1px solid var(--border);padding:64px 48px 40px;}
+    .footer-inner{max-width:1100px;margin:0 auto 48px;}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;}
+    .footer-tagline{font-size:13px;color:var(--muted);line-height:1.65;max-width:250px;margin-top:12px;}
+    .footer-col h4{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim);margin-bottom:18px;}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:11px;}
+    .footer-col ul li a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .footer-col ul li a:hover{color:var(--text);}
+    .footer-col ul li a.ft-cta{color:var(--teal);font-weight:600;}
+    .footer-bottom{padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .footer-copy{font-size:12px;color:var(--dim);}
+    @media(max-width:860px){.footer-grid{grid-template-columns:1fr;gap:32px}footer{padding:48px 24px 32px}.footer-bottom{flex-direction:column;gap:8px;text-align:center}}
+    /* PAGE LOADER */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:#000;display:none;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
+    #page-loader.active{display:flex;}
     #page-loader.hide{opacity:0;visibility:hidden;pointer-events:none;}
     .pl-svg{width:88px;height:88px;filter:drop-shadow(0 0 22px rgba(0,200,150,.38));opacity:0;animation:plCycle 2.1s linear infinite;}
     .pl-stroke-horiz{stroke-dasharray:737;stroke-dashoffset:737;animation:plHoriz 2.1s linear infinite;}
     .pl-stroke-diag{stroke-dasharray:1762;stroke-dashoffset:1762;animation:plDiag 2.1s linear infinite;}
     .pl-stroke-vert{stroke-dasharray:750;stroke-dashoffset:750;animation:plVert 2.1s linear infinite;}
     .pl-dot{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;animation:plDot 2.1s linear infinite;}
-    .state{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;}
-    .state-title{font-size:15px;font-weight:600;color:var(--muted);}
-    .state-sub{font-size:13px;color:rgba(255,255,255,.3);}
-    #state-profile{display:none;width:100%;flex-direction:column;align-items:center;animation:fadeInUp .4s ease both;position:relative;z-index:2;}
-    .card-wrap{width:100%;max-width:340px;position:relative;z-index:1;}
-    .live-card{width:100%;aspect-ratio:1/1.2;border-radius:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;cursor:default;transition:background .3s,box-shadow .4s;}
-    .card-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
-    .lc-inner{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:20px 22px 24px;}
-    .lc-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;}
-    .lc-logo-sq{width:96px;height:96px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.30);display:none;flex-shrink:0;}
-    .lc-logo-sq.visible{display:block;}
-    .lc-logo-sq img{width:100%;height:100%;object-fit:cover;}
-    .lc-top-logo{height:14px;width:auto;display:block;opacity:.8;position:absolute;top:0;right:0;}
-    .lc-middle{display:flex;flex-direction:column;flex:1;justify-content:space-evenly;padding:14px 0;}
-    .lc-bank{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.40);border-radius:24px;padding:7px 16px 7px 8px;align-self:flex-start;}
-    .lc-bank-icon{width:22px;height:22px;border-radius:5px;object-fit:contain;background:rgba(255,255,255,.95);padding:2px;display:none;}
-    .lc-bank-name{font-size:16px;font-weight:600;opacity:.92;}
-    .lc-group{display:flex;flex-direction:column;gap:4px;}
-    .lc-section-label,.lc-clabe-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;opacity:.55;font-weight:600;}
-    .lc-clabe{font-size:18px;font-weight:600;letter-spacing:.04em;font-family:'Inter',sans-serif;line-height:1.3;white-space:nowrap;}
-    .lc-copy-row{display:flex;align-items:center;gap:8px;}
-    .lc-copy-btn{background:none;border:none;cursor:pointer;padding:4px;opacity:.5;transition:opacity .15s;display:flex;align-items:center;}
-    .lc-copy-btn:hover{opacity:1;}
-    .lc-name{font-size:17px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;}
-    .lc-negocio-name{font-size:14px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .lc-bottom{display:flex;justify-content:space-between;align-items:flex-end;}
-    .lc-alias{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.6);}
-    .live-card.light-text{color:#fff;}
-    .live-card.dark-text{color:#1a1a1a;}
-    /* ACTIONS */
-    .actions{width:100%;max-width:340px;margin-top:14px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:2;}
-    .action-row{
-      display:flex;align-items:center;justify-content:space-between;
-      background:var(--card-row-bg,rgba(0,200,150,.20));
-      border:1px solid var(--card-row-border,rgba(0,200,150,.32));
-      border-radius:14px;padding:14px 16px;
-      transition:background .3s,border-color .3s;
-      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    }
-    .action-row-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
-    .action-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--action-label-color,rgba(255,255,255,.5));}
-    .action-value{font-size:14px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;color:var(--action-value-color,rgba(255,255,255,.95));}
-    .btn-action{
-      background:rgba(255,255,255,.10);
-      border:1.5px solid var(--action-btn-border,rgba(255,255,255,.30));
-      color:var(--card-accent,var(--teal));
-      border-radius:8px;padding:7px 14px;
-      font-size:11px;font-weight:700;
-      font-family:'Inter',sans-serif;cursor:pointer;
-      transition:background .15s,border-color .3s;white-space:nowrap;flex-shrink:0;
-    }
-    .btn-action:hover{background:rgba(255,255,255,.20);}
-    .btn-action.copied{color:rgba(255,255,255,.4);}
-    body.bg-light{--muted:rgba(0,0,0,0.45);--text:#1a1a1a;}
-    body.bg-light .action-label{color:rgba(0,0,0,.45);}
-    body.bg-light .btn-action{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.20);color:var(--card-accent);}
-    .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
-    .branding-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
-    .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:.55;transition:opacity .2s;}
-    .branding a:hover{opacity:1;}
-    .branding img{height:12px;width:auto;}
-    .branding-cta{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);text-decoration:none;transition:color .2s;}
-    .branding-cta:hover{color:rgba(0,200,150,.8);}
-    body.bg-light .branding-label{color:rgba(0,0,0,.25);}
-    body.bg-light .branding a{opacity:.6;}
-    body.bg-light .branding-cta{color:rgba(0,0,0,.35);}
-    /* Modal fiscal */
-    .fiscal-overlay{position:fixed;inset:0;z-index:200;background:var(--fiscal-overlay-bg,rgba(0,0,0,.82));backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:16px;}
-    .fiscal-overlay.visible{display:flex;}
-    .fiscal-modal{background:var(--fiscal-modal-bg,#111);border:1px solid rgba(255,255,255,.15);border-radius:18px;width:100%;max-width:360px;padding:24px 22px 20px;animation:fadeInUp .25s ease both;position:relative;overflow:hidden;}
-    .fiscal-design-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.55;}
-    .fiscal-modal-content{position:relative;z-index:1;}
-    .fiscal-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-    .fiscal-modal-title{font-size:15px;font-weight:700;letter-spacing:-.02em;color:rgba(255,255,255,.95);}
-    .fiscal-close{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.28);border-radius:8px;cursor:pointer;color:rgba(255,255,255,.85);padding:5px;transition:background .15s;display:flex;align-items:center;}
-    .fiscal-close:hover{background:rgba(255,255,255,.22);}
-    .fiscal-row{padding:10px 12px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:10px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-    .fiscal-row:last-of-type{margin-bottom:0;}
-    .fiscal-row-inner{flex:1;min-width:0;}
-    .fiscal-row-label{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5);margin-bottom:3px;}
-    .fiscal-row-value{font-size:13px;font-weight:600;color:rgba(255,255,255,.95);line-height:1.4;word-break:break-word;}
-    .btn-fiscal-copy{
-      background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.32);color:rgba(255,255,255,.92);
-      border-radius:7px;padding:5px 11px;font-size:11px;font-weight:700;
-      font-family:'Inter',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s;
-    }
-    .btn-fiscal-copy:hover{background:rgba(255,255,255,.22);}
-    .btn-fiscal-copy.copied{color:rgba(255,255,255,.38);border-color:rgba(255,255,255,.14);}
-    .fiscal-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:24px;color:rgba(255,255,255,.5);font-size:13px;}
-    .fiscal-err{padding:16px;text-align:center;color:#f04040;font-size:13px;}
-    .fiscal-expiry{font-size:10px;color:rgba(255,255,255,.32);text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);}
-    .spin-ring{display:inline-block;width:16px;height:16px;animation:spin .7s linear infinite;}
-    @media(max-width:400px){.live-card{border-radius:18px;}.lc-clabe{font-size:17px;}.lc-name{font-size:16px;}}
+    /* ── DUPLICATE CTAs (CLABE / email ya registrados) ─────────── */
+    .field-exists-cta { display:none; margin-top:8px; padding:9px 12px; background:rgba(0,200,150,.05); border:1px solid rgba(0,200,150,.2); border-radius:8px; }
+    .field-exists-cta .fec-text { font-size:11.5px; color:rgba(255,255,255,0.45); margin-bottom:7px; line-height:1.4; }
+    .fec-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:7px; border:1px solid rgba(0,200,150,0.28); background:rgba(0,200,150,0.07); color:var(--teal); font-size:11.5px; font-weight:600; cursor:pointer; transition:background .15s; font-family:'Inter',sans-serif; letter-spacing:-.01em; }
+    .fec-btn:hover { background:rgba(0,200,150,0.15); }
+    /* Email inline status icons */
+    .email-wrap { position:relative; }
+    .email-wrap input { padding-right:32px; }
+    .email-icon-abs { position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; display:none; }
+    .email-ring { position:absolute; right:10px; top:50%; margin-top:-8px; width:16px; height:16px; pointer-events:none; display:none; }
+    .email-ring.visible { display:block; animation:spin .7s linear infinite; }
+    /* ─────────────────────────────────────────────────────────── */
   </style>
 </head>
 <body>
-  <div id="shapes" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;" aria-hidden="true"></div>
-  <div id="page-loader">
-    <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
-      <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
-      <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
-      <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
-    </svg>
+<div id="page-loader">
+  <svg class="pl-svg" viewBox="100 100 1280 1280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.500755 183.499427 L 920.407068 183.499426" stroke="#00c896" stroke-width="367" class="pl-stroke-horiz"/>
+    <path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.597393 183.498426 L 183.49837 183.498426" stroke="#007256" stroke-width="367" class="pl-stroke-vert"/>
+    <path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.498659 183.502296 L 1945.432126 183.502296" stroke="#00c896" stroke-width="367" class="pl-stroke-diag"/>
+    <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
+  </svg>
+</div>
+<!-- SUCCESS OVERLAY (edit mode only) -->
+<div id="save-success-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:24px;animation:fadeUp .35s ease both;">
+  <div style="width:72px;height:72px;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.28);border-radius:22px;display:flex;align-items:center;justify-content:center;">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
-  <div id="state-error" class="state" style="display:none;position:relative;z-index:2;">
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/></svg>
-    <div class="state-title">Perfil no encontrado</div>
-    <div class="state-sub">Este link puede haber expirado o no existe.</div>
+  <div style="text-align:center;">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-.04em;margin-bottom:8px;color:#f0f0f0;">¡Cambios guardados!</div>
+    <div style="font-size:14px;color:#666;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="animation:spin .7s linear infinite;flex-shrink:0;"><circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.2)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#666" stroke-width="2" stroke-linecap="round"/></svg>
+      Redirigiendo a Mis Links…
+    </div>
   </div>
-  <div id="state-profile">
-    <div class="card-wrap">
-      <div class="live-card light-text" id="live-card">
-        <div class="card-design-layer" id="card-design-layer"></div>
-        <div class="lc-inner">
-          <div class="lc-top">
-            <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt="Logo"/></div>
-            <img class="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
-          </div>
-          <div class="lc-middle">
-            <div class="lc-group" id="lc-negocio-group" style="display:none;"><div class="lc-negocio-name" id="lc-negocio-name"></div></div>
-            <div class="lc-bank" id="lc-bank"><img class="lc-bank-icon" id="lc-bank-icon" src="" alt=""/><span class="lc-bank-name" id="lc-bank-name">&#8212;</span></div>
-            <div class="lc-group">
-              <div class="lc-clabe-label">CLABE</div>
-              <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" id="card-copy-clabe" title="Copiar CLABE"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
-            </div>
-            <div class="lc-group">
-              <div class="lc-section-label">TITULAR DE LA CUENTA</div>
-              <div class="lc-copy-row"><div class="lc-name" id="lc-name"></div><button class="lc-copy-btn" id="card-copy-nombre" title="Copiar nombre"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
-            </div>
-          </div>
-          <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
-        </div>
+</div>
+<div class="shapes" id="shapes" aria-hidden="true"></div>
+<header>
+  <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+  <nav>
+    <div class="nav-links"><a href="index.html">Inicio</a><a href="index.html#pricing">Pricing</a><a href="index.html#ayuda">Ayuda</a><a href="portal.html" id="nav-account-link">Mi Cuenta</a></div>
+    <a href="app.html" class="btn-nav">Crear mi Link</a>
+  </nav>
+</header>
+<div class="page">
+  <!-- TYPE SELECTOR -->
+  <div id="view-type" class="active">
+    <div class="type-hero"><h1>&#191;Qu&#233; tipo de perfil?</h1><p>Elige el que mejor describe tu uso.</p></div>
+    <div class="type-grid">
+      <div class="type-card" onclick="selectType('personal')">
+        <div class="type-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#00c896" stroke-width="1.8"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="type-card-title">Personal</div>
+        <div class="type-card-desc">Comparte tu CLABE para recibir transferencias SPEI.</div>
       </div>
-    </div>
-    <div class="actions" id="actions" style="display:none;">
-      <div class="action-row" id="row-wa" style="display:none;"><div class="action-row-left"><div class="action-label">WhatsApp</div><div class="action-value" id="act-wa-text">&#8212;</div></div><button class="btn-action" onclick="copyAction('act-wa-text',this,'rawWa')">Copiar</button></div>
-      <div class="action-row" id="row-email" style="display:none;"><div class="action-row-left"><div class="action-label">Correo electr&#243;nico</div><div class="action-value" id="act-email-text">&#8212;</div></div><button class="btn-action" onclick="copyAction('act-email-text',this)">Copiar</button></div>
-      <div class="action-row" id="row-fiscal" style="display:none;"><div class="action-row-left"><div class="action-label">Datos fiscales</div><div class="action-value" style="font-size:12px;opacity:.7;">RFC &middot; R&#233;gimen &middot; Direcci&#243;n</div></div><button class="btn-action" onclick="openFiscalModal()">Ver &#8594;</button></div>
-    </div>
-    <div class="branding">
-      <div class="branding-label">Powered by</div>
-      <a href="/" target="_blank"><img id="branding-logo" src="logo-white.png" alt="tr4nsfer.me"/></a>
-      <a href="/app" target="_blank" class="branding-cta">Crea el tuyo <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    </div>
-  </div>
-  <div class="fiscal-overlay" id="fiscal-overlay" onclick="onOverlayClick(event)">
-    <div class="fiscal-modal">
-      <div class="fiscal-design-layer" id="fiscal-design-layer"></div>
-      <div class="fiscal-modal-content">
-        <div class="fiscal-modal-hdr">
-          <div class="fiscal-modal-title">Datos fiscales</div>
-          <button class="fiscal-close" onclick="closeFiscalModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
-        </div>
-        <div id="fiscal-body"></div>
+      <div class="type-card" onclick="selectType('negocios')">
+        <div class="type-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="15" rx="2" stroke="#00c896" stroke-width="1.8"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#00c896" stroke-width="1.8"/><path d="M12 12v4M10 14h4" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="type-card-title">Negocio</div>
+        <div class="type-card-desc">Logo, nombre comercial y datos fiscales para facturaci&#243;n.</div>
       </div>
     </div>
   </div>
+  <!-- HERO -->
+  <div class="app-hero" id="app-hero" style="display:none;">
+    <h1 id="app-hero-title">Empieza aqu&#237;</h1>
+    <p id="app-hero-sub">Ingresa tus datos y personaliza tu perfil.</p>
+  </div>
+  <div id="main-layout">
+    <div class="left-col" id="left-col">
+      <!-- PANEL 1 -->
+      <div class="left-panel" id="panel-step1">
+        <button class="step2-back" id="type-back-btn" onclick="goBackToType()" style="display:none;">&#8592; Volver</button>
+        <div class="card">
+          <div class="card-header"><div class="n26-bar"></div><h1>Datos de la cuenta</h1><p>Comparte tus datos bancarios de forma r&#225;pida y segura.</p></div>
+          <div class="security-notice">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="#00c896" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#00c896" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Tu informaci&#243;n est&#225; cifrada y es 100% confidencial.</span>
+          </div>
+          <div class="field" id="fg-nombre-cuenta">
+            <label>Titular de la cuenta <span class="req">*</span></label>
+            <input type="text" id="nombre-cuenta" placeholder="Ej. Pagos Freelance" maxlength="30" oninput="updateCard()"/>
+            <span class="field-error">Ingresa un nombre para esta cuenta.</span>
+          </div>
+          <div class="field" id="fg-clabe">
+            <label>CLABE interbancaria <span class="req">*</span></label>
+            <div class="clabe-wrap">
+              <input type="tel" id="clabe" placeholder="18 d&#237;gitos" maxlength="22" inputmode="numeric" oninput="onClabeInput()" onpaste="setTimeout(onClabeInput,0)"/>
+              <svg class="clabe-verified" id="clabe-verified" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg class="clabe-checking-ring" id="clabe-checking-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <span class="field-error" id="clabe-error-msg">La CLABE debe tener exactamente 18 d&#237;gitos.</span>
+            <div class="field-exists-cta" id="clabe-exists-cta">
+              <div class="fec-text">¿La CLABE es tuya?</div>
+              <button class="fec-btn" onclick="goToAuthWithState('clabe')">Administrar mis Links &#8594;</button>
+            </div>
+          </div>
+          <div class="field" id="fg-banco">
+            <label>Banco</label>
+            <div class="banco-wrap" id="banco-wrap">
+              <input type="text" id="banco" placeholder="Se detecta al ingresar tu CLABE" readonly/>
+              <img id="banco-icon" class="banco-icon" src="" alt=""/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Alias <span class="opt">&#8212; opcional</span></label>
+            <input type="text" id="alias" placeholder="Ej. Cuenta personal, Negocios&#8230;" oninput="updateCard()"/>
+          </div>
+        </div>
+        <!-- Continue button shown only in edit mode, right below account data -->
+        <div id="edit-continue-wrap" style="display:none;padding:16px 0 4px;">
+          <button id="edit-continue-btn" onclick="floatingBtnClick()"
+            style="width:100%;background:var(--teal);color:#000;border:none;border-radius:999px;padding:14px 28px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .18s,transform .12s;">
+            Continuar &#8594;
+          </button>
+        </div>
+      </div>
+      <!-- PANEL 2 -->
+      <div class="left-panel hidden" id="panel-step2">
+        <button class="step2-back" onclick="backToStep1()">&#8592; Volver</button>
+        <div class="step2-badge"><div class="step2-badge-dot"></div><div><div class="step2-badge-text" id="step2-nombre-cuenta">&#8212;</div><div class="step2-badge-sub" id="step2-banco">&#8212;</div></div></div>
+        <div class="card">
+          <div class="card-header"><div class="n26-bar"></div><h1 id="step2-card-title">Informaci&#243;n personal</h1><p id="step2-card-subtitle">Completa tus datos para activar tu perfil.</p></div>
+          <div class="field" id="fg-email">
+            <div class="field-label-row">
+              <label>Correo electr&#243;nico <span class="req">*</span></label>
+              <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)"><input type="checkbox" id="show_email"/><span class="show-toggle-track"><span class="show-toggle-thumb"></span></span><span class="show-toggle-label">Agregar</span></label>
+            </div>
+            <div class="email-wrap">
+              <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" oninput="updateContactPreview();onEmailInput()" onblur="onEmailBlur()"/>
+              <svg class="email-ring" id="email-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+              <svg class="email-icon-abs" id="email-verified" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="field-error" id="email-error-msg">Ingresa un correo v&#225;lido.</span>
+            <div class="field-exists-cta" id="email-exists-cta">
+              <div class="fec-text">Este correo ya tiene una cuenta. ¿Es tuyo?</div>
+              <button class="fec-btn" onclick="goToAuthWithState('email')">Iniciar sesi&#243;n &#8594;</button>
+            </div>
+          </div>
+          <div class="field" id="fg-whatsapp">
+            <div class="field-label-row">
+              <label>WhatsApp <span class="opt">&#8212; opcional</span></label>
+              <label class="show-toggle" onclick="setTimeout(updateContactPreview,10)"><input type="checkbox" id="show_whatsapp"/><span class="show-toggle-track"><span class="show-toggle-thumb"></span></span><span class="show-toggle-label">Agregar</span></label>
+            </div>
+            <div class="wa-input-wrap">
+              <select id="wa-country" class="wa-country-select" onchange="onWaInput()">
+                <option value="+52" data-digits="10" selected>&#127474;&#127485; +52</option>
+                <option value="+1" data-digits="10">&#127482;&#127480; +1</option>
+                <option value="+34" data-digits="9">&#127466;&#127480; +34</option>
+                <option value="+57" data-digits="10">&#127464;&#127476; +57</option>
+                <option value="+54" data-digits="10">&#127462;&#127479; +54</option>
+                <option value="+56" data-digits="9">&#127464;&#127473; +56</option>
+                <option value="+55" data-digits="11">&#127463;&#127479; +55</option>
+              </select>
+              <input type="tel" id="whatsapp" placeholder="N&#250;mero" maxlength="15" inputmode="numeric" oninput="onWaInput()"/>
+            </div>
+            <span class="field-error" id="wa-error">Ingresa un n&#250;mero v&#225;lido.</span>
+          </div>
+          <div class="field" id="fg-slug" style="margin-top:4px;">
+            <label>Tu link <span class="opt">&#8212; opcional</span></label>
+            <div style="position:relative;">
+              <div class="slug-wrap" id="slug-wrap">
+                <span class="slug-prefix">tr4nsfer.me/</span>
+                <input type="text" id="slug-custom" placeholder="tu-nombre" maxlength="20" inputmode="url" autocomplete="off" spellcheck="false" oninput="onSlugInput()" style="padding-right:28px;"/>
+              </div>
+              <svg id="slug-ok" width="16" height="16" viewBox="0 0 24 24" fill="none" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg id="slug-err" width="16" height="16" viewBox="0 0 24 24" fill="none" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><path d="M18 6L6 18M6 6l12 12" stroke="#f04040" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <svg id="slug-spin" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none;position:absolute;right:10px;top:50%;margin-top:-8px;pointer-events:none;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <span class="field-error" id="slug-error">Solo letras, n&#250;meros y guiones. M&#237;nimo 3 caracteres.</span>
+          </div>
+          <div id="negocio-section-divider" style="display:none;margin-top:12px;padding-top:18px;border-top:1px solid var(--border);"><div style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Informaci&#243;n del negocio</div></div>
+          <div class="field" id="fg-nombre-negocio" style="display:none;">
+            <div class="field-label-row"><label>Nombre del negocio <span class="opt">&#8212; opcional</span></label><label class="show-toggle"><input type="checkbox" id="show_nombre_negocio" onchange="onNombreNegocioToggle()"/><span class="show-toggle-track"><span class="show-toggle-thumb"></span></span><span class="show-toggle-label">Agregar</span></label></div>
+            <div id="nombre-negocio-input-wrap" style="display:none;"><input type="text" id="nombre-negocio" placeholder="Ej. Mi Empresa SA de CV" maxlength="40" oninput="updateNombreNegocioPreview()"/></div>
+          </div>
+          <div class="field" id="fg-logo" style="display:none;">
+            <div class="field-label-row"><label>Logo <span class="opt">&#8212; opcional</span></label><label class="show-toggle"><input type="checkbox" id="show_logo" onchange="onLogoToggle()"/><span class="show-toggle-track"><span class="show-toggle-thumb"></span></span><span class="show-toggle-label">Agregar</span></label></div>
+            <div class="logo-upload-area" id="logo-upload-area">
+              <div class="logo-dropzone" onclick="$('logo-file').click()">
+                <div class="logo-dz-square" id="logo-dz-square"><img id="logo-thumb" src="" alt=""/><svg id="logo-plus-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/></svg></div>
+                <div class="logo-dz-text"><strong>Sube tu logo</strong>PNG o JPG &middot; Cuadrado recomendado<br/><span style="font-size:10px;opacity:.6;">Se optimiza automáticamente</span></div>
+              </div>
+              <input type="file" id="logo-file" accept="image/*" style="display:none;" onchange="onLogoFile(this)"/>
+            </div>
+          </div>
+          <div class="field" id="fg-fiscal-toggle">
+            <div class="field-label-row"><label>Datos fiscales <span class="opt">&#8212; opcional</span></label><label class="show-toggle"><input type="checkbox" id="show_fiscal" onchange="onFiscalToggle()"/><span class="show-toggle-track"><span class="show-toggle-thumb"></span></span><span class="show-toggle-label">Agregar</span></label></div>
+          </div>
+          <div class="fiscal-fields" id="fiscal-fields">
+            <div class="field" id="fg-razon-social"><label>Raz&#243;n social <span class="req">*</span></label><input type="text" id="razon-social" placeholder="Ej. EMPRESA SA DE CV" autocomplete="organization" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/><span class="field-error">Ingresa la raz&#243;n social.</span></div>
+            <div class="field" id="fg-rfc"><label>RFC <span class="req">*</span></label><input type="text" id="rfc" placeholder="Ej. EMP850101AB1" maxlength="13" oninput="onRfcInput()" style="text-transform:uppercase;"/><span class="field-error" id="rfc-error">Ingresa el RFC.</span></div>
+            <div class="field" id="fg-regimen">
+              <label>R&#233;gimen fiscal <span class="req">*</span></label>
+              <select id="regimen-fiscal"><option value="">Selecciona un r&#233;gimen</option><option value="601">601 &mdash; General de Ley Personas Morales</option><option value="612">612 &mdash; Personas F&#237;sicas con Actividades Empresariales</option><option value="621">621 &mdash; Incorporaci&#243;n Fiscal</option><option value="626">626 &mdash; RESICO</option><option value="605">605 &mdash; Sueldos y Salarios</option><option value="606">606 &mdash; Arrendamiento</option><option value="608">608 &mdash; Dem&#225;s ingresos</option><option value="616">616 &mdash; Sin obligaciones fiscales</option><option value="622">622 &mdash; Actividades Agr&#237;colas, Ganaderas, Silv&#237;colas</option><option value="625">625 &mdash; Plataformas Tecnol&#243;gicas</option><option value="603">603 &mdash; Personas Morales sin Fines de Lucro</option></select>
+              <span class="field-error" id="regimen-error">Selecciona un r&#233;gimen fiscal.</span>
+            </div>
+            <div class="field" id="fg-cp">
+              <label>C&#243;digo postal <span class="req">*</span></label>
+              <div style="position:relative;"><input type="tel" id="cp-fiscal" placeholder="Ej. 06600" maxlength="5" inputmode="numeric" oninput="onCpInput()"/><svg id="cp-spinner" class="cp-spinner" viewBox="0 0 16 16" fill="none" style="position:absolute;right:10px;top:50%;margin-top:-8px;width:16px;height:16px;"><circle cx="8" cy="8" r="6" stroke="rgba(0,200,150,0.25)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg></div>
+              <span class="field-error" id="cp-error">C&#243;digo postal no encontrado.</span>
+            </div>
+            <div id="cp-autofill-row" style="display:none;">
+              <div class="form-row" style="margin-bottom:10px;">
+                <div class="field" style="margin-bottom:0;"><label>Municipio / Ciudad <span class="req">*</span></label><input type="text" id="ciudad-fiscal" placeholder="EJ. CUAUHTÉMOC" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/></div>
+                <div class="field" style="margin-bottom:0;"><label>Estado</label><input type="text" id="estado-fiscal" readonly placeholder="AUTO-DETECTADO" style="text-transform:uppercase;"/></div>
+              </div>
+              <div class="field" id="fg-colonia" style="margin-bottom:10px;"><label>Colonia <span class="req">*</span></label><select id="colonia-fiscal"><option value="">Selecciona tu colonia</option></select></div>
+              <div id="colonia-otra-wrap" style="display:none;margin-bottom:10px;"><input type="text" id="colonia-otra" placeholder="ESCRIBE TU COLONIA" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/></div>
+              <div class="field" id="fg-calle"><label>Calle y n&#250;mero <span class="req">*</span></label><input type="text" id="calle-fiscal" placeholder="EJ. AV. INSURGENTES SUR 123" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/><span class="field-error">Ingresa la calle y n&#250;mero.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT COL -->
+    <div class="right-col">
+      <div class="card-frame" id="card-frame">
+        <div class="card-frame-stack">
+          <div class="live-card light-text" id="live-card">
+            <div class="card-design-layer" id="card-design-layer"></div>
+            <div class="lc-inner">
+              <div class="lc-top">
+                <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt=""/></div>
+                <span class="lc-logo-dot"><img src="logo-white.png" alt="tr4nsfer.me"/></span>
+              </div>
+              <div class="lc-middle">
+                <div class="lc-group" id="lc-negocio-group" style="display:none;"><div class="lc-negocio-name" id="lc-negocio-val"></div></div>
+                <div class="lc-bank" id="lc-bank" style="display:none;"><img class="lc-bank-icon" id="lc-bank-icon" src="" alt=""/><span class="lc-bank-name" id="lc-bank-name">&#8212;</span></div>
+                <div class="lc-group" id="lc-clabe-group" style="display:none;">
+                  <div class="lc-clabe-label">CLABE</div>
+                  <div class="lc-copy-row"><div class="lc-clabe" id="lc-clabe"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-clabe');if(el)navigator.clipboard.writeText(el.textContent.replace(/\s/g,''));this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                </div>
+                <div class="lc-group" id="lc-nombre-group" style="display:none;">
+                  <div class="lc-section-label">TITULAR DE LA CUENTA</div>
+                  <div class="lc-copy-row"><div class="lc-name" id="lc-nombre-val"></div><button class="lc-copy-btn" onclick="(function(){const el=document.getElementById('lc-nombre-val');if(el)navigator.clipboard.writeText(el.textContent);this.style.opacity='0.2';setTimeout(()=>this.style.opacity='0.5',500);})()" title="Copiar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                </div>
+              </div>
+              <div class="lc-bottom"><div class="lc-alias" id="lc-alias"></div></div>
+            </div>
+          </div>
+          <div class="contact-preview" id="contact-preview" style="display:none;">
+            <div class="cp-row" id="cp-wa" style="display:none;"><div class="cp-row-left"><div class="cp-label">WhatsApp</div><div class="cp-value" id="cp-wa-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-wa-text',this)">Copiar</button></div>
+            <div class="cp-row" id="cp-email" style="display:none;"><div class="cp-row-left"><div class="cp-label">Correo electr&#243;nico</div><div class="cp-value" id="cp-email-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-email-text',this)">Copiar</button></div>
+            <div class="cp-row" id="cp-fiscal-row" style="display:none;"><div class="cp-row-left"><div class="cp-label">Datos fiscales</div><div class="cp-value" style="font-size:12px;opacity:.7;">RFC &#183; R&#233;gimen &#183; Direcci&#243;n</div></div><button class="cp-copy" style="pointer-events:none;">Ver &#8594;</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="color-editor" id="color-editor">
+        <div class="color-editor-title">Personaliza tu tarjeta</div>
+        <div class="color-section"><div class="color-section-label">Dise&#241;o</div><div class="design-picker" id="design-picker"></div></div>
+        <div class="color-section"><div class="color-section-label">Color de tarjeta</div><div class="swatches" id="card-swatches"></div><input type="color" id="native-color-card" class="native-color-input" value="#8b5cf6"></div>
+        <div class="color-section"><div class="color-section-label">Fondo</div><div class="swatches" id="bg-swatches"></div><input type="color" id="native-color-bg" class="native-color-input" value="#000000"></div>
+        <div class="color-section" id="icon-editor-section" style="display:none;">
+          <div style="display:flex;align-items:center;gap:6px;"><div class="color-section-label">&#205;cono</div><span style="font-size:9px;color:var(--muted2);font-weight:400;text-transform:none;letter-spacing:0;">— opcional</span></div>
+          <div style="display:flex;gap:8px;margin-top:8px;position:relative;">
+            <div id="icon-picker-btn" onclick="toggleIconDropdown()" style="flex:1;height:38px;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;cursor:pointer;transition:border-color .18s;user-select:none;">
+              <div id="icon-btn-preview" style="display:flex;align-items:center;gap:8px;"><span id="icon-btn-icon" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;"></span><span id="icon-btn-label" style="font-size:11.5px;color:var(--muted);">Seleccionar</span></div>
+              <svg id="icon-btn-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;transition:transform .18s;"><path d="M6 9l6 6 6-6" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div id="icon-color-btn" onclick="toggleIconColorDropdown()" style="width:38px;height:38px;background:var(--input-bg);border:1.5px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .18s;flex-shrink:0;"><div id="icon-color-preview" style="width:20px;height:20px;border-radius:5px;background:#00c896;border:1.5px solid rgba(0,200,150,.5);"></div></div>
+          </div>
+          <div id="icon-dropdown" style="display:none;margin-top:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:11px;padding:10px;z-index:10;position:relative;"><div id="icon-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;"></div></div>
+          <div id="icon-color-dropdown" style="display:none;margin-top:4px;background:var(--surface2);border:1px solid var(--border2);border-radius:11px;padding:10px;z-index:10;position:relative;">
+            <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;" id="icon-color-swatches">
+              <div class="swatch sin-banco" id="icon-swatch-banco" data-icolor="rgba(0,200,150,0.9)" style="background:#00a87a;position:relative;" title="Color del banco"><svg style="position:absolute;top:-7px;right:-7px;width:14px;height:14px;background:#111;border-radius:50%;padding:2.5px;border:1px solid #2a2a2a;pointer-events:none;" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 4.5L21 10.5" stroke="#00c896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5V18M12 10.5V18M18 10.5V18" stroke="#00c896" stroke-width="2" stroke-linecap="round"/><path d="M3 18H21" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg></div>
+              <div class="swatch active" data-icolor="rgba(0,200,150,0.9)" style="background:#00c896;" title="Verde"></div>
+              <div class="swatch" data-icolor="rgba(255,255,255,1)" style="background:#fff;border:2px solid rgba(255,255,255,.5);" title="Blanco"></div>
+              <div class="swatch" data-icolor="rgba(255,255,255,0.25)" style="background:rgba(255,255,255,0.25);border:1.5px dashed rgba(255,255,255,0.4);" title="Translúcido"></div>
+              <div class="swatch" data-icolor="rgba(0,0,0,0.85)" style="background:#111;border:1.5px solid #444;" title="Negro"></div>
+              <div class="swatch" data-icolor="rgba(255,180,0,0.9)" style="background:#FFB400;" title="Dorado"></div>
+              <div class="swatch" data-icolor="rgba(200,100,255,0.9)" style="background:#C864FF;" title="Morado"></div>
+              <div class="swatch-add" id="icon-color-custom-btn" title="Color personalizado" onclick="$('native-color-icon').click()" style="position:relative;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><input type="color" id="native-color-icon" class="native-color-input" value="#ffffff" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;border:none;padding:0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="floating-btn-wrap"><button id="floating-btn" onclick="floatingBtnClick()"><span id="floating-btn-text">Continuar &#8594;</span></button></div>
+    </div>
+    <!-- STEP 2 FOOTER -->
+    <div class="step2-footer" id="step2-footer">
+      <div class="consent-block">
+        <label class="consent-row" id="fg-consent1"><input type="checkbox" id="consent1" onchange="if(this.checked) $('fg-consent1').classList.remove('has-error')"/><span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="consent-text">Entiendo que al generar mi perfil, mis datos de dep&#243;sito ser&#225;n visibles para cualquier persona que acceda al link.</span><span class="field-error">Debes aceptar para continuar.</span></label>
+        <label class="consent-row" id="fg-consent2"><input type="checkbox" id="consent2" onchange="if(this.checked) $('fg-consent2').classList.remove('has-error')"/><span class="consent-check"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="consent-text">He le&#237;do y acepto los <a href="#" class="consent-link">T&#233;rminos y Condiciones</a> y la <a href="#" class="consent-link">Pol&#237;tica de Privacidad</a>.</span><span class="field-error">Debes aceptar para continuar.</span></label>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:16px;padding:10px 14px;border-radius:10px;background:rgba(0,200,150,.06);border:1px solid rgba(0,200,150,.16);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
+        <span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);">AES-256-GCM</strong> antes de guardarse.</span>
+      </div>
+      <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
+        <svg id="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="btn-text">Generar mi Link</span>
+      </button>
+    </div>
+  </div>
+  <!-- SUCCESS -->
+  <div id="view-success" class="view">
+    <div class="card" style="text-align:center;max-width:420px;">
+      <div class="success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h2 style="font-size:1.15rem;margin-bottom:6px;font-weight:700;letter-spacing:-.03em;">&#161;Tu link est&#225; listo!</h2>
+      <p style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:20px;">También lo enviamos a <strong id="success-email" style="color:var(--text-soft);font-weight:600;"></strong>.</p>
+      <div class="success-link-box">
+        <a id="success-link-text" class="success-link-text" href="#" target="_blank">tr4nsfer.me/...</a>
+        <div class="success-link-actions">
+          <button class="success-link-btn" id="success-copy-btn" onclick="successCopyLink()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4C2.9 15 2 14.1 2 13V4C2 2.9 2.9 2 4 2H13C14.1 2 15 2.9 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Copiar
+          </button>
+          <button class="success-link-btn" onclick="successVisitLink()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="15 3 21 3 21 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Visitar
+          </button>
+        </div>
+      </div>
+      <div class="success-qr-wrap">
+        <img id="success-qr-img" class="qr-img" src="" alt="Código QR" style="background:#f5f5f5;"/>
+        <div class="success-qr-logo"><svg viewBox="100 100 1280 1280" width="30" height="30" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.5 183.5 L 920.4 183.5" stroke="#00c896" stroke-width="367"/><path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.6 183.5 L 183.5 183.5" stroke="#ffffff" stroke-width="367"/><path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.5 183.5 L 1945.4 183.5" stroke="#00c896" stroke-width="367"/><g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896"/></g></svg></div>
+      </div>
+      <p style="font-size:10.5px;color:var(--muted);margin-bottom:20px;">Escanea para abrir tu link directamente</p>
+      <div style="margin-bottom:12px;">
+        <button class="btn btn-outline" onclick="downloadQR()" style="margin-top:0;font-size:12px;padding:10px 12px;width:100%;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Descargar QR (.png)
+        </button>
+      </div>
+      <button class="btn btn-outline" onclick="resetToStep1()" style="margin-top:0;">+ Crear otro link</button>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me" style="height:28px;"/></a><p class="footer-tagline">Gratis &middot; Seguro &middot; Sin fricci&#243;n</p></div>
+      <div class="footer-col"><h4>Men&#250;</h4><ul><li><a href="index.html">Inicio</a></li><li><a href="index.html#pricing">Pricing</a></li><li><a href="index.html#ayuda">Ayuda</a></li><li><a href="app.html" class="ft-cta">Crear mi Link &rarr;</a></li></ul></div>
+      <div class="footer-col"><h4>Legal</h4><ul><li><a href="#">T&#233;rminos</a></li><li><a href="#">Pol&#237;tica de Privacidad</a></li></ul></div>
+    </div>
+  </div>
+  <div class="footer-bottom"><span class="footer-copy">tr4nsfer.me &copy; 2026</span><span class="footer-copy">Hecho en M&#233;xico &#127474;&#127485;</span></div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);  // single shared client
 const $=id=>document.getElementById(id);
+/* ── EDIT MODE ── */
+const EDIT_SLUG = new URLSearchParams(location.search).get('edit') || null;
+const EDIT_MODE = !!EDIT_SLUG;
 
+/* ── QR helpers ── */
+function qrApiUrl(slug,size){return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent('https://tr4nsfer.me/'+slug)+'&margin=10&color=000000&bgcolor=ffffff';}
+async function qrToBase64(slug){
+  try{const r=await fetch(qrApiUrl(slug,400));const blob=await r.blob();return await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(blob);});}
+  catch(e){return '';}
+}
+
+/* ── TOAST ── */
+function showToast(msg,type){
+  const t=document.createElement('div');
+  t.className='app-toast toast-'+(type||'ok');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .3s ease';t.style.opacity='0';setTimeout(()=>t.remove(),320);},3800);
+}
+
+/* ── IMAGE COMPRESSION ── */
+function compressImage(dataUrl,maxSize,quality){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>maxSize||h>maxSize){if(w>h){h=Math.round(h*maxSize/w);w=maxSize;}else{w=Math.round(w*maxSize/h);h=maxSize;}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',quality||0.78));
+    };
+    img.onerror=()=>resolve(dataUrl);
+    img.src=dataUrl;
+  });
+}
+
+const BANCOS={'133':{nombre:'ACTINVER',domain:'actinver.com'},'062':{nombre:'AFIRME',domain:'afirme.com'},'721':{nombre:'albo',domain:'albo.mx'},'706':{nombre:'ARCUS FI',domain:'arcusfi.com'},'127':{nombre:'BANCO AZTECA',domain:'bancoazteca.com.mx'},'030':{nombre:'BAJÍO',domain:'bb.com.mx'},'002':{nombre:'BANAMEX',domain:'banamex.com'},'154':{nombre:'BANCO COVALTO',domain:'covalto.com'},'006':{nombre:'BANCOMEXT',domain:'bancomext.com'},'137':{nombre:'BANCOPPEL',domain:'bancoppel.com'},'152':{nombre:'BANCREA',domain:'bancrea.com'},'019':{nombre:'BANJERCITO',domain:'banjercito.com.mx'},'147':{nombre:'BANKAOOL',domain:'bankaool.com'},'106':{nombre:'BANK OF AMERICA',domain:'bankofamerica.com'},'009':{nombre:'BANOBRAS',domain:'banobras.gob.mx'},'072':{nombre:'BANORTE',domain:'banorte.com'},'058':{nombre:'BANREGIO',domain:'banregio.com'},'060':{nombre:'BANSI',domain:'bansi.com.mx'},'129':{nombre:'BARCLAYS',domain:'barclays.com.mx'},'012':{nombre:'BBVA MEXICO',domain:'bbva.mx'},'112':{nombre:'BMONEX',domain:'monex.com.mx'},'677':{nombre:'CAJA POP MEXICANA',domain:'cajaPopMexicana.coop'},'715':{nombre:'CASHI',domain:'cashi.mx'},'631':{nombre:'CI BOLSA',domain:'cibolsa.com'},'124':{nombre:'CITI MEXICO',domain:'citibanamex.com'},'130':{nombre:'COMPARTAMOS',domain:'compartamos.mx'},'140':{nombre:'CONSUBANCO',domain:'consubanco.com'},'723':{nombre:'Cuenca',domain:'cuenca.com'},'616':{nombre:'FINAMEX',domain:'finamex.com.mx'},'634':{nombre:'FINCOMUN',domain:'fincomun.com.mx'},'699':{nombre:'FONDEADORA',domain:'fondeadora.com'},'601':{nombre:'GBM',domain:'gbm.com.mx'},'167':{nombre:'HEY BANCO',domain:'heybanco.com'},'021':{nombre:'HSBC',domain:'hsbc.com.mx'},'036':{nombre:'INBURSA',domain:'inbursa.com'},'136':{nombre:'INTERCAM BANCO',domain:'intercam.com.mx'},'059':{nombre:'INVEX',domain:'invex.com'},'110':{nombre:'JP MORGAN',domain:'jpmorgan.com'},'128':{nombre:'KAPITAL',domain:'kapital.mx'},'661':{nombre:'KLAR',domain:'klar.mx'},'653':{nombre:'KUSPIT',domain:'kuspit.com'},'670':{nombre:'LIBERTAD',domain:'libertad.com.mx'},'602':{nombre:'MASARI',domain:'masari.com.mx'},'722':{nombre:'MERCADO PAGO',domain:'mercadopago.com.mx'},'042':{nombre:'MIFEL',domain:'mifel.com'},'600':{nombre:'MONEXCB',domain:'monex.com.mx'},'132':{nombre:'MULTIVA',domain:'multiva.com.mx'},'135':{nombre:'NAFIN',domain:'nafin.com'},'638':{nombre:'NU MEXICO',domain:'nu.com.mx'},'710':{nombre:'NVIO',domain:'nvio.mx'},'148':{nombre:'PAGATODO',domain:'pagatodo.com'},'620':{nombre:'PROFUTURO',domain:'profuturo.com.mx'},'156':{nombre:'SABADELL',domain:'sabadell.mx'},'014':{nombre:'SANTANDER',domain:'santander.com.mx'},'044':{nombre:'SCOTIABANK',domain:'scotiabank.com.mx'},'728':{nombre:'SPIN BY OXXO',domain:'spinbyoxxo.com.mx'},'646':{nombre:'STP',domain:'stp.mx'},'703':{nombre:'TESORED',domain:'tesored.com'},'138':{nombre:'UALA',domain:'ualabee.com'},'617':{nombre:'VALMEX',domain:'valmex.com.mx'},'605':{nombre:'VALUE',domain:'value.mx'},'113':{nombre:'VE POR MAS',domain:'bx.com.mx'},'141':{nombre:'VOLKSWAGEN',domain:'vwfs.mx'},'846':{nombre:'STP',domain:'stp.mx'}};
+const favicon=d=>`https://www.google.com/s2/favicons?domain=${d}&sz=32`;
+const BANCO_GRADIENTS={'012':'linear-gradient(135deg,#003882,#1564C0)','072':'linear-gradient(135deg,#8B0000,#CC0000)','014':'linear-gradient(135deg,#990000,#CC0000)','021':'linear-gradient(135deg,#9B0A12,#DB0011)','002':'linear-gradient(135deg,#002B75,#004BBF)','124':'linear-gradient(135deg,#002B75,#004BBF)','044':'linear-gradient(135deg,#C8202F,#E8002C)','058':'linear-gradient(135deg,#C45500,#E87722)','661':'linear-gradient(135deg,#0A0A0A,#1F1F1F)','638':'linear-gradient(135deg,#5B0BA0,#A435E0)','722':'linear-gradient(135deg,#007AB8,#00BFE8)','127':'linear-gradient(135deg,#B86800,#D4A000)','167':'linear-gradient(135deg,#C04D00,#E87800)','036':'linear-gradient(135deg,#002D6A,#004BB5)','030':'linear-gradient(135deg,#003F8A,#005BBF)','042':'linear-gradient(135deg,#004A9E,#006FD6)','128':'linear-gradient(135deg,#1A237E,#2E4099)','721':'linear-gradient(135deg,#5B0E91,#9B34E0)','699':'linear-gradient(135deg,#0A0F1E,#1A2540)','723':'linear-gradient(135deg,#0A1628,#1A2F4A)','728':'linear-gradient(135deg,#B03020,#E04030)','062':'linear-gradient(135deg,#6B0000,#990000)','006':'linear-gradient(135deg,#003087,#0052A5)','019':'linear-gradient(135deg,#1B5E20,#2E7D32)','059':'linear-gradient(135deg,#1A3A6B,#2455A0)','132':'linear-gradient(135deg,#1A237E,#283593)','110':'linear-gradient(135deg,#1A1A1A,#2A2A2A)','129':'linear-gradient(135deg,#1A237E,#283593)','113':'linear-gradient(135deg,#003087,#005BBF)','060':'linear-gradient(135deg,#1A3A6B,#2455A0)','140':'linear-gradient(135deg,#C04500,#E06500)','153':'linear-gradient(135deg,#0A1628,#1A2F4A)','706':'linear-gradient(135deg,#0A1628,#1A2F4A)'};
 const INDUSTRY_ICONS=[
-  {id:'restaurante',svg:'<path d="M7 2 L7 22"/><path d="M5 2 L5 8 Q7 12 9 8 L9 2"/><path d="M15 2 L15 22"/><path d="M15 2 Q18 4 18 10 L15 12"/>'},
-  {id:'comercio',svg:'<path d="M2 5 L5.5 5 Q6.5 5 7 7 L9.5 16 Q10 17 11 17 L20 17"/><path d="M7 7 L21 7 L19.5 14 L9.5 14 Z"/><circle cx="10.5" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/>'},
-  {id:'salud',svg:'<path d="M10 5 L10 10 L5 10 L5 14 L10 14 L10 19 L14 19 L14 14 L19 14 L19 10 L14 10 L14 5 Z"/>'},
-  {id:'construccion',svg:'<path d="M14.5 2.5 C12 2.5 9.8 4.5 9.8 7.2 C9.8 8 10.1 8.8 10.6 9.4 L3.7 16.3 C3.2 16.8 3.2 17.7 3.7 18.2 C4.2 18.7 5.1 18.7 5.6 18.2 L12.5 11.3 C13.1 11.8 13.8 12.1 14.5 12.1 C17.4 12.1 19.5 9.9 19.5 7.2 C19.5 6.4 19.3 5.6 19 5 L17 7.2 L15.1 7.2 L15.1 5.3 L17.3 3.1 C16.5 2.7 15.6 2.5 14.5 2.5 Z"/>'},
-  {id:'tecnologia',svg:'<path d="M5 8.5 Q5 7.5 6 7.5 L18 7.5 Q19 7.5 19 8.5 L19 17.5 Q19 18.5 18 18.5 L6 18.5 Q5 18.5 5 17.5 Z"/><path d="M4 12 L2.5 12"/><path d="M20 12 L21.5 12"/><path d="M12 5 L12 7.5"/><circle cx="12" cy="4.5" r="1.2"/><circle cx="8.5" cy="12" r="1.5"/><circle cx="15.5" cy="12" r="1.5"/><path d="M8 15.5 L10 15.5 L11 14.5 L13 16.5 L14 15.5 L16 15.5"/>'},
-  {id:'belleza',svg:'<circle cx="15.5" cy="10" r="5"/><path d="M15.5 15 L15.5 20"/><path d="M12.5 20 L18.5 20"/><path d="M4 10.5 L7.5 10.5 L7.5 17 Q7.5 19.5 5.75 19.5 Q4 19.5 4 17 Z"/><path d="M4 10.5 L4 7 Q4.5 5.5 5.75 5 Q7 5.5 7.5 7 L7.5 10.5"/>'},
-  {id:'logistica',svg:'<path d="M1 5.5 L13.5 5.5 L13.5 15.5 L1 15.5 Z"/><path d="M13.5 9 L13.5 15.5 L22 15.5 L22 11.5 L18.5 8 L13.5 8"/><circle cx="5" cy="19" r="2.8"/><circle cx="18" cy="19" r="2.8"/>'},
-  {id:'educacion',svg:'<path d="M12 3 L22.5 9 L12 15 L1.5 9 Z"/><path d="M6 11.5 L6 17 Q6 21.5 12 21.5 Q18 21.5 18 17 L18 11.5"/><path d="M22.5 9 L22.5 17"/><path d="M21 17 L22.5 19 L24 17"/>'},
-  {id:'finanzas',svg:'<path d="M2 22 L22 22"/><path d="M3 10.5 L21 10.5"/><path d="M3 10.5 L12 4.5 L21 10.5"/><path d="M6.5 10.5 L6.5 20"/><path d="M12 10.5 L12 20"/><path d="M17.5 10.5 L17.5 20"/><path d="M3 20 L21 20"/>'},
-  {id:'servicios',svg:'<circle cx="12" cy="12" r="9.5"/><circle cx="9.5" cy="9.5" r="1.3"/><circle cx="14.5" cy="9.5" r="1.3"/><path d="M8 13.5 Q12 17.5 16 13.5"/>'},
-  {id:'barberia',svg:'<path d="M9.5 3 L14.5 3 Q15.5 3 15.5 4 L15.5 21 Q15.5 22 14.5 22 L9.5 22 Q8.5 22 8.5 21 L8.5 4 Q8.5 3 9.5 3 Z"/><path d="M8.5 7 Q12 9 15.5 11"/><path d="M8.5 12 Q12 14 15.5 16"/><path d="M8.5 17 Q12 19 15.5 21"/><path d="M8 3 L16 3"/><path d="M8 22 L16 22"/><circle cx="12" cy="1.8" r="1.5"/>'},
-  {id:'pagos',svg:'<path d="M3 5 L21 5 Q22.5 5 22.5 6.5 L22.5 17.5 Q22.5 19 21 19 L3 19 Q1.5 19 1.5 17.5 L1.5 6.5 Q1.5 5 3 5 Z"/><path d="M12 7 L12 17"/><path d="M14.5 9.5 C14.5 7.5 9.5 7.5 9.5 9.5 C9.5 11.5 14.5 11.5 14.5 13.5 C14.5 15.5 9.5 15.5 9.5 13.5"/>'},
+  {id:'restaurante',label:'Restaurante',svg:'<path d="M7 2 L7 22"/><path d="M5 2 L5 8 Q7 12 9 8 L9 2"/><path d="M15 2 L15 22"/><path d="M15 2 Q18 4 18 10 L15 12"/>'},
+  {id:'comercio',label:'Comercio',svg:'<path d="M2 5 L5.5 5 Q6.5 5 7 7 L9.5 16 Q10 17 11 17 L20 17"/><path d="M7 7 L21 7 L19.5 14 L9.5 14 Z"/><circle cx="10.5" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/>'},
+  {id:'salud',label:'Salud',svg:'<path d="M10 5 L10 10 L5 10 L5 14 L10 14 L10 19 L14 19 L14 14 L19 14 L19 10 L14 10 L14 5 Z"/>'},
+  {id:'construccion',label:'Construcción',svg:'<path d="M14.5 2.5 C12 2.5 9.8 4.5 9.8 7.2 C9.8 8 10.1 8.8 10.6 9.4 L3.7 16.3 C3.2 16.8 3.2 17.7 3.7 18.2 C4.2 18.7 5.1 18.7 5.6 18.2 L12.5 11.3 C13.1 11.8 13.8 12.1 14.5 12.1 C17.4 12.1 19.5 9.9 19.5 7.2 C19.5 6.4 19.3 5.6 19 5 L17 7.2 L15.1 7.2 L15.1 5.3 L17.3 3.1 C16.5 2.7 15.6 2.5 14.5 2.5 Z"/>'},
+  {id:'tecnologia',label:'Tecnología',svg:'<path d="M5 8.5 Q5 7.5 6 7.5 L18 7.5 Q19 7.5 19 8.5 L19 17.5 Q19 18.5 18 18.5 L6 18.5 Q5 18.5 5 17.5 Z"/><path d="M4 12 L2.5 12"/><path d="M20 12 L21.5 12"/><path d="M12 5 L12 7.5"/><circle cx="12" cy="4.5" r="1.2"/><circle cx="8.5" cy="12" r="1.5"/><circle cx="15.5" cy="12" r="1.5"/><path d="M8 15.5 L10 15.5 L11 14.5 L13 16.5 L14 15.5 L16 15.5"/>'},
+  {id:'belleza',label:'Belleza',svg:'<circle cx="15.5" cy="10" r="5"/><path d="M15.5 15 L15.5 20"/><path d="M12.5 20 L18.5 20"/><path d="M4 10.5 L7.5 10.5 L7.5 17 Q7.5 19.5 5.75 19.5 Q4 19.5 4 17 Z"/><path d="M4 10.5 L4 7 Q4.5 5.5 5.75 5 Q7 5.5 7.5 7 L7.5 10.5"/>'},
+  {id:'logistica',label:'Logística',svg:'<path d="M1 5.5 L13.5 5.5 L13.5 15.5 L1 15.5 Z"/><path d="M13.5 9 L13.5 15.5 L22 15.5 L22 11.5 L18.5 8 L13.5 8"/><circle cx="5" cy="19" r="2.8"/><circle cx="18" cy="19" r="2.8"/>'},
+  {id:'educacion',label:'Educación',svg:'<path d="M12 3 L22.5 9 L12 15 L1.5 9 Z"/><path d="M6 11.5 L6 17 Q6 21.5 12 21.5 Q18 21.5 18 17 L18 11.5"/><path d="M22.5 9 L22.5 17"/><path d="M21 17 L22.5 19 L24 17"/>'},
+  {id:'finanzas',label:'Finanzas',svg:'<path d="M2 22 L22 22"/><path d="M3 10.5 L21 10.5"/><path d="M3 10.5 L12 4.5 L21 10.5"/><path d="M6.5 10.5 L6.5 20"/><path d="M12 10.5 L12 20"/><path d="M17.5 10.5 L17.5 20"/><path d="M3 20 L21 20"/>'},
+  {id:'servicios',label:'Servicios',svg:'<circle cx="12" cy="12" r="9.5"/><circle cx="9.5" cy="9.5" r="1.3"/><circle cx="14.5" cy="9.5" r="1.3"/><path d="M8 13.5 Q12 17.5 16 13.5"/>'},
+  {id:'barberia',label:'Barbería',svg:'<path d="M9.5 3 L14.5 3 Q15.5 3 15.5 4 L15.5 21 Q15.5 22 14.5 22 L9.5 22 Q8.5 22 8.5 21 L8.5 4 Q8.5 3 9.5 3 Z"/><path d="M8.5 7 Q12 9 15.5 11"/><path d="M8.5 12 Q12 14 15.5 16"/><path d="M8.5 17 Q12 19 15.5 21"/><path d="M8 3 L16 3"/><path d="M8 22 L16 22"/><circle cx="12" cy="1.8" r="1.5"/>'},
+  {id:'pagos',label:'Pagos',svg:'<path d="M3 5 L21 5 Q22.5 5 22.5 6.5 L22.5 17.5 Q22.5 19 21 19 L3 19 Q1.5 19 1.5 17.5 L1.5 6.5 Q1.5 5 3 5 Z"/><path d="M12 7 L12 17"/><path d="M14.5 9.5 C14.5 7.5 9.5 7.5 9.5 9.5 C9.5 11.5 14.5 11.5 14.5 13.5 C14.5 15.5 9.5 15.5 9.5 13.5"/>'},
 ];
-function iconSVG(icon,size,stroke,sw){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><g stroke="'+(stroke||'rgba(255,255,255,0.9)')+'" stroke-width="'+(sw||1.2)+'" stroke-linecap="round" stroke-linejoin="round">'+icon.svg+'</g></svg>';}
-const favicon=d=>'https://www.google.com/s2/favicons?domain='+d+'&sz=32';
-
+function iconSVG(icon,size,stroke,sw){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><g stroke="'+(stroke||'currentColor')+'" stroke-width="'+(sw||1.5)+'" stroke-linecap="round" stroke-linejoin="round">'+icon.svg+'</g></svg>';}
+const MX_STATES={'DIF':'Ciudad de México','AGS':'Aguascalientes','BC':'Baja California','BCS':'Baja California Sur','CAM':'Campeche','CHP':'Chiapas','CHH':'Chihuahua','COA':'Coahuila','COL':'Colima','DUR':'Durango','GTO':'Guanajuato','GRO':'Guerrero','HID':'Hidalgo','JAL':'Jalisco','MEX':'Estado de México','MIC':'Michoacán','MOR':'Morelos','NAY':'Nayarit','NLE':'Nuevo León','OAX':'Oaxaca','PUE':'Puebla','QRO':'Querétaro','ROO':'Quintana Roo','SLP':'San Luis Potosí','SIN':'Sinaloa','SON':'Sonora','TAB':'Tabasco','TAM':'Tamaulipas','TLX':'Tlaxcala','VER':'Veracruz','YUC':'Yucatán','ZAC':'Zacatecas'};
 const CARD_DESIGNS=[
-  {id:'diagonal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,36 0,78" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,24" fill="rgba(255,255,255,0.07)"/><polygon points="0,82 100,38 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-  {id:'aurora',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`},
-  {id:'espiral',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,100 Q50,49 100,36" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,100 Q60,62 100,52" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,100 Q36,33 100,18" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`},
-  {id:'cristal',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,28 0,20" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,30" fill="rgba(255,255,255,0.08)"/><polygon points="38,28 78,30 100,12 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,20 38,28 22,62 0,52" fill="rgba(255,255,255,0.06)"/><polygon points="38,28 78,30 68,78 22,62" fill="rgba(255,255,255,0.04)"/><polygon points="0,82 22,62 68,78 100,96 100,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>`},
-  {id:'topografico',render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`},
-  {id:'solido',render:()=>''},
+  {id:'diagonal',label:'Diagonal',render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 100,0 100,58 0,125" fill="rgba(255,255,255,0.09)"/><polygon points="62,0 100,0 100,38" fill="rgba(255,255,255,0.07)"/><polygon points="0,130 100,60 100,159 0,159" fill="rgba(255,255,255,0.05)"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 54,0 54,22 0,47" fill="rgba(255,255,255,0.09)"/><polygon points="0,49 54,23 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`},
+  {id:'aurora',label:'Aurora',render:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="au-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="au-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#au-a)"/><rect width="100%" height="100%" fill="url(#au-b)"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><defs><radialGradient id="at-a" cx="12%" cy="18%" r="60%"><stop offset="0%" stop-color="rgba(255,255,255,0.28)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient><radialGradient id="at-b" cx="88%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(255,255,255,0.20)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100%" height="100%" fill="url(#at-a)"/><rect width="100%" height="100%" fill="url(#at-b)"/></svg>`},
+  {id:'espiral',label:'Espiral',render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,159 Q50,78 100,58" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.8"/><path d="M0,159 Q60,98 100,82" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/><path d="M0,159 Q36,52 100,28" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.7"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><path d="M0,60 Q27,29 54,22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.7"/><path d="M0,60 Q31,37 54,31" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6"/></svg>`},
+  {id:'cristal',label:'Cristal',render:()=>`<svg viewBox="0 0 100 159" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 55,0 38,38 0,28" fill="rgba(255,255,255,0.13)"/><polygon points="55,0 100,0 78,42" fill="rgba(255,255,255,0.08)"/><polygon points="38,38 78,42 100,15 100,0 55,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,28 38,38 22,85 0,72" fill="rgba(255,255,255,0.06)"/><polygon points="38,38 78,42 68,105 22,85" fill="rgba(255,255,255,0.04)"/><polygon points="0,120 22,85 68,105 100,130 100,159 0,159" fill="rgba(255,255,255,0.05)"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 54 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;"><polygon points="0,0 30,0 20,20 0,15" fill="rgba(255,255,255,0.13)"/><polygon points="30,0 54,0 42,22" fill="rgba(255,255,255,0.08)"/><polygon points="20,20 42,22 54,8 54,0 30,0" fill="rgba(255,255,255,0.10)"/><polygon points="0,42 20,20 42,22 54,36 54,60 0,60" fill="rgba(255,255,255,0.05)"/></svg>`},
+  {id:'topografico',label:'Topo',render:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><ellipse cx="50" cy="60" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.7"/><ellipse cx="50" cy="60" rx="9" ry="6" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/></svg>`,thumbRender:()=>`<svg viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;"><ellipse cx="50" cy="60" rx="90" ry="62" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.2"/><ellipse cx="50" cy="60" rx="72" ry="50" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.0"/><ellipse cx="50" cy="60" rx="55" ry="38" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="0.9"/><ellipse cx="50" cy="60" rx="38" ry="26" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/></svg>`},
+  {id:'solido',label:'Sólido',render:()=>``,thumbRender:()=>``},
 ];
+const CARD_PRESETS=[{label:'Verde',value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a',accent:'#00c896'},{label:'Negro',value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000',accent:'#aaaaaa'},{label:'Rosa',value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a',accent:'#e8719a'},{label:'Azul',value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96',accent:'#5baee0'},{label:'Morado',value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb',accent:'#8b5cf6'},{label:'Cobre',value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a',accent:'#f97316'}];
+const BG_PRESETS=[{label:'Negro',value:'#000000'},{label:'Blanco',value:'#ffffff'},{label:'Marca',value:'#003d2e'}];
 
-const CARD_PRESETS=[
-  {value:'linear-gradient(135deg,#004d38,#00c896)',solid:'#00a87a',accent:'#00c896'},
-  {value:'linear-gradient(135deg,#0d0d0d,#1f1f1f)',solid:'#000000',accent:'#aaaaaa'},
-  {value:'linear-gradient(135deg,#7a2050,#e8719a)',solid:'#c0537a',accent:'#e8719a'},
-  {value:'linear-gradient(135deg,#0f3460,#1a6fb5)',solid:'#145a96',accent:'#5baee0'},
-  {value:'linear-gradient(135deg,#2d1b69,#8b5cf6)',solid:'#5b3fcb',accent:'#8b5cf6'},
-  {value:'linear-gradient(135deg,#7c2d12,#f97316)',solid:'#c45c1a',accent:'#f97316'},
-];
+let selectedDesign=0,selectedCardGradient='linear-gradient(135deg,#004d38,#00c896)',selectedBgColor='#000000',currentStep=1;
+let selectedIconId=null,selectedIconColor='rgba(0,200,150,0.9)',userPickedColor=true;
+let EDIT_ORIGINAL_CLABE='';
+let clabeCheckState='idle',clabeCheckTimer=null,slugCheckState='idle',slugCheckTimer=null,cpLookupTimer=null;
+let logoBase64=null,profileType='personal';
+var _successSlug='',_successCardData={};
 
-// ── FIX: mapa de códigos de país — los de 2 dígitos van ANTES de +1
-// para evitar falsos positivos (ej. '1xxxxxxxxxx' confundido con +1)
-const WA_CC_MAP=[
-  {cc:'52',len:10}, // México
-  {cc:'34',len:9},  // España
-  {cc:'57',len:10}, // Colombia
-  {cc:'54',len:10}, // Argentina
-  {cc:'56',len:9},  // Chile
-  {cc:'55',len:11}, // Brasil
-  {cc:'1', len:10}, // EE.UU./Canadá — 1 dígito, va al final
-];
-
-// Parsea el número guardado (formato: ccSinPlus + localNumber) al display correcto
-function parseStoredWA(raw){
-  if(!raw)return{display:'',rawE164:''};
-  for(var i=0;i<WA_CC_MAP.length;i++){
-    var e=WA_CC_MAP[i];
-    if(raw.startsWith(e.cc)&&raw.length===e.cc.length+e.len){
-      var local=raw.slice(e.cc.length);
-      return{display:'+'+e.cc+' '+fmtLocal(local,e.cc),rawE164:'+'+raw};
-    }
-  }
-  // Fallback: mostrar tal cual con + delante
-  return{display:'+'+raw,rawE164:'+'+raw};
+/* ── TYPE ── */
+function selectType(type){
+  profileType=type;
+  $('view-type').style.display='none';
+  if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
+  $('app-hero').style.display='';
+  $('app-hero-title').textContent=type==='personal'?'Empieza aquí':'Perfil de negocio';
+  $('app-hero-sub').textContent=type==='personal'?'Ingresa tus datos y personaliza tu perfil.':'Datos bancarios y empresariales en un link.';
+  const iconSec=$('icon-editor-section');
+  if(iconSec)iconSec.style.display=type==='negocios'?'block':'none';
+  showMainLayout();
+  setFloatingBtn({text:'Continuar →',visible:true});
 }
 
-const LADAS_2D=new Set(['55','56','81','33','99']);
-// Formatea sólo la parte local según el país
-function fmtLocal(d,cc){
-  if(!d)return '';
-  if(cc==='52'){
-    // México: ladas de 2 dígitos (CDMX, MTY, GDL…) o 3
-    if(LADAS_2D.has(d.substring(0,2)))
-      return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(Boolean).join(' ');
-    return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(Boolean).join(' ');
+function goBackToType(){
+  if($('type-back-btn'))$('type-back-btn').style.display='none';
+  $('view-type').style.display='flex';
+  $('app-hero').style.display='none';
+  $('main-layout').classList.remove('active');
+  $('main-layout').style.display='none';
+  setFloatingBtn({visible:false});
+  if(currentStep===2){
+    currentStep=1;
+    $('main-layout').classList.remove('step2');
+    $('panel-step2').classList.add('hidden');
+    $('panel-step1').classList.remove('hidden','exit-left');
+    $('panel-step1').style.opacity='';
+    $('panel-step1').style.transform='';
+    $('color-editor').classList.remove('fade-out');
   }
-  // Resto: agrupar en bloques de 3, último bloque puede ser 2-4
-  return d.replace(/(\d{3})(?=\d{2})/g,'$1 ').trim();
+  // ── FIX: limpia Step 2 al volver al selector de tipo ──
+  clearStep2Fields();
 }
 
-function fmt(c){return c.replace(/(\d{3})(\d{3})(\d{11})(\d{1})/,'$1 $2 $3 $4');}
+/* ── CLEAR STEP 2 FIELDS ── */
+function clearStep2Fields(){
+  // Inputs de texto
+  ['nombre','email','whatsapp','slug-custom','razon-social','rfc','nombre-negocio',
+   'cp-fiscal','ciudad-fiscal','estado-fiscal','calle-fiscal','colonia-otra'].forEach(id=>{
+    const el=$(id);if(el){el.value='';if(el.dataset)el.dataset.raw='';}
+  });
+  // Selects
+  const waCountry=$('wa-country');if(waCountry)waCountry.selectedIndex=0;
+  const regimen=$('regimen-fiscal');if(regimen)regimen.selectedIndex=0;
+  const colSel=$('colonia-fiscal');if(colSel){colSel.innerHTML='<option value="">Selecciona tu colonia</option>';}
+  // Toggles
+  ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio'].forEach(id=>{
+    const el=$(id);if(el)el.checked=false;
+  });
+  // Consentimientos
+  const c1=$('consent1'),c2=$('consent2');
+  if(c1)c1.checked=false;if(c2)c2.checked=false;
+  // Preview de contacto
+  const cp=$('contact-preview');if(cp)cp.style.display='none';
+  ['cp-wa','cp-email','cp-fiscal-row'].forEach(id=>{const el=$(id);if(el)el.style.display='none';});
+  // Fiscal fields
+  const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');
+  const cpRow=$('cp-autofill-row');if(cpRow)cpRow.style.display='none';
+  const colOtraWrap=$('colonia-otra-wrap');if(colOtraWrap)colOtraWrap.style.display='none';
+  // Logo
+  logoBase64=null;
+  const lsq=$('lc-logo-sq');if(lsq)lsq.classList.remove('visible');
+  const limg=$('lc-logo-img');if(limg)limg.src='';
+  const thumb=$('logo-thumb');if(thumb){thumb.style.display='none';thumb.src='';}
+  const plusIcon=$('logo-plus-icon');if(plusIcon)plusIcon.style.display='block';
+  const lArea=$('logo-upload-area');if(lArea)lArea.classList.remove('visible');
+  // Nombre negocio wrap
+  const nnWrap=$('nombre-negocio-input-wrap');if(nnWrap)nnWrap.style.display='none';
+  $('lc-negocio-group').style.display='none';
+  // Slug state
+  slugCheckState='idle';slugStatusIcon('');
+  // Errors
+  ['fg-email','fg-whatsapp','fg-slug','fg-razon-social','fg-rfc',
+   'fg-regimen','fg-cp','fg-consent1','fg-consent2'].forEach(id=>{
+    const el=$(id);if(el)el.classList.remove('has-error');
+  });
+  // Icon
+  selectedIconId=null;selectedIconColor='rgba(255,255,255,1)';
+  updateCardIcon(null);
+  const ibl=$('icon-btn-label');if(ibl)ibl.textContent='Seleccionar';
+  const ibi=$('icon-btn-icon');if(ibi)ibi.innerHTML='';
+  document.querySelectorAll('.icon-chip').forEach(ch=>ch.classList.remove('active'));
+}
 
-function copyAction(textId,btn,rawAttr){
-  var el=document.getElementById(textId);if(!el)return;
-  // rawWa contiene el número E.164 completo para copiar sin formato visual
-  var val=rawAttr&&el.dataset[rawAttr]?el.dataset[rawAttr]:el.textContent.trim();
-  navigator.clipboard.writeText(val).then(function(){
-    btn.textContent='\u2713 Copiado';btn.classList.add('copied');
-    setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('copied');},2000);
+/* ── HELPERS ── */
+function setFloatingBtn({text,disabled,visible}){const wrap=$('floating-btn-wrap'),btn=$('floating-btn'),textEl=$('floating-btn-text');if(visible===false)wrap.classList.add('hidden');else wrap.classList.remove('hidden');if(text!==undefined)textEl.textContent=text;if(disabled!==undefined)btn.disabled=disabled;}
+function floatingBtnClick(){if(currentStep===1)goToStep2();}
+function showMainLayout(){$('main-layout').style.display='';$('main-layout').classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));setFloatingBtn({visible:true});}
+function hideMainLayout(){$('main-layout').classList.remove('active');$('main-layout').style.display='none';setFloatingBtn({visible:false});}
+function transitionLeftPanel(fromId,toId,onSwap){const fromEl=$(fromId),toEl=$(toId);fromEl.classList.add('exit-left');setTimeout(()=>{fromEl.classList.add('hidden');fromEl.classList.remove('exit-left');toEl.classList.remove('hidden');toEl.classList.add('enter-right');if(onSwap)onSwap();toEl.getBoundingClientRect();toEl.style.transition='opacity .3s ease,transform .3s ease';toEl.classList.remove('enter-right');setTimeout(()=>{toEl.style.transition='';},320);},280);}
+function transitionHero(title,subtitle){const hero=$('app-hero');hero.classList.add('hero-exit');setTimeout(()=>{$('app-hero-title').textContent=title;$('app-hero-sub').textContent=subtitle;hero.classList.remove('hero-exit');hero.classList.add('hero-enter');hero.getBoundingClientRect();hero.style.transition='opacity .28s ease,transform .28s ease';hero.classList.remove('hero-enter');setTimeout(()=>{hero.style.transition='';},300);},290);}
+
+function goToStep2(){
+  const nombreCuenta=$('nombre-cuenta').value.trim(),clabe=$('clabe').value.replace(/\D/g,'');
+  let ok=true;
+  if(setError('fg-nombre-cuenta',nombreCuenta.length<2))ok=false;
+  if(clabe.length!==18){setError('fg-clabe',true);$('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';ok=false;}
+  if(clabeCheckState==='exists'){setError('fg-clabe',true);ok=false;}
+  if(clabeCheckState==='checking')return;
+  if(!ok)return;
+  const bancoCode=clabe.substring(0,3),bancoData=BANCOS[bancoCode];
+  $('step2-nombre-cuenta').textContent=nombreCuenta+($('alias').value.trim()?' · '+$('alias').value.trim():'');
+  $('step2-banco').textContent=bancoData?bancoData.nombre:'Banco no identificado';
+  $('color-editor').classList.add('fade-out');setFloatingBtn({visible:false});if($('type-back-btn'))$('type-back-btn').style.display='none';
+  const isNeg=profileType==='negocios';
+  transitionHero('Último paso',isNeg?'Completa los datos del administrador del perfil del negocio.':'Completa tu información y crea tu link personal.');
+  transitionLeftPanel('panel-step1','panel-step2',()=>{
+    currentStep=2;$('main-layout').classList.add('step2');
+    if($('step2-card-title'))$('step2-card-title').textContent=isNeg?'Información del negocio':'Información personal';
+    if($('step2-card-subtitle'))$('step2-card-subtitle').textContent=isNeg?'Completa los datos de tu negocio para activar tu perfil.':'Completa tus datos para activar tu perfil.';
+    $('fg-nombre-negocio').style.display=isNeg?'':'none';$('fg-logo').style.display=isNeg?'':'none';
+    const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
+    if(isNeg){$('fg-nombre-negocio').style.display='none';if(div)div.style.display='none';}
+    const sfCb=$('show_fiscal');if(sfCb)sfCb.checked=false;const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');
+    updateContactPreview();window.scrollTo({top:0,behavior:'smooth'});
   });
 }
-
-function gradientToRGB(grad){
-  var m=(grad||'').match(/#[0-9a-fA-F]{6}/g);
-  var hex=m?m[m.length-1]:'#00c896';
-  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return{r,g,b,rgb:r+','+g+','+b};
-}
-
-var currentSlug='';
-const REGIMEN_LABELS={
-  '601':'General de Ley PM','612':'Actividades Empresariales','621':'Incorporaci\u00f3n Fiscal',
-  '626':'RESICO','605':'Sueldos y Salarios','606':'Arrendamiento','608':'D\u00e9mas ingresos',
-  '616':'Sin obligaciones fiscales','622':'Act. Agr\u00edc., Ganaderas',
-  '625':'Plataformas Tecnol\u00f3gicas','603':'PM sin Fines de Lucro'
-};
-
-function copyFiscalRow(btn){
-  var val=btn.getAttribute('data-copy')||'';
-  navigator.clipboard.writeText(val).then(function(){
-    btn.textContent='\u2713';btn.classList.add('copied');
-    setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('copied');},2000);
+function backToStep1(){
+  $('color-editor').classList.remove('fade-out');
+  selectedIconId=null;selectedIconColor='rgba(255,255,255,1)';updateCardIcon(null);
+  if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
+  transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
+  transitionLeftPanel('panel-step2','panel-step1',()=>{
+    currentStep=1;$('main-layout').classList.remove('step2');
+    setFloatingBtn({text:'Continuar →',visible:true});window.scrollTo({top:0,behavior:'smooth'});
   });
 }
-
-// ── FIX: cache de datos fiscales — evita doble llamada al abrir/cerrar el modal ──
-var _fiscalCache=null;
-var _currentCardDesign=0;
-
-function openFiscalModal(){
-  // Aplica el diseño de la tarjeta al fondo del modal
-  var fdl=$('fiscal-design-layer');
-  if(fdl)fdl.innerHTML=CARD_DESIGNS[_currentCardDesign].render();
-  $('fiscal-overlay').classList.add('visible');
-  // Si ya tenemos datos cargados, los renderizamos directo sin red
-  if(_fiscalCache){
-    renderFiscalBody(_fiscalCache);
-    return;
-  }
-  $('fiscal-body').innerHTML='<div class="fiscal-loading"><svg class="spin-ring" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.2)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round"/></svg>Verificando acceso\u2026</div>';
-  loadFiscalData();
+function resetToStep1(){
+  currentStep=1;clabeCheckState='idle';slugCheckState='idle';logoBase64=null;
+  $('color-editor').classList.remove('fade-out');
+  $('panel-step2').classList.add('hidden');
+  $('panel-step1').classList.remove('hidden','exit-left');
+  $('panel-step1').style.opacity='';$('panel-step1').style.transform='';
+  $('view-type').style.display='flex';
+  $('app-hero').style.display='none';
+  $('main-layout').classList.remove('active','step2');
+  $('main-layout').style.display='none';
+  setFloatingBtn({visible:false});
+  clearStep2Fields();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function closeFiscalModal(){$('fiscal-overlay').classList.remove('visible');}
-function onOverlayClick(e){if(e.target===$('fiscal-overlay'))closeFiscalModal();}
-
-// Renderiza el HTML del modal con los datos ya cargados
-function renderFiscalBody(fd){
-  var rows=[
-    [fd.razon_social,'Raz\u00f3n social'],
-    [fd.rfc,'RFC'],
-    [fd.regimen_fiscal?(REGIMEN_LABELS[fd.regimen_fiscal]||fd.regimen_fiscal)+' ('+fd.regimen_fiscal+')':null,'R\u00e9gimen fiscal'],
-    [fd.calle_fiscal,'Calle y n\u00famero'],
-    [fd.colonia_fiscal,'Colonia'],
-    [fd.ciudad_fiscal,'Ciudad'],
-    [fd.estado_fiscal,'Estado'],
-    [fd.cp_fiscal,'C\u00f3digo postal'],
-  ].filter(function(r){return r[0];});
-  var html=rows.map(function(r,i){
-    return '<div class="fiscal-row">'
-      +'<div class="fiscal-row-inner"><div class="fiscal-row-label">'+r[1]+'</div>'
-      +'<div class="fiscal-row-value">'+r[0]+'</div></div>'
-      +'<button class="btn-fiscal-copy" id="fcb'+i+'" onclick="copyFiscalRow(this)">Copiar</button>'
-      +'</div>';
-  }).join('')+'<div class="fiscal-expiry">&#128274; Datos cifrados &middot; Esta sesi&oacute;n expira en 15 min</div>';
-  $('fiscal-body').innerHTML=html;
-  rows.forEach(function(r,i){var b=document.getElementById('fcb'+i);if(b)b.setAttribute('data-copy',r[0]);});
+/* ── SWATCH BANCO ── */
+function autoSetBankColor(code){
+  const grad=BANCO_GRADIENTS[code];const hexes=(grad||'').match(/#[0-9a-fA-F]{6}/g);const solid=hexes?hexes[hexes.length-1]:'#00a87a';
+  const bancoSw=$('swatch-banco');
+  if(bancoSw){bancoSw.dataset.gradient=grad||'linear-gradient(135deg,#004d38,#00c896)';bancoSw.style.background=grad?solid:'#00a87a';bancoSw.classList.toggle('sin-banco',!grad);bancoSw.classList.toggle('con-banco',!!grad);bancoSw.title=grad?'Color del banco':'Banco sin color registrado';}
+  // Update icon banco swatch too
+  const iconBancoSw=$('icon-swatch-banco');
+  if(iconBancoSw&&grad){const acc=hexes?hexes[hexes.length-1]:'#00a87a';iconBancoSw.style.background=acc;iconBancoSw.dataset.icolor=`rgba(${parseInt(acc.slice(1,3),16)},${parseInt(acc.slice(3,5),16)},${parseInt(acc.slice(5,7),16)},0.9)`;iconBancoSw.classList.remove('sin-banco');iconBancoSw.classList.add('con-banco');}
+  if(userPickedColor)return;
+  if(grad){selectedCardGradient=grad;document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));if(bancoSw)bancoSw.classList.add('active');applyCardColor();}
 }
 
-async function loadFiscalData(){
+/* ── CARD PREVIEW ── */
+function updateCard(){const nombre=$('nombre-cuenta').value.trim(),alias=$('alias').value.trim(),clabe=$('clabe').value.replace(/\D/g,'');const nGroup=$('lc-nombre-group'),nEl=$('lc-nombre-val');if(nombre){const u=nombre.toUpperCase();nEl.textContent=u;nEl.style.fontSize=u.length>25?'14px':'';nGroup.style.display='flex';}else nGroup.style.display='none';$('lc-alias').textContent=alias?alias.toUpperCase():'';const cg=$('lc-clabe-group');if(clabe.length>=1){const p=clabe.padEnd(18,'·');$('lc-clabe').textContent=p.substring(0,3)+' '+p.substring(3,6)+' '+p.substring(6,17)+' '+p.substring(17,18);cg.style.display='flex';}else cg.style.display='none';}
+function onNombreNegocioToggle(){const checked=$('show_nombre_negocio').checked;$('nombre-negocio-input-wrap').style.display=checked?'block':'none';if(!checked){$('nombre-negocio').value='';$('lc-negocio-group').style.display='none';}}
+function updateNombreNegocioPreview(){const val=$('nombre-negocio').value.trim();if(val&&$('show_nombre_negocio').checked){$('lc-negocio-val').textContent=val.toUpperCase();$('lc-negocio-group').style.display='flex';}else $('lc-negocio-group').style.display='none';}
+
+/* ── CLABE ── */
+async function checkClabeExists(clabe){
+  clabeCheckState='checking';
+  const ring=$('clabe-checking-ring'),ver=$('clabe-verified'),cta=$('clabe-exists-cta');
+  ring.classList.add('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
   try{
-    var tr=await fetch(SUPABASE_URL+'/functions/v1/get-fiscal-token',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
-      body:JSON.stringify({slug:currentSlug})
-    });
-    if(!tr.ok)throw new Error('No se pudo obtener acceso.');
-    var tj=await tr.json();
-    if(tj.error||!tj.token)throw new Error(tj.error||'Token inv\u00e1lido');
-    var dr=await fetch(SUPABASE_URL+'/functions/v1/get-fiscal-data',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},
-      body:JSON.stringify({token:tj.token})
-    });
-    if(!dr.ok)throw new Error('Error al obtener datos.');
-    var fd=await dr.json();
-    if(fd.error)throw new Error(fd.error);
-    // Guardar en cache para aperturas siguientes
-    _fiscalCache=fd;
-    renderFiscalBody(fd);
-  }catch(e){
-    $('fiscal-body').innerHTML='<div class="fiscal-err">'+e.message+'</div>';
-  }
-}
-
-function renderProfile(d){
-  currentSlug=d.custom_slug||d.slug||'';
-  var card=$('live-card');
-  var di=Math.min(d.card_design||0,CARD_DESIGNS.length-1);
-  _currentCardDesign=di;
-  var isSolido=CARD_DESIGNS[di].id==='solido';
-  var cg=d.card_gradient||'linear-gradient(135deg,#004d38,#00c896)';
-  var preset=CARD_PRESETS.find(function(p){return p.value===cg;});
-
-  // Color de la tarjeta
-  card.style.background=(isSolido&&preset)?preset.solid:cg;
-
-  // Sombra coloreada
-  var rgb_=gradientToRGB(cg);
-  card.style.boxShadow='0 8px 40px rgba('+rgb_.rgb+',.45), 0 0 0 1px rgba('+rgb_.rgb+',.18)';
-
-  // Fondo de página
-  var bgHex=(d.bg_color||'#000000').replace('#','').padEnd(6,'0');
-  var bgR=parseInt(bgHex.substring(0,2),16)||0,bgG=parseInt(bgHex.substring(2,4),16)||0,bgB=parseInt(bgHex.substring(4,6),16)||0;
-  var isLightBg=(0.299*bgR+0.587*bgG+0.114*bgB)/255>=0.5;
-  document.body.classList.toggle('bg-light',isLightBg);
-  document.body.style.background=d.bg_color||'#000';
-
-  // Branding logo (dentro de la card siempre blanco, hardcodeado en HTML)
-  var brLogo=$('branding-logo');if(brLogo)brLogo.src=isLightBg?'logo.png':'logo-white.png';
-
-  // Accent
-  var acc=preset?preset.accent:('#'+[rgb_.r,rgb_.g,rgb_.b].map(function(c){return c.toString(16).padStart(2,'0');}).join(''));
-  document.documentElement.style.setProperty('--card-row-bg','rgba('+rgb_.rgb+',.20)');
-  document.documentElement.style.setProperty('--card-row-border','rgba('+rgb_.rgb+',.32)');
-  document.documentElement.style.setProperty('--card-accent',acc);
-  document.documentElement.style.setProperty('--action-btn-border','rgba('+rgb_.rgb+',.40)');
-  // Texto de filas se adapta al fondo de la página, no al color de la tarjeta
-  if(isLightBg){
-    document.documentElement.style.setProperty('--action-label-color','rgba(0,0,0,.48)');
-    document.documentElement.style.setProperty('--action-value-color','rgba(0,0,0,.82)');
-  }else{
-    document.documentElement.style.setProperty('--action-label-color','rgba(255,255,255,.55)');
-    document.documentElement.style.setProperty('--action-value-color','rgba(255,255,255,.92)');
-  }
-
-  // Modal fiscal — fondo hereda el color de la tarjeta
-  document.documentElement.style.setProperty('--fiscal-overlay-bg','rgba('+bgR+','+bgG+','+bgB+',.88)');
-  document.documentElement.style.setProperty('--fiscal-modal-bg',(isSolido&&preset)?preset.solid:cg);
-
-  // Texto claro/oscuro sobre la tarjeta
-  var m=((isSolido&&preset)?preset.solid:cg).match(/#([0-9a-f]{6})/i);
-  if(m){var n=parseInt(m[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}
-
-  $('card-design-layer').innerHTML=CARD_DESIGNS[di].render();
-
-  if(d.logo_url){$('lc-logo-img').src=d.logo_url;$('lc-logo-sq').classList.add('visible');}
-  if(d.nombre_negocio){$('lc-negocio-name').textContent=d.nombre_negocio.toUpperCase();$('lc-negocio-group').style.display='flex';}
-  if(d.banco){$('lc-bank-name').textContent=d.banco;if(d.banco_domain){var ic=$('lc-bank-icon');ic.src=favicon(d.banco_domain);ic.style.display='block';}$('lc-bank').style.display='flex';}
-  else $('lc-bank').style.display='none';
-
-  var clabeRaw=d.clabe||'';
-  $('lc-clabe').textContent=fmt(clabeRaw);
-  $('card-copy-clabe').onclick=function(){navigator.clipboard.writeText(clabeRaw).then(function(){$('card-copy-clabe').style.opacity='.2';setTimeout(function(){$('card-copy-clabe').style.opacity='.5';},500);});};
-
-  var nom=d.titular_cuenta||'';
-  $('lc-name').textContent=nom;
-  if(nom.length>25)$('lc-name').style.fontSize='14px';
-  $('card-copy-nombre').onclick=function(){navigator.clipboard.writeText(nom).then(function(){$('card-copy-nombre').style.opacity='.2';setTimeout(function(){$('card-copy-nombre').style.opacity='.5';},500);});};
-
-  if(d.alias)$('lc-alias').textContent=d.alias;
-
-  var any=false;
-
-  // ── FIX: parseo correcto del número WA con código de país de longitud variable ──
-  if(d.whatsapp&&d.show_whatsapp!==false){
-    var parsed=parseStoredWA(d.whatsapp);
-    var wt=$('act-wa-text');
-    wt.textContent=parsed.display;
-    // rawWa guarda el E.164 limpio para que copyAction copie el número sin espacios de formato
-    wt.dataset.rawWa=parsed.rawE164;
-    $('row-wa').style.display='flex';
-    any=true;
-  }
-
-  if(d.email&&d.show_email!==false){$('act-email-text').textContent=d.email;$('row-email').style.display='flex';any=true;}
-  if(d.has_fiscal){$('row-fiscal').style.display='flex';any=true;}
-  if(any)$('actions').style.display='flex';
-
-  // Íconos flotantes en fondo según industria
-  if(d.icon_id){
-    var iconData=INDUSTRY_ICONS.find(function(i){return i.id===d.icon_id;});
-    if(iconData){
-      var shapes=document.getElementById('shapes');
-      if(shapes){
-        while(shapes.firstChild)shapes.removeChild(shapes.firstChild);
-        var icol=d.icon_color||'rgba(255,255,255,0.55)';
-        for(var ci=0;ci<14;ci++){
-          var sz=Math.round(18+Math.random()*32);
-          var left=(ci*(92/14)+2+Math.random()*5).toFixed(2);
-          var dur=(14+(ci%5)*2.4+Math.random()*4).toFixed(1);
-          var del=(-(ci*(parseFloat(dur)/14))-Math.random()*5).toFixed(1);
-          var el=document.createElement('div');
-          el.className='geo-shape';
-          el.style.cssText='left:'+left+'%;animation-duration:'+dur+'s;animation-delay:'+del+'s;width:'+sz+'px;height:'+sz+'px;';
-          el.innerHTML=iconSVG(iconData,sz,icol,1.2);
-          shapes.appendChild(el);
-        }
-      }
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-clabe`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe})});
+    const data=await resp.json();ring.classList.remove('visible');
+    if(data.exists){
+      clabeCheckState='exists';
+      $('clabe-error-msg').textContent='Esta CLABE ya tiene un perfil registrado.';
+      setError('fg-clabe',true);if(ver)ver.style.display='none';
+      if(cta)cta.style.display='block'; /* show ¿La CLABE es tuya? CTA */
+    }else{
+      clabeCheckState='ok';setError('fg-clabe',false);if(ver)ver.style.display='block';if(cta)cta.style.display='none';
     }
-  }
-
-  // ── OG / Social preview meta tags ──────────────────────────────────────────
-  // WhatsApp, iMessage, Telegram re-scrape when JS has run, so this works.
-  const ogSlug    = d.custom_slug || d.slug || '';
-  const ogName    = d.nombre_negocio || d.titular_cuenta || d.nombre || '';
-  const ogBanco   = d.banco || '';
-  const ogTitle   = ogName ? `Paga a ${ogName}` : 'tr4nsfer.me';
-  const ogDesc    = ogBanco ? `${ogBanco} · Copia la CLABE y transfiere directo` : 'Recibe transferencias SPEI fácil y seguro';
-  const ogImgUrl  = `https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/og-image?slug=${encodeURIComponent(ogSlug)}`;
-  const setMeta   = (id, content) => { const el = document.getElementById(id); if (el) el.setAttribute('content', content); };
-  document.title = ogName ? 'tr4nsfer.me · ' + ogName : 'tr4nsfer.me';
-  setMeta('og-title',  ogTitle);
-  setMeta('og-desc',   ogDesc);
-  setMeta('og-image',  ogImgUrl);
-  setMeta('tw-title',  ogTitle);
-  setMeta('tw-image',  ogImgUrl);
-  // ────────────────────────────────────────────────────────────────────────────
-
-  hideLoader();
-  $('state-profile').style.display='flex';
+  }catch(e){clabeCheckState='idle';ring.classList.remove('visible');}
+}
+function onClabeInput(){
+  const input=$('clabe');input.value=input.value.replace(/[\D\s]/g,'').substring(0,18);const len=input.value.length;input.classList.toggle('complete',len===18);
+  clabeCheckState='idle';const ring=$('clabe-checking-ring'),ver=$('clabe-verified'),cta=$('clabe-exists-cta');
+  ring.classList.remove('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
+  $('clabe-error-msg').textContent='La CLABE debe tener exactamente 18 dígitos.';
+  if(len===18){$('fg-clabe').classList.remove('has-error');if(EDIT_MODE&&input.value===EDIT_ORIGINAL_CLABE){clabeCheckState='ok';}else{clearTimeout(clabeCheckTimer);clabeCheckTimer=setTimeout(()=>checkClabeExists(input.value),500);}}
+  const code=input.value.substring(0,3),wrap=$('banco-wrap'),bancoInput=$('banco'),iconEl=$('banco-icon'),lcBank=$('lc-bank');
+  if(code.length===3&&BANCOS[code]){const b=BANCOS[code];bancoInput.value=b.nombre;iconEl.src=favicon(b.domain);iconEl.alt=b.nombre;wrap.classList.add('detected');$('lc-bank-icon').src=favicon(b.domain);$('lc-bank-icon').style.display='block';$('lc-bank-name').textContent=b.nombre;lcBank.style.display='flex';autoSetBankColor(code);}
+  else{bancoInput.value='';iconEl.src='';wrap.classList.remove('detected');lcBank.style.display='none';const bancoSw=$('swatch-banco');if(bancoSw){bancoSw.dataset.gradient='linear-gradient(135deg,#004d38,#00c896)';bancoSw.style.background='#00a87a';bancoSw.classList.add('sin-banco');bancoSw.classList.remove('con-banco');if(!userPickedColor){selectedCardGradient='linear-gradient(135deg,#004d38,#00c896)';applyCardColor();}}}
+  updateCard();
 }
 
-// ── PAGE LOADER ──
-var _done=false,_dismissed=false,_cb=null;
+/* ── RFC / LOGO / FISCAL ── */
+function validateRFC(rfc){return /^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/.test(rfc.toUpperCase().trim());}
+function onRfcInput(){const inp=$('rfc');let v=inp.value.toUpperCase().replace(/[^A-ZÑ&0-9]/g,'').substring(0,13);inp.value=v;const fg=$('fg-rfc'),errMsg=$('rfc-error');if(v.length===0||v.length<13){fg.classList.remove('has-error');return;}if(!validateRFC(v)){errMsg.textContent='RFC inválido';setError('fg-rfc',true);}else fg.classList.remove('has-error');}
+
+function onLogoToggle(){
+  const checked=$('show_logo').checked;
+  $('logo-upload-area').classList.toggle('visible',checked);
+  if(!checked){
+    logoBase64=null;
+    $('lc-logo-sq').classList.remove('visible');
+    $('lc-logo-img').src='';
+    $('logo-thumb').style.display='none';$('logo-thumb').src='';
+    $('logo-plus-icon').style.display='block';
+  }
+  updateContactPreview();
+}
+
+// ── FIX: comprime la imagen antes de guardar ──
+async function onLogoFile(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    // Comprimir a máx 512px, calidad JPEG 0.78 (~50-80KB para logos típicos)
+    const compressed=await compressImage(e.target.result,512,0.78);
+    logoBase64=compressed;
+    const thumb=$('logo-thumb');thumb.src=compressed;thumb.style.display='block';
+    $('logo-plus-icon').style.display='none';
+    $('lc-logo-img').src=compressed;
+    $('lc-logo-sq').classList.add('visible');
+  };
+  reader.readAsDataURL(file);
+}
+
+function onFiscalToggle(){const checked=$('show_fiscal').checked;$('fiscal-fields').classList.toggle('visible',checked);updateContactPreview();}
+function onCpInput(){const inp=$('cp-fiscal');inp.value=inp.value.replace(/\D/g,'').substring(0,5);if(inp.value.length<5){$('cp-autofill-row').style.display='none';$('estado-fiscal').value='';return;}clearTimeout(cpLookupTimer);cpLookupTimer=setTimeout(()=>lookupCP(inp.value),500);}
+async function lookupCP(cp){const spinner=$('cp-spinner');spinner.classList.add('visible');$('fg-cp').classList.remove('has-error');const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),8000);try{const resp=await fetch(`https://api.zippopotam.us/mx/${cp}`,{signal:ctrl.signal});clearTimeout(tid);spinner.classList.remove('visible');if(!resp.ok){showCpError();return;}const d=await resp.json();if(!d.places||!d.places.length){showCpError();return;}const abbr=d.places[0]['state abbreviation'];$('estado-fiscal').value=(MX_STATES[abbr]||d.places[0]['state']||'').toUpperCase();const ciudadInp=$('ciudad-fiscal');if(ciudadInp){ciudadInp.value='';ciudadInp.placeholder='Ej. Cuauhtémoc';}const colonias=[...new Set(d.places.map(p=>p['place name']).filter(Boolean))].sort();const colSel=$('colonia-fiscal');colSel.innerHTML='<option value="">Selecciona tu colonia</option>'+colonias.map(col=>`<option value="${col.toUpperCase()}">${col.toUpperCase()}</option>`).join('')+'<option value="__otra__">OTRA COLONIA…</option>';colSel.onchange=function(){$('colonia-otra-wrap').style.display=this.value==='__otra__'?'block':'none';};$('cp-autofill-row').style.display='block';}catch(e){clearTimeout(tid);spinner.classList.remove('visible');showCpError();}}
+function showCpError(){$('fg-cp').classList.add('has-error');$('cp-error').textContent='Código postal no encontrado.';}
+
+/* ── SLUG ── */
+function slugStatusIcon(type){
+  const ok=$('slug-ok'),err=$('slug-err'),spin=$('slug-spin');
+  if(!ok)return;
+  ok.style.display='none';err.style.display='none';spin.style.display='none';
+  spin.style.animation='none';
+  if(type==='checking'){spin.style.display='block';spin.style.animation='spin .7s linear infinite';}
+  else if(type==='ok'){ok.style.display='block';}
+  else if(type==='error'){err.style.display='block';}
+}
+async function checkSlugAvailable(slug){if(!slug||slug.length<3)return;slugCheckState='checking';slugStatusIcon('checking');try{const resp=await fetch(`${SUPABASE_URL}/functions/v1/get-link?slug=${encodeURIComponent(slug)}`,{headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}});if(resp.status===404){slugCheckState='ok';slugStatusIcon('ok');$('fg-slug').classList.remove('has-error');}else if(resp.status===200){slugCheckState='taken';slugStatusIcon('error');$('slug-error').textContent='Este link ya está en uso.';setError('fg-slug',true);}else{slugCheckState='idle';slugStatusIcon('');}}catch(e){slugCheckState='idle';slugStatusIcon('');}}
+function onSlugInput(){const inp=$('slug-custom');const pos=inp.selectionStart;let val=inp.value.toLowerCase().replace(/ /g,'-').replace(/[^a-z0-9-]/g,'');if(inp.value!==val){inp.value=val;try{inp.setSelectionRange(pos,pos);}catch(e){}}slugCheckState='idle';slugStatusIcon('');$('fg-slug').classList.remove('has-error');clearTimeout(slugCheckTimer);if(val.length>=3&&/^[a-z0-9-]{3,20}$/.test(val))slugCheckTimer=setTimeout(()=>checkSlugAvailable(val),600);}
+
+/* ── WA / EMAIL ── */
+const LADAS_2D=new Set(['55','56','81','33','99']);
+function fmtWA(d){if(!d)return '';if(LADAS_2D.has(d.substring(0,2)))return [d.substring(0,2),d.substring(2,6),d.substring(6,10)].filter(p=>p).join(' ');return [d.substring(0,3),d.substring(3,6),d.substring(6,10)].filter(p=>p).join(' ');}
+function onWaInput(){var inp=$('whatsapp'),sel=$('wa-country');var max=sel?parseInt(sel.options[sel.selectedIndex].dataset.digits||'10'):10;var raw=inp.value.replace(/\D/g,'').substring(0,max);inp.dataset.raw=raw;var cc=sel?sel.value:'+52';inp.value=(cc==='+52')?fmtWA(raw):raw;var l=inp.value.length;inp.setSelectionRange(l,l);var fg=$('fg-whatsapp');if(fg){if(raw.length===0||raw.length===max)fg.classList.remove('has-error');else fg.classList.add('has-error');}updateContactPreview();}
+/* ── EMAIL CHECK ── */
+let emailCheckState='idle', emailCheckTimer=null;
+async function checkEmailExists(email){
+  emailCheckState='checking';
+  const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta'),errMsg=$('email-error-msg');
+  if(ring)ring.classList.add('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
+  try{
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/check-email`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({email})});
+    const data=await resp.json();
+    if(ring)ring.classList.remove('visible');
+    if(data.exists){
+      emailCheckState='exists';
+      if(errMsg)errMsg.textContent='Este correo ya tiene una cuenta. ¿Es tuyo?';
+      setError('fg-email',true);if(ver)ver.style.display='none';
+      if(cta)cta.style.display='block';
+    }else{
+      emailCheckState='ok';setError('fg-email',false);
+      if(ver)ver.style.display='block';if(cta)cta.style.display='none';
+    }
+  }catch(e){emailCheckState='idle';if(ring)ring.classList.remove('visible');}
+}
+function onEmailInput(){
+  var fg=$('fg-email'),val=$('email').value.trim();
+  emailCheckState='idle';
+  const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta'),errMsg=$('email-error-msg');
+  if(ring)ring.classList.remove('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
+  if(!val){fg.classList.remove('has-error');return;}
+  if(!/\S+@\S+\.\S+/.test(val)){fg.classList.add('has-error');if(errMsg)errMsg.textContent='Ingresa un correo válido.';return;}
+  fg.classList.remove('has-error');
+  clearTimeout(emailCheckTimer);
+  emailCheckTimer=setTimeout(()=>checkEmailExists(val),600);
+}
+function onEmailBlur(){
+  var fg=$('fg-email'),val=$('email').value.trim();
+  if(!val)return;
+  if(!/\S+@\S+\.\S+/.test(val)){fg.classList.add('has-error');const errMsg=$('email-error-msg');if(errMsg)errMsg.textContent='Ingresa un correo válido.';}
+}
+
+/* ── FORM STATE SAVE / RESTORE ── */
+const FORM_DRAFT_KEY='tr4nsfer_form_draft';
+function saveFormState(){
+  const fields=['nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'];
+  const state={};
+  fields.forEach(id=>{const el=$(id);if(el)state[id]=el.value;});
+  ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio','consent1','consent2'].forEach(id=>{const el=$(id);if(el)state[id]=el.checked;});
+  state._step=currentStep;
+  state._profileType=profileType;
+  state._gradient=selectedCardGradient;
+  state._design=selectedDesign;
+  state._bgColor=selectedBgColor;
+  try{localStorage.setItem(FORM_DRAFT_KEY,JSON.stringify(state));}catch(e){}
+}
+function restoreFormState(){
+  let saved;try{saved=localStorage.getItem(FORM_DRAFT_KEY);}catch(e){return;}
+  if(!saved)return;
+  let state;try{state=JSON.parse(saved);}catch(e){return;}
+  localStorage.removeItem(FORM_DRAFT_KEY);
+  /* restore text fields */
+  ['nombre-cuenta','clabe','banco','alias','email','whatsapp','slug-custom','rfc','razon-social','nombre-negocio','cp-fiscal','ciudad-fiscal','estado-fiscal','colonia-fiscal','calle-fiscal'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.value=state[id];});
+  /* restore checkboxes */
+  ['show_email','show_whatsapp','show_fiscal','show_logo','show_nombre_negocio','consent1','consent2'].forEach(id=>{const el=$(id);if(el&&state[id]!==undefined)el.checked=state[id];});
+  /* restore selections */
+  if(state._profileType){selectType(state._profileType);}
+  if(state._gradient){selectedCardGradient=state._gradient;}
+  if(state._design!==undefined){selectedDesign=state._design;}
+  if(state._bgColor){selectedBgColor=state._bgColor;}
+  /* re-trigger CLABE parsing */
+  if(state['clabe']){onClabeInput();}
+  updateCard();updateContactPreview();
+  /* go to step where user left off */
+  if(state._step===2)setTimeout(goToStep2,200);
+}
+function goToAuthWithState(reason){
+  saveFormState();
+  window.location.href='auth.html?return=app&reason='+(reason||'existing');
+}
+
+/* ── CONTACT PREVIEW ── */
+function updateContactPreview(){var sel=$('wa-country'),cc=sel?sel.value:'+52';var waInp=$('whatsapp'),waRaw=waInp?(waInp.dataset.raw||waInp.value.replace(/\D/g,'')):'';var emVal=$('email')?$('email').value.trim():'';var showWa=$('show_whatsapp')&&$('show_whatsapp').checked&&waRaw.length>0;var showEm=$('show_email')&&$('show_email').checked&&emVal.length>0;var showFiscal=$('show_fiscal')&&$('show_fiscal').checked;var cpWa=$('cp-wa'),cpEm=$('cp-email'),cpFiscal=$('cp-fiscal-row'),cp=$('contact-preview');if(!cpWa||!cpEm||!cp)return;if(showWa){$('cp-wa-text').textContent=(cc==='+52'?(cc+' '+fmtWA(waRaw)):(cc+' '+waRaw));cpWa.style.display='flex';}else cpWa.style.display='none';if(showEm){$('cp-email-text').textContent=emVal;cpEm.style.display='flex';}else cpEm.style.display='none';if(cpFiscal)cpFiscal.style.display=showFiscal?'flex':'none';cp.style.display=(showWa||showEm||showFiscal)?'flex':'none';}
+function cpCopy(id,btn){var val=$(id)?$(id).textContent.trim():'';if(!val||val==='—')return;navigator.clipboard.writeText(val).then(()=>{btn.textContent='✓ Copiado';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('copied');},1800);});}
+function setError(fgId,show){const fg=$(fgId);if(!fg)return show;show?fg.classList.add('has-error'):fg.classList.remove('has-error');return show;}
+
+/* ── SUBMIT ── */
+async function submitForm(){
+  if(EDIT_MODE){saveEditedLink();return;}
+  const email=$('email').value.trim();
+  let ok=true;
+  if(setError('fg-email',!email||!/\S+@\S+\.\S+/.test(email)))ok=false;
+  var waRawCheck=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
+  var waSel=$('wa-country');var waMax=waSel?parseInt(waSel.options[waSel.selectedIndex].dataset.digits||'10'):10;
+  if(waRawCheck.length>0&&waRawCheck.length!==waMax){setError('fg-whatsapp',true);ok=false;}
+  const showFiscal=$('show_fiscal')&&$('show_fiscal').checked;
+  if(showFiscal){if(setError('fg-razon-social',$('razon-social').value.trim().length<2))ok=false;const rfcVal=$('rfc').value.trim();if(!rfcVal||!validateRFC(rfcVal)){$('rfc-error').textContent='RFC inválido.';setError('fg-rfc',true);ok=false;}if(setError('fg-regimen',!$('regimen-fiscal').value)){$('regimen-error').textContent='Selecciona un régimen fiscal.';ok=false;}if(setError('fg-cp',$('cp-fiscal').value.length!==5))ok=false;}
+  const slugVal=$('slug-custom').value.trim();
+  if(slugVal.length>0&&slugVal.length<3){$('slug-error').textContent='Mínimo 3 caracteres.';setError('fg-slug',true);ok=false;}
+  if(slugCheckState==='taken'||slugCheckState==='invalid')ok=false;if(slugCheckState==='checking')return;
+  if(emailCheckState==='exists'){setError('fg-email',true);ok=false;}
+  if(emailCheckState==='checking')return;
+  const c1=$('fg-consent1'),c2=$('fg-consent2');
+  if(!$('consent1').checked){c1.classList.add('has-error');ok=false;}else c1.classList.remove('has-error');
+  if(!$('consent2').checked){c2.classList.add('has-error');ok=false;}else c2.classList.remove('has-error');
+  if(!ok)return;
+  setFloatingBtn({visible:false});const submitBtn=$('submit-btn'),textEl=$('btn-text');submitBtn.disabled=true;textEl.textContent='Generando…';
+  hideMainLayout();showPageLoader();
+  const nombreCuenta=$('nombre-cuenta').value.trim(),clabe=$('clabe').value.replace(/\D/g,'');
+  const alias=$('alias').value.trim();const waRaw=($('whatsapp').dataset.raw||$('whatsapp').value.replace(/\D/g,'')).trim();
+  const waCountry=$('wa-country')?$('wa-country').value.replace('+',''):'52';const whatsapp=waRaw?(waCountry+waRaw):'';
+  const bancoCode=clabe.substring(0,3),bancoData=BANCOS[bancoCode]||null;
+  const banco=bancoData?bancoData.nombre:$('banco').value;const bancoDomain=bancoData?bancoData.domain:null;
+  const customSlug=slugVal.length>=3?slugVal:'';
+  let coloniaVal='';const colSel=$('colonia-fiscal');if(colSel){coloniaVal=colSel.value==='__otra__'?($('colonia-otra')?$('colonia-otra').value.trim():''):colSel.value;}
+  const fiscalData=showFiscal?{razon_social:$('razon-social').value.trim(),rfc:$('rfc').value.trim(),regimen_fiscal:$('regimen-fiscal').value,cp_fiscal:$('cp-fiscal').value,ciudad_fiscal:$('ciudad-fiscal')?$('ciudad-fiscal').value.trim():'',estado_fiscal:$('estado-fiscal').value.trim(),colonia_fiscal:coloniaVal,calle_fiscal:$('calle-fiscal')?$('calle-fiscal').value.trim():''}:null;
+  // nombre = titular_cuenta para personal; nombre del negocio para negocios
+  const nombre=profileType==='negocios'?($('nombre-negocio')&&$('nombre-negocio').value.trim()||nombreCuenta):nombreCuenta;
+  const nombreNegocio=profileType==='negocios'?nombre:null;
+  const fnResp=await fetch(`${SUPABASE_URL}/functions/v1/create-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked),custom_slug:customSlug||null,profile_type:profileType,nombre_negocio:nombreNegocio,logo_url:logoBase64||null,icon_id:selectedIconId||null,icon_color:selectedIconColor||null,has_fiscal:showFiscal,...(fiscalData||{})})});
+  if(fnResp.status===409){hidePageLoader(()=>{textEl.textContent='Generar mi Link';submitBtn.disabled=false;showMainLayout();$('main-layout').classList.add('step2');$('slug-error').textContent='Este link ya está en uso.';setError('fg-slug',true);slugCheckState='taken';slugStatusIcon('error');setFloatingBtn({visible:false});});return;}
+  if(!fnResp.ok){hidePageLoader(()=>{textEl.textContent='Error. Intenta de nuevo.';submitBtn.disabled=false;setFloatingBtn({visible:true});});return;}
+  const {slug}=await fnResp.json();
+  submitBtn.disabled=false;textEl.textContent='Generar mi Link';
+  hidePageLoader(()=>{
+    transitionHero('¡Todo listo!','');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    $('view-success').classList.add('active');
+    const cardData={gradient:selectedCardGradient,bgColor:selectedBgColor,profileType,nombreNegocio,nombre,iconId:selectedIconId,iconColor:selectedIconColor,whatsapp:whatsapp||null};
+    showSuccess(slug,email,cardData);
+    sendEmailWithQR(slug,email,cardData);
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
+
+/* ── DESIGN / COLOR ── */
+function renderDesign(el,idx){if(!el)return;el.innerHTML=CARD_DESIGNS[idx].render();}
+function buildDesignPicker(){const picker=$('design-picker');CARD_DESIGNS.forEach((d,i)=>{const wrap=document.createElement('div');wrap.className='design-thumb-wrap';const thumb=document.createElement('div');thumb.className='design-thumb'+(i===0?' active':'');thumb.style.background=selectedCardGradient;thumb.innerHTML=d.thumbRender();thumb.onclick=()=>{selectedDesign=i;document.querySelectorAll('.design-thumb').forEach(t=>t.classList.remove('active'));thumb.classList.add('active');renderDesign($('card-design-layer'),i);applyCardColor();};const lbl=document.createElement('div');lbl.className='design-thumb-label';lbl.textContent=d.label;wrap.appendChild(thumb);wrap.appendChild(lbl);picker.appendChild(wrap);});}
+
+function buildSwatches(){
+  const cw=$('card-swatches'),bw=$('bg-swatches');
+  const bancoSw=document.createElement('div');bancoSw.id='swatch-banco';bancoSw.className='swatch sin-banco';bancoSw.dataset.gradient='linear-gradient(135deg,#004d38,#00c896)';bancoSw.style.cssText='background:#00a87a;position:relative;overflow:visible;';bancoSw.title='Ingresa tu CLABE para ver el color del banco';
+  bancoSw.innerHTML=`<svg style="position:absolute;top:-7px;right:-7px;width:14px;height:14px;background:#111;border-radius:50%;padding:2.5px;border:1px solid #2a2a2a;pointer-events:none;" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 4.5L21 10.5" stroke="#00c896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5V18M12 10.5V18M18 10.5V18" stroke="#00c896" stroke-width="2" stroke-linecap="round"/><path d="M3 18H21" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>`;
+  bancoSw.onclick=()=>{userPickedColor=false;document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));bancoSw.classList.add('active');selectedCardGradient=bancoSw.dataset.gradient;applyCardColor();};
+  cw.appendChild(bancoSw);
+  CARD_PRESETS.forEach((p,i)=>{const sw=document.createElement('div');sw.className='swatch'+(i===0?' active':'');sw.style.background=p.solid||p.value;if(p.label==='Negro')sw.style.border='1px solid #444';sw.title=p.label;sw.onclick=()=>{userPickedColor=true;document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));sw.classList.add('active');selectedCardGradient=p.value;applyCardColor();};cw.appendChild(sw);});
+  const addCard=document.createElement('div');addCard.className='swatch-add';addCard.title='Color personalizado';addCard.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';addCard.onclick=()=>{userPickedColor=true;document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));addCard.classList.add('active');$('native-color-card').click();};cw.appendChild(addCard);
+  BG_PRESETS.forEach((p,i)=>{const sw=document.createElement('div');sw.className='swatch'+(i===0?' active':'');sw.style.background=p.value;sw.style.border=p.value==='#000000'?'1px solid #2a2a2a':p.value==='#ffffff'?'1px solid #ccc':'1px solid #005c44';sw.title=p.label;sw.onclick=()=>{document.querySelectorAll('#bg-swatches .swatch,#bg-swatches .swatch-add').forEach(s=>s.classList.remove('active'));sw.classList.add('active');selectedBgColor=p.value;applyBgColor();};bw.appendChild(sw);});
+  const addBg=document.createElement('div');addBg.className='swatch-add';addBg.title='Fondo personalizado';addBg.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';addBg.onclick=()=>{document.querySelectorAll('#bg-swatches .swatch,#bg-swatches .swatch-add').forEach(s=>s.classList.remove('active'));addBg.classList.add('active');$('native-color-bg').click();};bw.appendChild(addBg);
+}
+
+function initColorPickers(){
+  $('native-color-card').addEventListener('input',()=>{userPickedColor=true;const val=$('native-color-card').value;const r=parseInt(val.slice(1,3),16),g=parseInt(val.slice(3,5),16),b=parseInt(val.slice(5,7),16);const dark='#'+[r,g,b].map(c=>Math.floor(c*.35).toString(16).padStart(2,'0')).join('');selectedCardGradient=`linear-gradient(135deg,${dark},${val})`;applyCardColor();});
+  $('native-color-bg').addEventListener('input',()=>{selectedBgColor=$('native-color-bg').value;applyBgColor();});
+  const nci=$('native-color-icon');
+  if(nci)nci.addEventListener('input',function(){const val=nci.value;const r=parseInt(val.slice(1,3),16),g=parseInt(val.slice(3,5),16),b=parseInt(val.slice(5,7),16);selectedIconColor=`rgba(${r},${g},${b},1)`;const btn=$('icon-color-custom-btn');if(btn){btn.style.background=val;btn.classList.add('active');btn.style.border='2px solid #fff';}document.querySelectorAll('#icon-color-swatches .swatch').forEach(function(s){s.classList.remove('active');});const preview=$('icon-color-preview');if(preview)preview.style.background=val;document.querySelectorAll('.icon-chip[data-icon-id]').forEach(function(ch){var ico=INDUSTRY_ICONS.find(function(i){return i.id===ch.dataset.iconId;});if(ico){ch.innerHTML=iconSVG(ico,22,selectedIconColor,1.5)+'<span class="icon-chip-lbl">'+ico.label+'</span>';}});if(selectedIconId)updateCardIcon(selectedIconId);});
+}
+
+function gradientToShadowRGB(grad){const m=(grad||'').match(/#[0-9a-fA-F]{6}/g);const hex=m?m[m.length-1]:'#00c896';const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return{r,g,b};}
+
+function applyCardColor(){
+  const card=$('live-card');card.style.background=selectedCardGradient;
+  document.querySelectorAll('.design-thumb').forEach(t=>{t.style.background=selectedCardGradient;});
+  const hx=selectedCardGradient.match(/#([0-9a-f]{6})/i);
+  if(hx){const n=parseInt(hx[1],16),lum=(0.299*(n>>16)+0.587*((n>>8)&0xff)+0.114*(n&0xff))/255;card.classList.toggle('light-text',lum<.5);card.classList.toggle('dark-text',lum>=.5);}
+  const preset=CARD_PRESETS.find(p=>p.value===selectedCardGradient);
+  const accent=preset?preset.accent:(hx?'#'+hx[1]:'#00c896');
+  const {r,g,b}=gradientToShadowRGB(selectedCardGradient);
+  const rgb=`${r},${g},${b}`;
+  const frame=$('card-frame');
+  // Glow on the CARD (clipped inside frame by overflow:hidden), not on the frame itself
+  card.style.boxShadow=`0 8px 48px rgba(${rgb},.60), 0 0 0 1px rgba(${rgb},.22)`;
+  frame.style.boxShadow='none';
+  frame.style.setProperty('--cp-row-bg',`rgba(${rgb},.20)`);
+  frame.style.setProperty('--cp-row-border',`rgba(${rgb},.32)`);
+  frame.style.setProperty('--cp-accent',accent);
+  frame.style.setProperty('--cp-btn-border',`rgba(${rgb},.40)`);
+}
+
+function applyBgColor(){
+  const frame=$('card-frame');
+  frame.style.background=selectedBgColor;
+  const hex=selectedBgColor.replace('#','');
+  const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  frame.classList.toggle('bg-light',lum>=.5);
+  // Texto de filas de contacto se adapta al fondo del frame
+  if(lum>=.5){
+    frame.style.setProperty('--cp-label-color','rgba(0,0,0,.48)');
+    frame.style.setProperty('--cp-value-color','rgba(0,0,0,.82)');
+  }else{
+    frame.style.setProperty('--cp-label-color','rgba(255,255,255,.55)');
+    frame.style.setProperty('--cp-value-color','rgba(255,255,255,.92)');
+  }
+}
+
+/* ── INDUSTRY ICON ── */
+function isDarkIconColor(col){if(!col)return false;var m=col.match(/rgba?\((\d+),(\d+),(\d+)/);if(!m)return false;return(0.299*+m[1]+0.587*+m[2]+0.114*+m[3])/255<0.25;}
+function toggleIconDropdown(){var d=$('icon-dropdown'),cd=$('icon-color-dropdown');var open=d.style.display==='block';if(cd)cd.style.display='none';d.style.display=open?'none':'block';var caret=$('icon-btn-caret');if(caret)caret.style.transform=open?'':'rotate(180deg)';}
+function toggleIconColorDropdown(){var d=$('icon-color-dropdown'),id=$('icon-dropdown');var open=d.style.display==='block';if(id)id.style.display='none';var caret=$('icon-btn-caret');if(caret)caret.style.transform='';d.style.display=open?'none':'block';}
+function buildIconPicker(){
+  document.querySelectorAll('[data-icolor]').forEach(function(sw){sw.addEventListener('click',function(){document.querySelectorAll('[data-icolor]').forEach(function(s){s.classList.remove('active');});sw.classList.add('active');selectedIconColor=sw.dataset.icolor;var preview=$('icon-color-preview');if(preview)preview.style.background=sw.style.background;document.querySelectorAll('.icon-chip[data-icon-id]').forEach(function(ch){var ico=INDUSTRY_ICONS.find(function(i){return i.id===ch.dataset.iconId;});if(ico){ch.innerHTML=iconSVG(ico,22,selectedIconColor,1.5)+'<span class="icon-chip-lbl">'+ico.label+'</span>';}});if(selectedIconId)updateCardIcon(selectedIconId);setTimeout(function(){$('icon-color-dropdown').style.display='none';},220);});});
+  const grid=$('icon-grid');if(!grid)return;
+  INDUSTRY_ICONS.forEach(function(icon){const chip=document.createElement('div');chip.className='icon-chip';chip.dataset.iconId=icon.id;chip.innerHTML=iconSVG(icon,22,selectedIconColor,1.5)+'<span class="icon-chip-lbl">'+icon.label+'</span>';chip.onclick=function(){if(selectedIconId===icon.id){selectedIconId=null;updateCardIcon(null);document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});$('icon-btn-label').textContent='Seleccionar';$('icon-btn-icon').innerHTML='';$('icon-dropdown').style.display='none';$('icon-btn-caret').style.transform='';}else{document.querySelectorAll('.icon-chip').forEach(function(ch){ch.classList.remove('active');});chip.classList.add('active');selectedIconId=icon.id;updateCardIcon(icon.id);$('icon-btn-label').textContent=icon.label;$('icon-btn-icon').innerHTML=iconSVG(icon,16,selectedIconColor||'rgba(0,200,150,0.9)',1.5);$('icon-dropdown').style.display='none';$('icon-btn-caret').style.transform='';}};grid.appendChild(chip);});
+}
+var _iconShapeEls=[];
+function updateCardIcon(iconId){_iconShapeEls.forEach(function(el){if(el.parentNode)el.parentNode.removeChild(el);});_iconShapeEls=[];if(!iconId)return;const icon=INDUSTRY_ICONS.find(function(i){return i.id===iconId;});if(!icon)return;const frame=document.getElementById('card-frame');if(!frame)return;const col=selectedIconColor||'rgba(255,255,255,1)';for(var i=0;i<10;i++){var sz=Math.round(16+Math.random()*28);var left=(i*(90/10)+2+Math.random()*7).toFixed(2);var dur=(13+(i%5)*2.2+Math.random()*4).toFixed(1);var del=(-(i*(dur/10))-Math.random()*4).toFixed(1);var el=document.createElement('div');el.className='card-icon-shape';el.style.cssText='left:'+left+'%;animation-duration:'+dur+'s;animation-delay:'+del+'s;width:'+sz+'px;height:'+sz+'px;';el.innerHTML=iconSVG(icon,sz,col,0.75);frame.appendChild(el);_iconShapeEls.push(el);}}
+
+/* ── SUCCESS ── */
+function showSuccess(slug,email,cardData){
+  _successSlug=slug;_successCardData=cardData||{};
+  var se=$('success-email');if(se)se.textContent=email;
+  var lt=$('success-link-text');if(lt){lt.textContent='tr4nsfer.me/'+slug;lt.href='https://tr4nsfer.me/'+slug;}
+  var img=$('success-qr-img');if(img)img.src=qrApiUrl(slug,400);
+  window._qrBase64='';
+  qrToBase64(slug).then(b64=>{window._qrBase64=b64;});
+}
+function successCopyLink(){const url='https://tr4nsfer.me/'+_successSlug;navigator.clipboard.writeText(url).then(()=>{const btn=$('success-copy-btn');if(!btn)return;const old=btn.innerHTML;btn.innerHTML='✓ Copiado';setTimeout(()=>{btn.innerHTML=old;},2000);});}
+function successVisitLink(){window.open('https://tr4nsfer.me/'+_successSlug,'_blank');}
+
+async function downloadQR(){
+  const size=600;
+  try{
+    // Fetch QR image
+    const r=await fetch(qrApiUrl(_successSlug,size));
+    const qrBlob=await r.blob();
+    const qrDataUrl=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(qrBlob);});
+    // Render isotipo to PNG
+    const isoSize=Math.round(size*0.22);
+    const isoDataUrl=await _isotipoToPng(isoSize);
+    // Composite on canvas
+    const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+    const ctx=canvas.getContext('2d');
+    const qrImg=new Image();
+    await new Promise(res=>{qrImg.onload=res;qrImg.src=qrDataUrl;});
+    ctx.drawImage(qrImg,0,0,size,size);
+    if(isoDataUrl){
+      const isoImg=new Image();
+      await new Promise(res=>{isoImg.onload=res;isoImg.src=isoDataUrl;});
+      const x=(size-isoSize)/2,y=(size-isoSize)/2;
+      ctx.drawImage(isoImg,x,y,isoSize,isoSize);
+    }
+    canvas.toBlob(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download='tr4nsfer-me-qr-'+_successSlug+'.png';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    },'image/png');
+  }catch(e){window.open(qrApiUrl(_successSlug,600),'_blank');}
+}
+
+// ── FIX: avisa al usuario si el QR no pudo generarse ──
+async function sendEmailWithQR(slug,email,cardData){
+  let qrDataUrl=window._qrBase64||'';
+  if(!qrDataUrl){for(let i=0;i<20;i++){await new Promise(r=>setTimeout(r,200));if(window._qrBase64){qrDataUrl=window._qrBase64;break;}}}
+  if(!qrDataUrl){
+    showToast('El correo se envió sin QR (no se pudo generar).','warn');
+  }
+  try{await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/send-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'},body:JSON.stringify({slug,email,nombre:cardData.nombre||'',profile_type:cardData.profileType||'personal',nombre_negocio:cardData.nombreNegocio||null,card_gradient:cardData.gradient||null,bg_color:cardData.bgColor||null,whatsapp:cardData.whatsapp||null,qr_data_url:qrDataUrl})});}
+  catch(e){showToast('No se pudo enviar el correo de confirmación.','warn');console.warn('Email send failed:',e);}
+}
+
+/* Renderiza el isotipo SVG a PNG via canvas para usarlo en el PDF */
+async function _isotipoToPng(sizePx){
+  try{
+    const svg=`<svg viewBox="100 100 1280 1280" width="${sizePx}" height="${sizePx}" xmlns="http://www.w3.org/2000/svg"><rect x="100" y="100" width="1280" height="1280" fill="#000" rx="100"/><path stroke-linecap="round" transform="matrix(-0.75,0,0,-0.75,954.051335,1341.558152)" fill="none" d="M 183.5 183.5 L 920.4 183.5" stroke="#00c896" stroke-width="367"/><path stroke-linecap="round" transform="matrix(0,-0.75,0.75,0,1060.926974,964.365953)" fill="none" d="M 932.6 183.5 L 183.5 183.5" stroke="#ffffff" stroke-width="367"/><path stroke-linecap="round" transform="matrix(0.53033,-0.53033,0.53033,0.53033,71.712118,1197.646509)" fill="none" d="M 183.5 183.5 L 1945.4 183.5" stroke="#00c896" stroke-width="367"/><g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896"/></g></svg>`;
+    const blob=new Blob([svg],{type:'image/svg+xml'});
+    const url=URL.createObjectURL(blob);
+    return await new Promise(res=>{
+      const img=new Image();
+      img.onload=()=>{const c=document.createElement('canvas');c.width=sizePx;c.height=sizePx;c.getContext('2d').drawImage(img,0,0);URL.revokeObjectURL(url);res(c.toDataURL('image/png'));};
+      img.onerror=()=>{URL.revokeObjectURL(url);res('');};
+      img.src=url;
+    });
+  }catch(e){return '';}
+}
+
+/* Carga logo-white.png como base64 */
+async function _logoPng(){
+  try{
+    const r=await fetch('logo-white.png');
+    const blob=await r.blob();
+    return await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res('');fr.readAsDataURL(blob);});
+  }catch(e){return '';}
+}
+
+
+/* ── EDIT MODE INIT ── */
+async function initEditMode(){
+  /* hide type selector, show editor immediately */
+  $('view-type').style.display='none';
+  if($('type-back-btn'))$('type-back-btn').style.display='none';
+  $('app-hero').style.display='';
+  transitionHero('Editar mi Link','Actualiza el diseño y la información de tu perfil.');
+
+  /* hide consent block — not needed when editing */
+  const step2Footer=$('step2-footer');
+  if(step2Footer){
+    const consentBlock=step2Footer.querySelector('.consent-block');
+    if(consentBlock)consentBlock.style.display='none';
+    const securityNote=step2Footer.querySelector('div[style*="AES"]');
+    if(securityNote)securityNote.style.display='none';
+  }
+  /* swap button label */
+  const btnText=$('btn-text');
+  if(btnText)btnText.textContent='Guardar cambios';
+  const btnIcon=$('btn-icon');
+  if(btnIcon)btnIcon.style.display='none';
+
+  /* fetch link data via edge functions (service role, bypasses RLS, decrypts fields) */
+  showPageLoader();
+  try{
+    /* ── basic link data ── */
+    const linkResp=await fetch(`${SUPABASE_URL}/functions/v1/get-link?slug=${encodeURIComponent(EDIT_SLUG)}`,{
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY,'apikey':SUPABASE_ANON_KEY}
+    });
+    if(!linkResp.ok){hidePageLoader(()=>{showToast('Link no encontrado.','error');});return;}
+    const data=await linkResp.json();
+    if(data.error){hidePageLoader(()=>{showToast('Link no encontrado.','error');});return;}
+
+    /* ── fiscal data (if has_fiscal) ── */
+    let fiscalData={};
+    if(data.has_fiscal){
+      try{
+        const tokResp=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-token`,{
+          method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'apikey':SUPABASE_ANON_KEY},
+          body:JSON.stringify({slug:EDIT_SLUG})
+        });
+        if(tokResp.ok){
+          const {token}=await tokResp.json();
+          const fdResp=await fetch(`${SUPABASE_URL}/functions/v1/get-fiscal-data`,{
+            method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'apikey':SUPABASE_ANON_KEY},
+            body:JSON.stringify({token})
+          });
+          if(fdResp.ok) fiscalData=await fdResp.json();
+        }
+      }catch(_){}
+    }
+
+    /* ── Step 1: pre-fill banking fields (readonly in edit mode) ── */
+    // CLABE — pre-fill y guardar valor original para comparar en el check
+    if(data.clabe&&$('clabe')){
+      const clabeClean=data.clabe.replace(/\s/g,'');
+      EDIT_ORIGINAL_CLABE=clabeClean;
+      $('clabe').value=clabeClean;
+      $('clabe').dispatchEvent(new Event('input'));
+    }
+    // Titular de la cuenta
+    if(data.titular_cuenta&&$('nombre-cuenta')){
+      $('nombre-cuenta').value=data.titular_cuenta;
+      $('nombre-cuenta').dispatchEvent(new Event('input'));
+    }
+    // Alias
+    if(data.alias)$('alias').value=data.alias;
+
+    if($('clabe-exists-cta'))$('clabe-exists-cta').style.display='none';
+    if($('email-exists-cta'))$('email-exists-cta').style.display='none';
+
+    /* ── Step 2: pre-fill design + personal fields ── */
+    profileType=data.profile_type||'personal';
+    if(data.custom_slug)$('slug-custom').value=data.custom_slug;
+
+    /* Fill email/whatsapp if available (show_* toggles) */
+    if($('show_whatsapp'))$('show_whatsapp').checked=!!data.show_whatsapp;
+    if($('show_email'))$('show_email').checked=!!data.show_email;
+
+    /* icon */
+    if(data.profile_type==='negocios'){const iconSec=$('icon-editor-section');if(iconSec)iconSec.style.display='block';}
+    if(data.icon_id){selectedIconId=data.icon_id;selectedIconColor=data.icon_color||'rgba(255,255,255,1)';updateCardIcon(data.icon_id);}
+
+    /* card design + colors */
+    if(data.card_design!=null&&data.card_design>=0){
+      selectedDesign=data.card_design;
+      document.querySelectorAll('.design-thumb').forEach((t,i)=>{t.classList.toggle('active',i===selectedDesign);});
+      renderDesign($('card-design-layer'),selectedDesign);
+    }
+    if(data.card_gradient){
+      selectedCardGradient=data.card_gradient;
+      document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
+    }
+    if(data.bg_color)selectedBgColor=data.bg_color;
+    applyCardColor();applyBgColor();
+
+    /* pre-fill email / whatsapp — editable in edit mode */
+    if(data.show_email&&$('email')){$('email').value='';}   // encrypted, can't prefill — user re-enters if changing
+    if(data.show_whatsapp&&$('whatsapp')){$('whatsapp').value='';}
+
+    /* fiscal */
+    if(data.has_fiscal&&$('show_fiscal')){
+      $('show_fiscal').checked=true;
+      $('show_fiscal').dispatchEvent(new Event('change'));
+      const fd={...data,...fiscalData};
+      const fmap={razon_social:'razon-social',rfc:'rfc',regimen_fiscal:'regimen-fiscal',cp_fiscal:'cp-fiscal',ciudad_fiscal:'ciudad-fiscal',estado_fiscal:'estado-fiscal',calle_fiscal:'calle-fiscal'};
+      Object.entries(fmap).forEach(([k,id])=>{if(fd[k]&&$(id))$(id).value=fd[k];});
+    }
+
+    /* ── Show Step 1 first (with inline Continue button below the card) ── */
+    showMainLayout();
+    if($('edit-continue-wrap'))$('edit-continue-wrap').style.display='block';
+    setFloatingBtn({visible:false});
+    updateContactPreview();
+    hidePageLoader(()=>{window.scrollTo({top:0,behavior:'smooth'});});
+
+  }catch(err){
+    console.error('initEditMode error',err);
+    hidePageLoader(()=>{showToast('Error al cargar el link.','error');});
+  }
+}
+
+async function saveEditedLink(){
+  const alias=$('alias').value.trim();
+  const nombreCuenta=$('nombre-cuenta').value.trim();
+  if(nombreCuenta.length<2){setError('fg-nombre-cuenta',true);return;}
+  const btn=$('submit-btn'),textEl=$('btn-text');
+  btn.disabled=true;textEl.textContent='Guardando…';
+  showPageLoader();
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    const userJwt=session?.access_token||'';
+    if(!userJwt){
+      hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Guardar cambios';showToast('Debes iniciar sesión para guardar cambios.','error');});
+      return;
+    }
+    const clabe=$('clabe').value.replace(/\D/g,'');
+    const bancoCode=clabe.substring(0,3);
+    const bancoData=BANCOS[bancoCode]||null;
+    const payload={
+      slug:EDIT_SLUG,
+      nombre:nombreCuenta||null,
+      alias:alias||null,
+      titular_cuenta:nombreCuenta||null,
+      card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,
+      show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),
+      show_email:!!($('show_email')&&$('show_email').checked),
+      icon_id:selectedIconId||null,icon_color:selectedIconColor||null,
+    };
+    // Solo actualizar CLABE+banco si cambió
+    if(clabe.length===18&&clabe!==EDIT_ORIGINAL_CLABE){
+      payload.clabe=clabe;
+      payload.banco=bancoData?bancoData.nombre:$('banco').value;
+      payload.banco_code=bancoCode||null;
+      payload.banco_domain=bancoData?bancoData.domain:null;
+    }
+    const showFiscal=$('show_fiscal')&&$('show_fiscal').checked;
+    if(showFiscal){
+      const rfcVal=$('rfc').value.trim();
+      if(!rfcVal||!validateRFC(rfcVal)){$('rfc-error').textContent='RFC inválido.';setError('fg-rfc',true);btn.disabled=false;textEl.textContent='Guardar cambios';hidePageLoader(null);return;}
+      let coloniaVal='';const colSel=$('colonia-fiscal');if(colSel){coloniaVal=colSel.value==='__otra__'?($('colonia-otra')?$('colonia-otra').value.trim():''):colSel.value;}
+      Object.assign(payload,{has_fiscal:true,razon_social:$('razon-social').value.trim(),rfc:rfcVal,regimen_fiscal:$('regimen-fiscal').value,cp_fiscal:$('cp-fiscal').value,ciudad_fiscal:$('ciudad-fiscal')?$('ciudad-fiscal').value.trim():'',estado_fiscal:$('estado-fiscal')?$('estado-fiscal').value.trim():'',colonia_fiscal:coloniaVal,calle_fiscal:$('calle-fiscal')?$('calle-fiscal').value.trim():''});
+    }
+    const resp=await fetch(`${SUPABASE_URL}/functions/v1/update-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'x-user-jwt':userJwt},body:JSON.stringify(payload)});
+    if(!resp.ok)throw new Error('update failed');
+    hidePageLoader(()=>{
+      const overlay=$('save-success-overlay');
+      if(overlay)overlay.style.display='flex';
+      setTimeout(()=>window.location.href='portal.html#links',2200);
+    });
+  }catch(e){
+    hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Error. Intenta de nuevo.';showToast('No se pudieron guardar los cambios.','error');});
+  }
+}
+
+/* ── INIT ── */
+buildDesignPicker();buildSwatches();initColorPickers();buildIconPicker();
+renderDesign($('card-design-layer'),0);applyCardColor();applyBgColor();
+/* ── PAGE LOADER ── */
+(function(){var loader=document.getElementById('page-loader');if(!loader)return;var _done=false,_dismissed=false,_onDone=null;function restartAnim(){var els=loader.querySelectorAll('.pl-svg,.pl-stroke-horiz,.pl-stroke-diag,.pl-stroke-vert,.pl-dot');els.forEach(el=>el.style.animation='none');loader.offsetHeight;els.forEach(el=>el.style.animation='');}loader.querySelector('.pl-svg').addEventListener('animationiteration',function(e){if(e.animationName!=='plCycle'||_dismissed)return;if(_done){_dismissed=true;loader.classList.add('hide');setTimeout(()=>{loader.classList.remove('active','hide');_done=false;_dismissed=false;if(_onDone){var cb=_onDone;_onDone=null;cb();}},380);}});window.showPageLoader=()=>{_done=false;_dismissed=false;_onDone=null;loader.classList.remove('hide');loader.classList.add('active');restartAnim();};window.hidePageLoader=cb=>{_onDone=cb||null;_done=true;};})();
+
+if(EDIT_MODE){initEditMode();}else{restoreFormState();}
+$('app-hero').style.display='none';$('main-layout').style.display='none';
+
+/* ── SHAPES ── */
+(function(){const c=document.getElementById('shapes'),N=22,TF='rgba(0,200,150,.07)',TS='rgba(0,200,150,.20)';const t=[];for(let i=0;i<N;i++)t.push(i%2===0?'square':'triangle');for(let i=t.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[t[i],t[j]]=[t[j],t[i]];}const cW=100/N;for(let i=0;i<N;i++){const isSq=t[i]==='square',fill=Math.random()>.5;const left=cW*i+cW*.15+Math.random()*cW*.7,size=14+Math.abs(Math.sin(i*1.3))*44+Math.random()*10;const dur=12+(i%5)*2.4+Math.random()*4,del=-(i*(dur/N))-Math.random()*4;const el=document.createElement('div');el.className='geo-shape '+(isSq?'geo-square':'geo-triangle');if(isSq&&fill)el.classList.add('filled');const base=`left:${left.toFixed(2)}%;animation-duration:${dur.toFixed(1)}s;animation-delay:${del.toFixed(1)}s;`;if(isSq){el.style.cssText=base+`width:${Math.round(size)}px;height:${Math.round(size)}px;border-radius:${Math.random()>.55?'3px':'0'};`;}else{const s=Math.round(size),pts=['50,4 96,96 4,96','50,96 4,4 96,4','4,50 96,4 96,96','96,50 4,4 4,96'][i%4];el.style.cssText=base+`width:${s}px;height:${s}px;`;el.innerHTML=`<svg width="${s}" height="${s}" viewBox="0 0 100 100"><polygon points="${pts}" fill="${fill?TF:'none'}" stroke="${fill?'none':TS}" stroke-width="${fill?'0':'3'}" stroke-linejoin="round"/></svg>`;}c.appendChild(el);}})();
+
+
+/* ── CROSS-TAB SIGN-IN ─────────────────────────────────────────────────────
+   When the user clicks the magic-link email in a different tab, Supabase
+   fires SIGNED_IN via localStorage. Update the nav link to show their email
+   so the editor reflects that they're now authenticated.                    */
 (function(){
-  var L=$('page-loader');if(!L)return;
-  L.querySelector('.pl-svg').addEventListener('animationiteration',function(e){
-    if(e.animationName!=='plCycle'||_dismissed)return;
-    if(_done){
-      _dismissed=true;L.classList.add('hide');
-      setTimeout(function(){if(L.parentNode)L.parentNode.removeChild(L);if(_cb){var c=_cb;_cb=null;c();}},380);
+  // Use the shared sb client — no new instance
+  function setNavEmail(email) {
+    const navLink = document.getElementById('nav-account-link');
+    if (navLink && email) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
+  }
+  // Check on load in case already signed in
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (session?.user?.email) setNavEmail(session.user.email);
+  });
+  // Listen for sign-in from any tab
+  sb.auth.onAuthStateChange((event, session) => {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
+      setNavEmail(session.user.email);
+    }
+    if (event === 'SIGNED_OUT') {
+      const navLink = document.getElementById('nav-account-link');
+      if (navLink) { navLink.textContent = 'Mi Cuenta'; navLink.style.color = ''; }
     }
   });
 })();
-function hideLoader(cb){_cb=cb||null;_done=true;}
-
-async function init(){
-  var p=new URLSearchParams(window.location.search);
-  var slug=p.get('id')||window.location.pathname.replace(/\//g,'').split('?')[0];
-  if(!slug){hideLoader(function(){$('state-error').style.display='flex';});return;}
-  try{
-    var r=await fetch(SUPABASE_URL+'/functions/v1/get-link?slug='+slug,{
-      headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}
-    });
-    if(!r.ok)throw 0;
-    var d=await r.json();
-    if(!d||d.error)throw 0;
-    renderProfile(d);
-  }catch(e){
-    hideLoader(function(){$('state-error').style.display='flex';});
-  }
-}
-init();
 </script>
 </body>
 </html>
