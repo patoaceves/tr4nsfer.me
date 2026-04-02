@@ -429,8 +429,8 @@
             </div>
             <span class="field-error" id="clabe-error-msg">La CLABE debe tener exactamente 18 d&#237;gitos.</span>
             <div class="field-exists-cta" id="clabe-exists-cta">
-              <div class="fec-text">¿La CLABE es tuya?</div>
-              <button class="fec-btn" onclick="goToAuthWithState('clabe')">Administrar mis Links &#8594;</button>
+              <div class="fec-text">Ya tienes esta CLABE registrada. ¿Quieres editar ese link?</div>
+              <button class="fec-btn" onclick="goToAuthWithState('clabe')">Ir a Mis Links &#8594;</button>
             </div>
           </div>
           <div class="field" id="fg-banco">
@@ -1000,6 +1000,18 @@ function onWaInput(){var inp=$('whatsapp'),sel=$('wa-country');var max=sel?parse
 /* ── EMAIL CHECK ── */
 let emailCheckState='idle', emailCheckTimer=null;
 async function checkEmailExists(email){
+  // Si el usuario ya está autenticado con ese correo, no bloquear — puede crear otro link
+  const emailClean=email.toLowerCase().trim();
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session?.user?.email?.toLowerCase().trim()===emailClean){
+      emailCheckState='ok';
+      const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta');
+      if(ring)ring.classList.remove('visible');if(cta)cta.style.display='none';
+      setError('fg-email',false);if(ver)ver.style.display='block';
+      return;
+    }
+  }catch(_){}
   emailCheckState='checking';
   const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta'),errMsg=$('email-error-msg');
   if(ring)ring.classList.add('visible');if(ver)ver.style.display='none';if(cta)cta.style.display='none';
@@ -1093,7 +1105,10 @@ async function submitForm(){
   const slugVal=$('slug-custom').value.trim();
   if(slugVal.length>0&&slugVal.length<3){$('slug-error').textContent='Mínimo 3 caracteres.';setError('fg-slug',true);ok=false;}
   if(slugCheckState==='taken'||slugCheckState==='invalid')ok=false;if(slugCheckState==='checking')return;
-  if(emailCheckState==='exists'){setError('fg-email',true);ok=false;}
+  const _emailVal=($('email')&&$('email').value||'').toLowerCase().trim();
+  const {data:{session:_sess}}=await sb.auth.getSession().catch(()=>({data:{session:null}}));
+  const _isOwnEmail=_sess?.user?.email?.toLowerCase().trim()===_emailVal;
+  if(emailCheckState==='exists'&&!_isOwnEmail){setError('fg-email',true);ok=false;}
   if(emailCheckState==='checking')return;
   const c1=$('fg-consent1'),c2=$('fg-consent2');
   if(!$('consent1').checked){c1.classList.add('has-error');ok=false;}else c1.classList.remove('has-error');
