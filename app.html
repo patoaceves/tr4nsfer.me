@@ -362,6 +362,19 @@
     <g transform="translate(1068,1061)"><circle cx="139.75" cy="139.71" r="139.35" fill="#00c896" class="pl-dot"/></g>
   </svg>
 </div>
+<!-- SUCCESS OVERLAY (edit mode only) -->
+<div id="save-success-overlay" style="display:none;position:fixed;inset:0;z-index:9998;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:24px;animation:fadeUp .35s ease both;">
+  <div style="width:72px;height:72px;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.28);border-radius:22px;display:flex;align-items:center;justify-content:center;">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M4.5 12.5L9.5 17.5L19.5 7" stroke="#00c896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div style="text-align:center;">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-.04em;margin-bottom:8px;color:#f0f0f0;">¡Cambios guardados!</div>
+    <div style="font-size:14px;color:#666;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="animation:spin .7s linear infinite;flex-shrink:0;"><circle cx="8" cy="8" r="6" stroke="rgba(255,255,255,0.2)" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" stroke="#666" stroke-width="2" stroke-linecap="round"/></svg>
+      Redirigiendo a Mis Links…
+    </div>
+  </div>
+</div>
 <div class="shapes" id="shapes" aria-hidden="true"></div>
 <header>
   <a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
@@ -1211,7 +1224,7 @@ async function sendEmailWithQR(slug,email,cardData){
   if(!qrDataUrl){
     showToast('El correo se envió sin QR (no se pudo generar).','warn');
   }
-  try{await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/send-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'},body:JSON.stringify({slug,email,nombre:cardData.nombre||'',profile_type:cardData.profileType||'personal',nombre_negocio:cardData.nombreNegocio||null,card_gradient:cardData.gradient,bg_color:cardData.bgColor,whatsapp:cardData.whatsapp||null,qr_data_url:qrDataUrl})});}
+  try{await fetch('https://wtmwwbsjwdisalnzlsnc.supabase.co/functions/v1/send-email',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'},body:JSON.stringify({slug,email,nombre:cardData.nombre||'',profile_type:cardData.profileType||'personal',nombre_negocio:cardData.nombreNegocio||null,card_gradient:cardData.gradient||null,bg_color:cardData.bgColor||null,whatsapp:cardData.whatsapp||null,qr_data_url:qrDataUrl})});}
   catch(e){showToast('No se pudo enviar el correo de confirmación.','warn');console.warn('Email send failed:',e);}
 }
 
@@ -1454,11 +1467,10 @@ async function saveEditedLink(){
     }
     const resp=await fetch(`${SUPABASE_URL}/functions/v1/update-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY,'x-user-jwt':userJwt},body:JSON.stringify(payload)});
     if(!resp.ok)throw new Error('update failed');
-    btn.textContent='✓ Guardado';
-    btn.style.background='#00a87a';
     hidePageLoader(()=>{
-      showToast('¡Cambios guardados!','ok');
-      setTimeout(()=>window.location.href='portal.html#links',1400);
+      const overlay=$('save-success-overlay');
+      if(overlay)overlay.style.display='flex';
+      setTimeout(()=>window.location.href='portal.html#links',2200);
     });
   }catch(e){
     hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Error. Intenta de nuevo.';showToast('No se pudieron guardar los cambios.','error');});
