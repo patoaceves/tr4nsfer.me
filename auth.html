@@ -388,7 +388,7 @@ async function resendLink() {
   try {
     const { error } = await sb.auth.signInWithOtp({
       email: currentEmail,
-      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html' }
+      options: { shouldCreateUser: false, emailRedirectTo: 'https://tr4nsfer.me/auth.html?return=portal' }
     });
     if (error) throw error;
     btn.textContent = 'Link reenviado ✓';
