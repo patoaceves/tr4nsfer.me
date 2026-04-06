@@ -326,46 +326,24 @@ async function sendLink() {
   setMsg('msg-send', '', '');
 
   try {
-    /* ── 1. Verificar que el correo tenga una cuenta ── */
-    let emailExists = false;
-    try {
-      const chk = await fetch(`${SUPABASE_URL}/functions/v1/check-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
-        body: JSON.stringify({ email })
-      });
-      if (!chk.ok) {
-        // función no desplegada o error del servidor → dejar pasar
-        console.warn('[auth] check-email HTTP', chk.status, '— omitiendo validación');
-        emailExists = true;
-      } else {
-        const chkData = await chk.json();
-        emailExists = chkData.exists === true;
-        console.log('[auth] check-email resultado:', chkData);
-      }
-    } catch (e) {
-      console.warn('[auth] check-email falló, continuando sin validación', e);
-      emailExists = true; // si el check falla, dejar pasar
-    }
-
-    if (!emailExists) {
-      setMsg('msg-send', 'No encontramos una cuenta ligada a este correo electrónico.', 'err');
-      return;
-    }
-
-    /* ── 2. Enviar link de acceso ── */
+    /* ── Enviar magic link vía edge function con admin API ── */
     btn.innerHTML = '<span class="btn-spinner"></span>Enviando…';
-    const { error } = await sb.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html?return=portal' }
+    const mlRes = await fetch(`${SUPABASE_URL}/functions/v1/send-magic-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ email }),
     });
-    if (error) {
-      console.error('[auth] signInWithOtp error:', error);
-      const msg = error.message || 'Error desconocido';
-      if (msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('too many')) {
-        setMsg('msg-send', 'Demasiados intentos. Espera unos minutos e intenta de nuevo.', 'err');
+    const mlData = await mlRes.json();
+    if (!mlRes.ok) {
+      if (mlData.error === 'no_account') {
+        setMsg('msg-send', 'No encontramos una cuenta ligada a este correo electrónico.', 'err');
       } else {
-        setMsg('msg-send', `Error: ${msg}`, 'err');
+        const msg = mlData.error || 'Error desconocido';
+        if (msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('too many')) {
+          setMsg('msg-send', 'Demasiados intentos. Espera unos minutos e intenta de nuevo.', 'err');
+        } else {
+          setMsg('msg-send', `Error: ${msg}`, 'err');
+        }
       }
       return;
     }
@@ -386,11 +364,12 @@ async function resendLink() {
   btn.disabled = true;
   btn.textContent = 'Enviando…';
   try {
-    const { error } = await sb.auth.signInWithOtp({
-      email: currentEmail,
-      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth.html?return=portal' }
+    const mlRes = await fetch(`${SUPABASE_URL}/functions/v1/send-magic-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ email: currentEmail }),
     });
-    if (error) throw error;
+    if (!mlRes.ok) { const d = await mlRes.json(); throw new Error(d.error || 'Error'); }
     btn.textContent = 'Link reenviado ✓';
     setTimeout(() => { btn.disabled = false; btn.textContent = 'reenvía el link'; }, 30000);
   } catch (err) {
