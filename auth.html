@@ -326,24 +326,19 @@ async function sendLink() {
   setMsg('msg-send', '', '');
 
   try {
-    /* ── Enviar magic link vía edge function con admin API ── */
+    /* ── Enviar magic link ── */
     btn.innerHTML = '<span class="btn-spinner"></span>Enviando…';
-    const mlRes = await fetch(`${SUPABASE_URL}/functions/v1/send-magic-link`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
-      body: JSON.stringify({ email }),
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth?return=portal' }
     });
-    const mlData = await mlRes.json();
-    if (!mlRes.ok) {
-      if (mlData.error === 'no_account') {
-        setMsg('msg-send', 'No encontramos una cuenta ligada a este correo electrónico.', 'err');
+    if (error) {
+      console.error('[auth] signInWithOtp error:', error);
+      const msg = error.message || 'Error desconocido';
+      if (msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('too many')) {
+        setMsg('msg-send', 'Demasiados intentos. Espera unos minutos e intenta de nuevo.', 'err');
       } else {
-        const msg = mlData.error || 'Error desconocido';
-        if (msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('too many')) {
-          setMsg('msg-send', 'Demasiados intentos. Espera unos minutos e intenta de nuevo.', 'err');
-        } else {
-          setMsg('msg-send', `Error: ${msg}`, 'err');
-        }
+        setMsg('msg-send', `Error: ${msg}`, 'err');
       }
       return;
     }
@@ -364,12 +359,11 @@ async function resendLink() {
   btn.disabled = true;
   btn.textContent = 'Enviando…';
   try {
-    const mlRes = await fetch(`${SUPABASE_URL}/functions/v1/send-magic-link`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
-      body: JSON.stringify({ email: currentEmail }),
+    const { error } = await sb.auth.signInWithOtp({
+      email: currentEmail,
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth?return=portal' }
     });
-    if (!mlRes.ok) { const d = await mlRes.json(); throw new Error(d.error || 'Error'); }
+    if (error) throw error;
     btn.textContent = 'Link reenviado ✓';
     setTimeout(() => { btn.disabled = false; btn.textContent = 'reenvía el link'; }, 30000);
   } catch (err) {
