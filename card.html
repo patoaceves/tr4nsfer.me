@@ -136,6 +136,9 @@
     .fiscal-expiry{font-size:10px;color:rgba(255,255,255,.32);text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);}
     .spin-ring{display:inline-block;width:16px;height:16px;animation:spin .7s linear infinite;}
     @media(max-width:400px){.live-card{border-radius:18px;}.lc-clabe{font-size:17px;}.lc-name{font-size:16px;}}
+    /* BOTTOM BAR */
+    .page-bottom{position:fixed;bottom:0;left:0;right:0;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted);border-top:1px solid rgba(255,255,255,.07);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+    body.bg-light .page-bottom{border-top-color:rgba(0,0,0,.07);}
   </style>
 </head>
 <body>
@@ -546,5 +549,10 @@ async function init(){
 }
 init();
 </script>
+
+<div class="page-bottom">
+  <span>tr4nsfer.me © 2026</span>
+  <span>Hecho en México 🇲🇽</span>
+</div>
 </body>
 </html>
