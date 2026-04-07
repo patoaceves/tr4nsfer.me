@@ -212,6 +212,22 @@
     @media(max-width:480px){
       .portal-main{padding:16px;}
     }
+
+    /* FOOTER */
+    footer{position:relative;z-index:1;width:100%;border-top:1px solid var(--border);padding:64px 48px 40px;}
+    .footer-inner{max-width:1100px;margin:0 auto;margin-bottom:48px;}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;}
+    .footer-logo{display:block;margin-bottom:12px;}
+    .footer-tagline{font-size:13px;color:var(--muted);line-height:1.65;max-width:250px;}
+    .footer-col h4{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim);margin-bottom:18px;}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:11px;}
+    .footer-col ul li a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .footer-col ul li a:hover{color:var(--text);}
+    .footer-col ul li a.ft-cta{color:var(--teal);font-weight:600;}
+    .footer-col ul li a.ft-cta:hover{color:#00daa6;}
+    .footer-bottom{padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .footer-copy{font-size:12px;color:var(--dim);}
+    @media(max-width:860px){.footer-grid{grid-template-columns:1fr;gap:32px}footer{padding:48px 24px 32px}.footer-bottom{flex-direction:column;gap:8px;text-align:center}}
   </style>
 </head>
 <body>
@@ -303,23 +319,9 @@
             <div class="row-editor-msg" id="msg-nombre"></div>
           </div>
         </div>
-        <div class="cuenta-row" id="row-email">
+        <div class="cuenta-row">
           <span class="cuenta-label">Correo</span>
-          <div class="cuenta-row-right">
-            <span class="cuenta-value" id="detail-email">—</span>
-            <button class="row-edit-btn" onclick="startRowEdit('email')" title="Editar">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </button>
-          </div>
-          <div class="row-editor" id="editor-email" style="display:none;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:7px;line-height:1.5;">Este es tu correo de acceso. Cambiarlo enviará un magic link al nuevo correo para confirmar.</div>
-            <input class="row-editor-input" id="input-email" type="email" maxlength="120" placeholder="nuevo@correo.com"/>
-            <div class="row-editor-actions">
-              <button class="row-editor-btn" onclick="cancelRowEdit('email')">Cancelar</button>
-              <button class="row-editor-btn primary" onclick="saveRowEdit('email')">Enviar confirmación</button>
-            </div>
-            <div class="row-editor-msg" id="msg-email"></div>
-          </div>
+          <span class="cuenta-value" id="detail-email">—</span>
         </div>
         <div class="cuenta-row">
           <span class="cuenta-label">Miembro desde</span>
@@ -779,13 +781,14 @@ function relativeTime(iso) {
 
 /* ── INLINE ROW EDITOR (Mi Cuenta) ── */
 function startRowEdit(field) {
+  const row    = $('row-' + field);
   const editor = $('editor-' + field);
-  const right  = $('detail-' + field)?.closest('.cuenta-row-right');
+  const detail = $('detail-' + field);
   if (!editor) return;
+  // Pre-fill with current value
   const input = $('input-' + field);
   if (field === 'nombre') input.value = (_allLinks[0]?.nombre) || '';
-  if (field === 'email')  input.value = '';   // blank — user types new email
-  if (right) right.style.display = 'none';
+  detail.closest('.cuenta-row-right') && (detail.closest('.cuenta-row-right').style.display = 'none');
   editor.style.display = 'block';
   const msg = $('msg-' + field);
   if (msg) msg.textContent = '';
@@ -801,6 +804,8 @@ function cancelRowEdit(field) {
 }
 
 async function saveRowEdit(field) {
+  if (!_allLinks.length) return;
+  const slug  = _allLinks[0].slug;
   const input = $('input-' + field);
   const val   = input?.value.trim();
   const msg   = $('msg-' + field);
@@ -810,17 +815,6 @@ async function saveRowEdit(field) {
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Guardando…'; }
 
   try {
-    if (field === 'email') {
-      // Cambio de correo vía Supabase Auth — envía magic link al nuevo correo
-      const { error } = await sb.auth.updateUser({ email: val });
-      if (error) throw error;
-      if(msg){msg.style.color='var(--teal)';msg.textContent='¡Listo! Revisa tu nuevo correo para confirmar el cambio.';}
-      if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Enviar confirmación';}
-      return; // no cancelar — dejar el mensaje visible
-    }
-
-    if (!_allLinks.length) return;
-    const slug = _allLinks[0].slug;
     const body = { slug };
     if (field === 'nombre') body.nombre = val;
 
@@ -832,6 +826,7 @@ async function saveRowEdit(field) {
     if (se) throw se;
     if (sd?.error) throw new Error(sd.error);
 
+    // Update local + UI
     if (field === 'nombre') {
       _allLinks[0].nombre = val;
       $('detail-nombre').textContent = val;
@@ -842,7 +837,7 @@ async function saveRowEdit(field) {
   } catch(e) {
     if(msg){msg.style.color='var(--error)';msg.textContent=e.message||'Error al guardar.';}
   } finally {
-    if (saveBtn && field !== 'email') { saveBtn.disabled = false; saveBtn.textContent = 'Guardar'; }
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Guardar'; }
   }
 }
 
@@ -967,9 +962,6 @@ async function saveUrl(slug) {
       if (saveData.error === 'custom_slug_taken') { showToast('Ese link ya está en uso.'); }
       else throw new Error(saveData.error);
     } else {
-      // Update _allLinks cache so refresh shows new URL
-      const linkEntry = _allLinks.find(l => l.slug === slug);
-      if (linkEntry) linkEntry.custom_slug = val;
       // Update display
       const displaySpan = $('url-display-' + slug)?.querySelector('span');
       if (displaySpan) displaySpan.textContent = 'tr4nsfer.me/' + val;
@@ -986,12 +978,6 @@ async function saveUrl(slug) {
 /* ── INIT ── */
 init();
 
-// Open correct tab from URL hash (e.g. portal.html#links after saving)
-(function(){
-  const hash = location.hash.replace('#','');
-  if(hash && document.getElementById('tab-' + hash)) switchTab(hash);
-})();
-
 /* ── CROSS-TAB SIGN-IN ── */
 sb.auth.onAuthStateChange((event, session) => {
   if (session?.access_token) _accessToken = session.access_token;  // always refresh token
@@ -1004,5 +990,35 @@ sb.auth.onAuthStateChange((event, session) => {
   }
 });
 </script>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="logo footer-logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
+        <p class="footer-tagline">Gratis · Seguro · Sin fricción</p>
+      </div>
+      <div class="footer-col">
+        <h4>Menú</h4>
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="index.html#ayuda">Ayuda</a></li>
+          <li><a href="app.html" class="ft-cta">Crear mi Link →</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Términos</a></li>
+          <li><a href="#">Política de Privacidad</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">tr4nsfer.me © 2026</span>
+    <span class="footer-copy">Hecho en México 🇲🇽</span>
+  </div>
+</footer>
 </body>
 </html>
