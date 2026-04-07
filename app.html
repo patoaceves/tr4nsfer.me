@@ -44,6 +44,19 @@
     .btn-nav{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;background:var(--teal);color:#000;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
     .btn-nav:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
     @media(max-width:860px){header{padding:0 24px;}.nav-links{display:none;}}
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;transition:background .15s;}
+    .hamburger:hover{background:rgba(255,255,255,.06);}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-soft);border-radius:2px;transition:transform .22s,opacity .22s;}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .mobile-nav{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);padding:16px 24px 20px;z-index:99;backdrop-filter:blur(14px);flex-direction:column;gap:4px;}
+    .mobile-nav.open{display:flex;}
+    .mobile-nav a{font-size:15px;font-weight:500;color:var(--muted);text-decoration:none;padding:10px 4px;border-bottom:1px solid var(--border);transition:color .15s;}
+    .mobile-nav a:last-child{border-bottom:none;}
+    .mobile-nav a:hover{color:var(--text);}
+    .mobile-nav a.mobile-cta{color:var(--teal);font-weight:700;border-bottom:none;margin-top:4px;}
+    @media(max-width:860px){.hamburger{display:flex;}.btn-nav{display:none;}}
     /* PAGE */
     .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:100px 20px 60px;}
     /* TYPE SELECTOR */
@@ -665,31 +678,12 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-grid">
-      <div>
-        <a href="index.html" class="logo footer-logo"><img src="logo-white.png" alt="tr4nsfer.me"/></a>
-        <p class="footer-tagline">Gratis · Seguro · Sin fricción</p>
-      </div>
-      <div class="footer-col">
-        <h4>Menú</h4>
-        <ul>
-          <li><a href="index.html">Inicio</a></li>
-          <li><a href="index.html#ayuda">Ayuda</a></li>
-          <li><a href="app.html" class="ft-cta">Crear mi Link →</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Legal</h4>
-        <ul>
-          <li><a href="#">Términos</a></li>
-          <li><a href="#">Política de Privacidad</a></li>
-        </ul>
-      </div>
+      <div><a href="index.html" class="logo"><img src="logo-white.png" alt="tr4nsfer.me" style="height:28px;"/></a><p class="footer-tagline">Gratis &middot; Seguro &middot; Sin fricci&#243;n</p></div>
+      <div class="footer-col"><h4>Menú</h4><ul><li><a href="index.html">Inicio</a></li><li><a href="index.html#ayuda">Ayuda</a></li><li><a href="app.html" class="ft-cta">Crear mi Link →</a></li></ul></div>
+      <div class="footer-col"><h4>Legal</h4><ul><li><a href="#">T&#233;rminos</a></li><li><a href="#">Pol&#237;tica de Privacidad</a></li></ul></div>
     </div>
   </div>
-  <div class="footer-bottom">
-    <span class="footer-copy">tr4nsfer.me © 2026</span>
-    <span class="footer-copy">Hecho en México 🇲🇽</span>
-  </div>
+  <div class="footer-bottom"><span class="footer-copy">tr4nsfer.me &copy; 2026</span><span class="footer-copy">Hecho en M&#233;xico &#127474;&#127485;</span></div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -700,6 +694,24 @@ const $=id=>document.getElementById(id);
 /* ── EDIT MODE ── */
 const EDIT_SLUG = new URLSearchParams(location.search).get('edit') || null;
 const EDIT_MODE = !!EDIT_SLUG;
+
+/* ── MOBILE NAV ── */
+function toggleMobileNav(){
+  const nav=document.getElementById('mobile-nav');
+  const btn=document.getElementById('hamburger-btn');
+  const isOpen=nav.classList.contains('open');
+  nav.classList.toggle('open',!isOpen);
+  if(btn)btn.classList.toggle('open',!isOpen);
+  document.body.style.overflow=isOpen?'':'hidden';
+}
+// Close mobile nav on session load to update "Mi Cuenta" link text
+document.addEventListener('click',function(e){
+  const nav=document.getElementById('mobile-nav');
+  const btn=document.getElementById('hamburger-btn');
+  if(nav&&nav.classList.contains('open')&&!nav.contains(e.target)&&e.target!==btn&&!btn.contains(e.target)){
+    nav.classList.remove('open');if(btn)btn.classList.remove('open');document.body.style.overflow='';
+  }
+});
 
 /* ── QR helpers ── */
 function qrApiUrl(slug,size){return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent('https://tr4nsfer.me/'+slug)+'&margin=10&color=000000&bgcolor=ffffff';}
@@ -787,6 +799,7 @@ function selectType(type){
 }
 
 function goBackToType(){
+  if(EDIT_MODE){window.location.href='portal.html';return;}
   if($('type-back-btn'))$('type-back-btn').style.display='none';
   $('view-type').style.display='flex';
   $('app-hero').style.display='none';
@@ -892,7 +905,7 @@ function goToStep2(){
 function backToStep1(){
   $('color-editor').classList.remove('fade-out');
   selectedIconId=null;selectedIconColor='rgba(255,255,255,1)';updateCardIcon(null);
-  if($('type-back-btn'))$('type-back-btn').style.display='inline-flex';
+  if(!EDIT_MODE&&$('type-back-btn'))$('type-back-btn').style.display='inline-flex';
   transitionHero('Empieza aquí','Ingresa tus datos y personaliza tu perfil.');
   transitionLeftPanel('panel-step2','panel-step1',()=>{
     currentStep=1;$('main-layout').classList.remove('step2');
@@ -1019,6 +1032,14 @@ function onWaInput(){var inp=$('whatsapp'),sel=$('wa-country');var max=sel?parse
 /* ── EMAIL CHECK ── */
 let emailCheckState='idle', emailCheckTimer=null;
 async function checkEmailExists(email){
+  // En edit mode no bloqueamos por unicidad — el usuario está editando su propio link
+  if(EDIT_MODE){
+    emailCheckState='ok';
+    const ring=$('email-ring'),ver=$('email-verified'),cta=$('email-exists-cta');
+    if(ring)ring.classList.remove('visible');if(cta)cta.style.display='none';
+    setError('fg-email',false);if(ver)ver.style.display='block';
+    return;
+  }
   // Si el usuario ya está autenticado con ese correo, no bloquear — puede crear otro link
   const emailClean=email.toLowerCase().trim();
   try{
@@ -1463,6 +1484,11 @@ async function saveEditedLink(){
       show_email:!!($('show_email')&&$('show_email').checked),
       icon_id:selectedIconId||null,icon_color:selectedIconColor||null,
     };
+    // Email y whatsapp — solo se envían si el usuario los escribió (no se puede pre-llenar por encriptación)
+    const emailVal=$('email')&&$('email').value.trim();
+    if(emailVal)payload.email=emailVal;
+    const waVal=$('whatsapp')&&$('whatsapp').value.trim();
+    if(waVal)payload.whatsapp=waVal;
     // Solo actualizar CLABE+banco si cambió
     if(clabe.length===18&&clabe!==EDIT_ORIGINAL_CLABE){
       payload.clabe=clabe;
@@ -1511,6 +1537,8 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
   function setNavEmail(email) {
     const navLink = document.getElementById('nav-account-link');
     if (navLink && email) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
+    const mobileLink = document.getElementById('mobile-nav-account');
+    if (mobileLink && email) { mobileLink.textContent = email; mobileLink.style.color = 'var(--teal)'; }
   }
   // Check on load in case already signed in
   sb.auth.getSession().then(({ data: { session } }) => {
@@ -1524,6 +1552,8 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
     if (event === 'SIGNED_OUT') {
       const navLink = document.getElementById('nav-account-link');
       if (navLink) { navLink.textContent = 'Mi Cuenta'; navLink.style.color = ''; }
+      const mobileLink = document.getElementById('mobile-nav-account');
+      if (mobileLink) { mobileLink.textContent = 'Mi Cuenta'; mobileLink.style.color = ''; }
     }
   });
 })();
