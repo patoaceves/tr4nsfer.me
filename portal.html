@@ -51,6 +51,19 @@
     .btn-nav{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;background:var(--teal);color:#000;text-decoration:none;transition:all .2s;border:none;cursor:pointer;}
     .btn-nav:hover{background:#00daa6;transform:translateY(-2px);box-shadow:0 0 0 1px rgba(0,200,150,.25),0 8px 24px rgba(0,200,150,.5);}
     @media(max-width:860px){header{padding:0 24px;}.nav-links{display:none;}}
+    /* HAMBURGER */
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;transition:background .15s;}
+    .hamburger:hover{background:rgba(255,255,255,.06);}
+    .hamburger span{display:block;width:20px;height:2px;background:var(--text-soft);border-radius:2px;transition:transform .22s,opacity .22s;}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:49;backdrop-filter:blur(2px);}
+    .sidebar-overlay.open{display:block;}
+    @media(max-width:860px){
+      .hamburger{display:flex;}
+      .btn-nav{display:none;}
+    }
 
     /* ── LAYOUT ── */
     .portal-shell{display:flex;min-height:100vh;padding-top:64px;visibility:hidden;opacity:0;transition:opacity .2s ease;}
@@ -235,9 +248,14 @@
       <a href="index.html#ayuda">Ayuda</a>
       <a href="portal.html" style="color:var(--teal);" id="nav-account-link">Mi Cuenta</a>
     </div>
-    <a href="app.html" class="btn-nav">Crear mi Link</a>
+    <a href="app.html" class="btn-nav" id="header-new-link-btn">Crear mi Link</a>
+    <button class="hamburger" id="hamburger-btn" aria-label="Menú" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
 </header>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <!-- PORTAL SHELL -->
 <div class="portal-shell">
@@ -325,10 +343,6 @@
           <div class="section-title">Mis Links</div>
           <div class="section-sub">Administra, comparte y genera links expirables.</div>
         </div>
-        <a href="app.html" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;background:var(--teal);color:#000;font-size:12.5px;font-weight:700;font-family:'Inter',sans-serif;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background .15s,transform .1s;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-          Nuevo link
-        </a>
       </div>
       <div id="links-loading" class="links-loading">
         <div class="mini-spinner"></div> Cargando tus links…
@@ -518,9 +532,26 @@ function populateUserInfo(user) {
     : '—'
   $('detail-since').textContent = since
 
-  // Nav always shows email when logged in
+  // Nav: show email, and swap "Crear mi Link" → "+ Nuevo Link" when logged in
   const navLink = $('nav-account-link')
   if (navLink) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
+  const headerBtn = $('header-new-link-btn')
+  if (headerBtn) {
+    headerBtn.href = 'app.html'
+    headerBtn.textContent = '+ Nuevo Link'
+  }
+}
+
+/* ── MOBILE SIDEBAR TOGGLE ── */
+function toggleSidebar() {
+  const sidebar  = $('sidebar')
+  const overlay  = $('sidebar-overlay')
+  const hamburger = $('hamburger-btn')
+  const isOpen   = sidebar.classList.contains('open')
+  sidebar.classList.toggle('open', !isOpen)
+  overlay.classList.toggle('open', !isOpen)
+  if (hamburger) hamburger.classList.toggle('open', !isOpen)
+  document.body.style.overflow = isOpen ? '' : 'hidden'
 }
 
 function updateSidebarName(name) {
@@ -726,6 +757,7 @@ function copyText(text, msg) {
 
 /* ── SIGN OUT ── */
 async function signOut() {
+  document.body.style.overflow = '';
   await sb.auth.signOut();
   window.location.href = 'index.html';
 }
