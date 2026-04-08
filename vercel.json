@@ -4,10 +4,10 @@
     { "src": "**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/app",                        "dest": "/app.html" },
-    { "src": "/auth",                       "dest": "/auth.html" },
-    { "src": "/portal",                     "dest": "/portal.html" },
-    { "src": "/([a-z0-9][a-z0-9-]{2,19})", "dest": "/card.html?id=$1" },
+    { "src": "/app",                        "dest": "/pages/app.html" },
+    { "src": "/auth",                       "dest": "/pages/auth.html" },
+    { "src": "/portal",                     "dest": "/pages/portal.html" },
+    { "src": "/([a-z0-9][a-z0-9-]{2,19})", "dest": "/pages/card.html?id=$1" },
     { "src": "/",                           "dest": "/index.html" }
   ]
 }

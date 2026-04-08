@@ -16,8 +16,8 @@
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" id="tw-title" content="tr4nsfer.me"/>
   <meta name="twitter:image" id="tw-image" content="https://tr4nsfer.me/og-default.png"/>
-  <link rel="icon" type="image/png" href="favicon.png"/>
-  <link rel="apple-touch-icon" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png"/>
+  <link rel="apple-touch-icon" href="../assets/img/favicon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -163,7 +163,7 @@
         <div class="lc-inner">
           <div class="lc-top">
             <div class="lc-logo-sq" id="lc-logo-sq"><img id="lc-logo-img" src="" alt="Logo"/></div>
-            <img class="lc-top-logo" src="logo-white.png" alt="tr4nsfer.me"/>
+            <img class="lc-top-logo" src="../assets/img/logo-white.png" alt="tr4nsfer.me"/>
           </div>
           <div class="lc-middle">
             <div class="lc-group" id="lc-negocio-group" style="display:none;"><div class="lc-negocio-name" id="lc-negocio-name"></div></div>
@@ -188,7 +188,7 @@
     </div>
     <div class="branding">
       <div class="branding-label">Powered by</div>
-      <a href="/" target="_blank"><img id="branding-logo" src="logo-white.png" alt="tr4nsfer.me"/></a>
+      <a href="/" target="_blank"><img id="branding-logo" src="../assets/img/logo-white.png" alt="tr4nsfer.me"/></a>
       <a href="/app" target="_blank" class="branding-cta">Crea el tuyo <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
   </div>
@@ -413,7 +413,7 @@ function renderProfile(d){
   document.body.style.background=d.bg_color||'#000';
 
   // Branding logo (dentro de la card siempre blanco, hardcodeado en HTML)
-  var brLogo=$('branding-logo');if(brLogo)brLogo.src=isLightBg?'logo.png':'logo-white.png';
+  var brLogo=$('branding-logo');if(brLogo)brLogo.src=isLightBg?'../assets/img/logo.png':'../assets/img/logo-white.png';
 
   // Accent
   var acc=preset?preset.accent:('#'+[rgb_.r,rgb_.g,rgb_.b].map(function(c){return c.toString(16).padStart(2,'0');}).join(''));
