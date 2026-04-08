@@ -684,6 +684,7 @@
       const path = window.location.pathname;
       document.querySelectorAll('.mobile-nav a[href]').forEach(a => {
         const href = a.getAttribute('href');
+        if (href.startsWith('/#')) return; // hash anchors — handled by IntersectionObserver
         const hpath = href.split('#')[0] || '/';
         const isActive = (hpath === '/' && path === '/') ||
                          (hpath !== '/' && path.startsWith(hpath));
@@ -691,6 +692,21 @@
           a.classList.add('nav-active');
         }
       });
+    })();
+    /* Extend IntersectionObserver to highlight Inicio/Ayuda in mobile nav when section is in view */
+    (function() {
+      const mAyuda  = document.querySelector('.mobile-nav a[href="/#ayuda"]');
+      const mInicio = document.querySelector('.mobile-nav a[href="#inicio"]') || document.querySelector('.mobile-nav a[href="/"]');
+      if (!mAyuda && !mInicio) return;
+      const ioMob = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          const id = e.target.id;
+          if (mAyuda)  mAyuda.classList.toggle('nav-active',  id === 'ayuda');
+          if (mInicio) mInicio.classList.toggle('nav-active', id === 'inicio');
+        });
+      }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
+      document.querySelectorAll('section[id]').forEach(s => ioMob.observe(s));
     })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -704,9 +720,9 @@
         const el = document.getElementById('nav-account-link');
         if (el && email) { el.textContent = email; el.style.color = 'var(--accent)'; }
         const mob = document.getElementById('mobile-nav-account');
-        if (mob && email) { mob.textContent = email; mob.classList.add('nav-active'); }
+        if (mob && email) { mob.textContent = email; }
         const headerBtn = document.querySelector('header .btn-primary');
-        if (headerBtn) { headerBtn.textContent = 'Nuevo Link'; }
+        if (headerBtn) { headerBtn.textContent = '+ Nuevo Link'; }
         const mobileCtaBtn = document.querySelector('.mobile-nav .mobile-cta');
         if (mobileCtaBtn) { mobileCtaBtn.textContent = 'Nuevo Link →'; }
       }

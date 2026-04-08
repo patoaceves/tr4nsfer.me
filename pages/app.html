@@ -1560,7 +1560,7 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
     const navLink = document.getElementById('nav-account-link');
     if (navLink && email) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
     const mobileLink = document.getElementById('mobile-nav-account');
-    if (mobileLink && email) { mobileLink.textContent = email; mobileLink.classList.add('nav-active'); }
+    if (mobileLink && email) { mobileLink.textContent = email; mobileLink.classList.remove('nav-active'); }
   }
   // Check on load in case already signed in
   sb.auth.getSession().then(({ data: { session } }) => {
