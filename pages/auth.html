@@ -256,7 +256,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const params   = new URLSearchParams(location.search);
 const RETURN   = params.get('return') || 'app';   // 'app' | 'portal'
 const REASON   = params.get('reason') || '';       // 'clabe' | 'email' | 'existing' | ''
-const RETURN_URL = RETURN === 'portal' ? 'portal.html' : 'app.html';
+const RETURN_URL = RETURN === 'portal' ? '/portal' : '/app';
 
 /* ── STATE ── */
 let currentEmail = '';
@@ -462,6 +462,13 @@ document.addEventListener('click',function(e){
     nav.classList.remove('open');if(btn)btn.classList.remove('open');document.body.style.overflow='';
   }
 });
+(function(){
+  const path=window.location.pathname;
+  document.querySelectorAll('.mobile-nav a').forEach(a=>{
+    const href=a.getAttribute('href');
+    if(href===path){a.style.color='var(--teal)';a.style.fontWeight='700';}
+  });
+})();
 </script>
 </body>
 </html>

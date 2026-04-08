@@ -713,6 +713,14 @@ function toggleMobileNav(){
   if(btn)btn.classList.toggle('open',!isOpen);
   document.body.style.overflow=isOpen?'':'hidden';
 }
+(function(){
+  const path=window.location.pathname;
+  document.querySelectorAll('.mobile-nav a').forEach(a=>{
+    const href=a.getAttribute('href');
+    if(href===path||(href!=='/app'&&path.startsWith(href)&&href!=='/')){a.style.color='var(--teal)';a.style.fontWeight='700';}
+    if(href==='/app'&&(path==='/app'||path.startsWith('/app'))){a.style.color='var(--teal)';a.style.fontWeight='700';}
+  });
+})();
 // Close mobile nav on session load to update "Mi Cuenta" link text
 document.addEventListener('click',function(e){
   const nav=document.getElementById('mobile-nav');

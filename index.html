@@ -275,6 +275,7 @@
       header { padding: 0 24px; }
       .nav-links { display: none; }
       .hamburger { display: flex; }
+      header .btn-primary { display: none; }
       .hero-inner { grid-template-columns: 1fr; padding: 120px 24px 80px; text-align: center; gap: 48px; }
       .hero-sub { max-width: 100%; }
       .hero-actions { justify-content: center; }
@@ -674,6 +675,17 @@
         document.body.style.overflow = '';
       }
     });
+    /* ── ACTIVE PAGE IN MOBILE NAV ── */
+    (function() {
+      const path = window.location.pathname;
+      document.querySelectorAll('.mobile-nav a').forEach(a => {
+        const href = a.getAttribute('href');
+        if (href === path || (path === '/' && href === '#inicio') || (href !== '/' && path.startsWith(href))) {
+          a.style.color = 'var(--accent)';
+          a.style.fontWeight = '700';
+        }
+      });
+    })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>

@@ -499,14 +499,14 @@ async function init() {
   // We must call getUser() first so the token in localStorage is fresh before we read it.
   const { data: { user }, error: userErr } = await sb.auth.getUser();
   if (userErr || !user) {
-    window.location.href = 'auth.html?return=portal&reason=portal';
+    window.location.href = '/auth?return=portal&reason=portal';
     return;
   }
 
   // Now getSession() is guaranteed to have the refreshed token
   const { data: { session } } = await sb.auth.getSession();
   if (!session?.access_token) {
-    window.location.href = 'auth.html?return=portal&reason=portal';
+    window.location.href = '/auth?return=portal&reason=portal';
     return;
   }
 
@@ -537,7 +537,7 @@ function populateUserInfo(user) {
   if (navLink) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
   const headerBtn = $('header-new-link-btn')
   if (headerBtn) {
-    headerBtn.href = 'app.html'
+    headerBtn.href = '/app'
     headerBtn.textContent = '+ Nuevo Link'
   }
 }
@@ -747,7 +747,7 @@ function copyGenResult() {
 
 /* ── EDIT LINK ── */
 function editLink(slug) {
-  window.location.href = `app.html?edit=${encodeURIComponent(slug)}`;
+  window.location.href = `/app?edit=${encodeURIComponent(slug)}`;
 }
 
 /* ── COPY TEXT ── */
@@ -759,7 +759,7 @@ function copyText(text, msg) {
 async function signOut() {
   document.body.style.overflow = '';
   await sb.auth.signOut();
-  window.location.href = 'index.html';
+  window.location.href = '/';
 }
 
 /* ── DELETE ACCOUNT ── */
