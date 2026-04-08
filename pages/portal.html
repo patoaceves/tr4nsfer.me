@@ -223,12 +223,13 @@
     /* ── MOBILE NAV DROPDOWN ── */
     .mobile-nav{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);padding:16px 24px 20px;z-index:99;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);flex-direction:column;gap:4px;}
     .mobile-nav.open{display:flex;}
-    .mobile-nav a{font-size:15px;font-weight:500;color:var(--muted);text-decoration:none;padding:10px 4px;border-bottom:1px solid var(--border);transition:color .15s;}
+    .mobile-nav a{font-size:15px;font-weight:500;color:var(--muted);text-decoration:none;padding:10px 4px;border-bottom:1px solid var(--border);transition:color .15s;display:flex;align-items:center;}
     .mobile-nav a:last-child{border-bottom:none;}
     .mobile-nav a:hover{color:var(--text);}
-    .mobile-nav .mobile-cta-btn{display:flex;align-items:center;justify-content:center;margin-top:6px;padding:12px;border-radius:100px;background:var(--teal);color:#000;font-size:14px;font-weight:700;text-decoration:none;transition:background .2s;border:none;}
-    .mobile-nav .mobile-cta-btn:hover{background:#00daa6;}
     .mobile-nav a.nav-active{color:var(--teal);font-weight:700;}
+    .mobile-nav a.nav-active::after{content:'';display:block;width:6px;height:6px;border-radius:50%;background:var(--teal);margin-left:auto;flex-shrink:0;}
+    .mobile-nav .mobile-cta-btn{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;margin-top:8px;padding:10px 22px;border-radius:100px;background:var(--teal);color:#000;font-size:14px;font-weight:700;text-decoration:none;transition:background .2s;border:none;}
+    .mobile-nav .mobile-cta-btn:hover{background:#00daa6;}
 
     /* ── PORTAL TABS (mobile only) ── */
     .portal-tabs-mobile{display:none;}
@@ -249,8 +250,8 @@
     @media(max-width:740px){
       .sidebar{position:fixed;left:-100%;transition:left .25s;width:240px;}
       .sidebar.open{left:0;}
-      .portal-main{margin-left:0;max-width:100%;width:100%;padding:20px 16px;}
-      .portal-shell{padding-top:calc(64px + 45px);} /* header + tabs */
+      .portal-main{margin-left:0;max-width:100%;width:100%;padding:20px 16px;min-height:auto;}
+      .portal-shell{padding-top:calc(64px + 45px);}
       .links-grid{grid-template-columns:1fr;}
       .cuenta-card,.config-card{max-width:100%;}
     }
@@ -370,7 +371,20 @@
         </div>
         <div class="cuenta-row">
           <span class="cuenta-label">Correo</span>
-          <span class="cuenta-value" id="detail-email">—</span>
+          <div class="cuenta-row-right">
+            <span class="cuenta-value" id="detail-email">—</span>
+            <button class="row-edit-btn" onclick="startRowEdit('email')" title="Editar">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="row-editor" id="editor-email" style="display:none;">
+            <input class="row-editor-input" id="input-email" type="email" maxlength="120" placeholder="tu@correo.com"/>
+            <div class="row-editor-actions">
+              <button class="row-editor-btn" onclick="cancelRowEdit('email')">Cancelar</button>
+              <button class="row-editor-btn primary" onclick="saveRowEdit('email')">Guardar</button>
+            </div>
+            <div class="row-editor-msg" id="msg-email"></div>
+          </div>
         </div>
         <div class="cuenta-row">
           <span class="cuenta-label">Miembro desde</span>
@@ -409,7 +423,7 @@
         <div class="section-sub">Preferencias de tu cuenta.</div>
       </div>
       <div class="config-card">
-        <div class="config-title">Sesión</div>
+        <div class="config-title">Acceso</div>
         <div class="config-row">
           <div>
             <div class="config-row-label">Cerrar sesión</div>
@@ -419,11 +433,11 @@
         </div>
       </div>
       <div class="config-card">
-        <div class="config-title">Zona de peligro</div>
+        <div class="config-title">Cuenta y datos</div>
         <div class="config-row">
           <div>
             <div class="config-row-label">Eliminar cuenta</div>
-            <div class="config-row-desc">Borra tu cuenta y todos tus datos permanentemente.</div>
+            <div class="config-row-desc">Da de baja tu cuenta y borra tus datos de forma permanente.</div>
           </div>
           <button class="config-btn danger" onclick="confirmDeleteAccount()">Eliminar</button>
         </div>
@@ -876,6 +890,7 @@ function startRowEdit(field) {
   // Pre-fill with current value
   const input = $('input-' + field);
   if (field === 'nombre') input.value = (_allLinks[0]?.nombre) || '';
+  if (field === 'email')  input.value = _currentUser?.email || '';
   detail.closest('.cuenta-row-right') && (detail.closest('.cuenta-row-right').style.display = 'none');
   editor.style.display = 'block';
   const msg = $('msg-' + field);
@@ -901,6 +916,21 @@ async function saveRowEdit(field) {
 
   const saveBtn = $('editor-' + field)?.querySelector('.primary');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Guardando…'; }
+
+  // Email change goes through Supabase Auth
+  if (field === 'email') {
+    try {
+      const { error: ue } = await sb.auth.updateUser({ email: val });
+      if (ue) throw ue;
+      cancelRowEdit('email');
+      showToast('Revisa tu nuevo correo para confirmar el cambio.');
+    } catch(e) {
+      if(msg){msg.style.color='var(--error)';msg.textContent=e.message||'Error al actualizar.';}
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Guardar'; }
+    }
+    return;
+  }
 
   try {
     const body = { slug };
