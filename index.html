@@ -257,10 +257,24 @@
     .footer-col ul li a.ft-cta:hover { color: #00daa6; }
     .footer-bottom { padding-top: 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .footer-copy { font-size: 12px; color: var(--dim); }
+    /* HAMBURGER */
+    .hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; background: none; border: none; cursor: pointer; padding: 4px; border-radius: 8px; transition: background .15s; margin-left: 8px; }
+    .hamburger:hover { background: rgba(255,255,255,.06); }
+    .hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .22s, opacity .22s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-nav { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,10,10,.97); border-bottom: 1px solid var(--border); padding: 16px 24px 20px; z-index: 99; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); flex-direction: column; gap: 4px; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-size: 15px; font-weight: 500; color: var(--muted); text-decoration: none; padding: 10px 4px; border-bottom: 1px solid var(--border); transition: color .15s; }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { color: var(--text); }
+    .mobile-nav a.mobile-cta { color: var(--accent); font-weight: 700; border-bottom: none; margin-top: 4px; }
     /* MOBILE */
     @media (max-width: 860px) {
       header { padding: 0 24px; }
       .nav-links { display: none; }
+      .hamburger { display: flex; }
       .hero-inner { grid-template-columns: 1fr; padding: 120px 24px 80px; text-align: center; gap: 48px; }
       .hero-sub { max-width: 100%; }
       .hero-actions { justify-content: center; }
@@ -357,8 +371,17 @@
         <a href="/portal" id="nav-account-link">Mi Cuenta</a>
       </div>
       <a href="/app" class="btn btn-primary" style="padding:8px 18px;font-size:13px;">Crear mi Link</a>
+      <button class="hamburger" id="hamburger-btn" aria-label="Menú" onclick="toggleMobileNav()">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
   </header>
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="#inicio">Inicio</a>
+    <a href="#ayuda">Ayuda</a>
+    <a href="/portal" id="mobile-nav-account">Mi Cuenta</a>
+    <a href="/app" class="mobile-cta">Crear mi Link →</a>
+  </div>
   <nav id="side-nav">
     <div class="side-dot active" data-target="inicio"><span class="side-dot-label">Inicio</span></div>
     <div class="side-dot" data-target="como-funciona"><span class="side-dot-label">Cómo funciona</span></div>
@@ -632,6 +655,25 @@
       });
     }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
     document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+
+    /* ── MOBILE NAV ── */
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobile-nav');
+      const btn = document.getElementById('hamburger-btn');
+      const isOpen = nav.classList.contains('open');
+      nav.classList.toggle('open', !isOpen);
+      if (btn) btn.classList.toggle('open', !isOpen);
+      document.body.style.overflow = isOpen ? '' : 'hidden';
+    }
+    document.addEventListener('click', function(e) {
+      const nav = document.getElementById('mobile-nav');
+      const btn = document.getElementById('hamburger-btn');
+      if (nav && nav.classList.contains('open') && !nav.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+        nav.classList.remove('open');
+        if (btn) btn.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
@@ -643,6 +685,8 @@
       function setNavEmail(email) {
         const el = document.getElementById('nav-account-link');
         if (el && email) { el.textContent = email; el.style.color = 'var(--accent)'; }
+        const mob = document.getElementById('mobile-nav-account');
+        if (mob && email) { mob.textContent = email; mob.style.color = 'var(--accent)'; }
       }
       sb.auth.getSession().then(({ data: { session } }) => {
         if (session?.user?.email) setNavEmail(session.user.email);

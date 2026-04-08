@@ -393,8 +393,17 @@
   <nav>
     <div class="nav-links"><a href="/">Inicio</a><a href="/#ayuda">Ayuda</a><a href="/portal" id="nav-account-link">Mi Cuenta</a></div>
     <a href="/app" class="btn-nav">Crear mi Link</a>
+    <button class="hamburger" id="hamburger-btn" aria-label="Menú" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
 </header>
+<div class="mobile-nav" id="mobile-nav">
+  <a href="/">Inicio</a>
+  <a href="/#ayuda">Ayuda</a>
+  <a href="/portal" id="mobile-nav-account">Mi Cuenta</a>
+  <a href="/app" class="mobile-cta">Crear mi Link →</a>
+</div>
 <div class="page">
   <!-- TYPE SELECTOR -->
   <div id="view-type" class="active">
