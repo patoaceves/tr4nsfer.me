@@ -215,12 +215,44 @@
     .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid var(--border2);border-radius:100px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text-soft);z-index:9000;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+    /* ── HAMBURGER FIX ── */
+    .hamburger{outline:none;}
+    .hamburger:focus{outline:none;}
+    .hamburger:focus-visible{box-shadow:0 0 0 2px rgba(0,200,150,.4);}
+
+    /* ── MOBILE NAV DROPDOWN ── */
+    .mobile-nav{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);padding:16px 24px 20px;z-index:99;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);flex-direction:column;gap:4px;}
+    .mobile-nav.open{display:flex;}
+    .mobile-nav a{font-size:15px;font-weight:500;color:var(--muted);text-decoration:none;padding:10px 4px;border-bottom:1px solid var(--border);transition:color .15s;}
+    .mobile-nav a:last-child{border-bottom:none;}
+    .mobile-nav a:hover{color:var(--text);}
+    .mobile-nav .mobile-cta-btn{display:flex;align-items:center;justify-content:center;margin-top:6px;padding:12px;border-radius:100px;background:var(--teal);color:#000;font-size:14px;font-weight:700;text-decoration:none;transition:background .2s;border:none;}
+    .mobile-nav .mobile-cta-btn:hover{background:#00daa6;}
+    .mobile-nav a.nav-active{color:var(--teal);font-weight:700;}
+
+    /* ── PORTAL TABS (mobile only) ── */
+    .portal-tabs-mobile{display:none;}
+    @media(max-width:740px){
+      .portal-tabs-mobile{
+        display:flex;position:sticky;top:64px;z-index:40;
+        background:rgba(0,0,0,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+        border-bottom:1px solid var(--border);
+        padding:0 16px;gap:0;overflow-x:auto;
+      }
+      .portal-tabs-mobile::-webkit-scrollbar{display:none;}
+      .ptab{flex:1;padding:12px 8px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;}
+      .ptab.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:700;}
+      .ptab:hover:not(.active){color:var(--text-soft);}
+    }
+
     /* ── RESPONSIVE ── */
     @media(max-width:740px){
       .sidebar{position:fixed;left:-100%;transition:left .25s;width:240px;}
       .sidebar.open{left:0;}
-      .portal-main{margin-left:0;padding:20px 16px;}
+      .portal-main{margin-left:0;max-width:100%;width:100%;padding:20px 16px;}
+      .portal-shell{padding-top:calc(64px + 45px);} /* header + tabs */
       .links-grid{grid-template-columns:1fr;}
+      .cuenta-card,.config-card{max-width:100%;}
     }
     @media(max-width:480px){
       .portal-main{padding:16px;}
@@ -249,11 +281,26 @@
       <a href="/portal" style="color:var(--teal);" id="nav-account-link">Mi Cuenta</a>
     </div>
     <a href="/app" class="btn-nav" id="header-new-link-btn">Crear mi Link</a>
-    <button class="hamburger" id="hamburger-btn" aria-label="Menú" onclick="toggleSidebar()">
+    <button class="hamburger" id="hamburger-btn" aria-label="Menú" onclick="toggleMobileNav()">
       <span></span><span></span><span></span>
     </button>
   </nav>
 </header>
+
+<!-- SITE-WIDE MOBILE NAV -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="/" id="mnav-inicio">Inicio</a>
+  <a href="/#ayuda" id="mnav-ayuda">Ayuda</a>
+  <a href="/portal" id="mnav-cuenta">Mi Cuenta</a>
+  <a href="/app" class="mobile-cta-btn">Crear mi Link</a>
+</div>
+
+<!-- PORTAL SECTION TABS (mobile) -->
+<div class="portal-tabs-mobile" id="portal-tabs-mobile">
+  <button class="ptab active" data-tab="cuenta" onclick="switchTab('cuenta')">Mi cuenta</button>
+  <button class="ptab" data-tab="links" onclick="switchTab('links')">Mis Links</button>
+  <button class="ptab" data-tab="config" onclick="switchTab('config')">Configuración</button>
+</div>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
@@ -769,8 +816,33 @@ function confirmDeleteAccount() {
 }
 
 /* ── TAB SWITCH ── */
+/* ── MOBILE NAV TOGGLE ── */
+function toggleMobileNav() {
+  const nav = $('mobile-nav');
+  const btn = $('hamburger-btn');
+  const isOpen = nav.classList.contains('open');
+  nav.classList.toggle('open', !isOpen);
+  if (btn) btn.classList.toggle('open', !isOpen);
+  document.body.style.overflow = isOpen ? '' : 'hidden';
+}
+document.addEventListener('click', function(e) {
+  const nav = $('mobile-nav');
+  const btn = $('hamburger-btn');
+  if (nav && nav.classList.contains('open') && !nav.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+    nav.classList.remove('open');
+    if (btn) btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+/* Highlight Mi Cuenta as active */
+(function() {
+  const mnavCuenta = $('mnav-cuenta');
+  if (mnavCuenta) { mnavCuenta.classList.add('nav-active'); }
+})();
+
 function switchTab(id) {
   document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
   document.querySelectorAll('.portal-section').forEach(s => {
     s.classList.remove('active');
     s.style.display = 'none';
