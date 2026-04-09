@@ -99,7 +99,13 @@
     .btn-action.copied{color:rgba(255,255,255,.4);}
     body.bg-light{--muted:rgba(0,0,0,0.45);--text:#1a1a1a;}
     body.bg-light .action-label{color:rgba(0,0,0,.45);}
-    body.bg-light .btn-action{background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.20);color:var(--card-accent);}
+    body.bg-light .btn-action{
+      background:rgba(255,255,255,.15);
+      border-color:var(--action-btn-border,rgba(0,200,150,.30));
+      color:var(--card-accent);
+    }
+    body.bg-light .btn-action:hover{background:rgba(255,255,255,.30);}
+    body.bg-light .btn-action.copied{color:rgba(0,0,0,.3);}
     .branding{margin-top:18px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:2;}
     .branding-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
     .branding a{display:flex;align-items:center;gap:6px;text-decoration:none;opacity:.55;transition:opacity .2s;}

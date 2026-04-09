@@ -714,14 +714,11 @@ function renderLinkCards(links, expMap) {
         <div class="link-card-preview" style="background:${link.card_gradient||'linear-gradient(135deg,#004d38,#00c896)'};border-radius:10px;"></div>
       </div>
       <div class="link-card-url-wrap">
-        <div class="link-card-url" id="url-display-${slug}">
+        <div class="link-card-url" id="url-display-${slug}" onclick="copyText('${url}','Link copiado')" title="Clic para copiar" style="cursor:pointer;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="#00c896" stroke-width="1.8" stroke-linecap="round"/></svg>
           <span>tr4nsfer.me/${esc(displaySlug)}</span>
           <button class="url-edit-btn" onclick="startEditUrl(event,'${slug}')" title="Editar URL">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          </button>
-          <button class="url-edit-btn" onclick="copyText('${url}','Link copiado')" title="Copiar link">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           </button>
         </div>
         <div class="link-card-url editing" id="url-editor-${slug}" style="display:none;">
@@ -739,9 +736,9 @@ function renderLinkCards(links, expMap) {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           Editar
         </button>
-        <button class="lc-btn primary" onclick="openExpirableModal('${slug}')">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          Link Expirable
+        <button class="lc-btn" onclick="window.open('${url}','_blank')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="15 3 21 3 21 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Visitar
         </button>
       </div>`;
     grid.appendChild(card);
