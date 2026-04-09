@@ -2,9 +2,16 @@
 // Receives: { slug, nombre, alias?, card_gradient, card_design, bg_color,
 //             show_whatsapp, show_email, icon_id?, icon_color?,
 //             has_fiscal?, razon_social?, rfc?, regimen_fiscal?,
-//             cp_fiscal?, ciudad_fiscal?, estado_fiscal?, colonia_fiscal?, calle_fiscal? }
+//             cp_fiscal?, ciudad_fiscal?, estado_fiscal?, colonia_fiscal?, calle_fiscal?,
+//             whatsapp?, email?,
+//             clabe?, banco?, banco_code?, banco_domain?, titular_cuenta?,
+//             custom_slug? }
 // Returns:  { ok: true } | { error: string }
-// Auth: Supabase session JWT required — only the link owner can update
+// Auth: Supabase session JWT required — only the link owner can update.
+//
+// OWNERSHIP: verified via account_email_hash (the email used at creation time).
+// This is intentionally separate from email_hash (the card's contact email),
+// which CAN change when the user edits their card. account_email_hash NEVER changes.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -13,7 +20,6 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-jwt',
 }
 
-// ─── Encryption helpers (mirrors create-link.ts) ──────────────────────────────
 async function getEncKey(): Promise<CryptoKey> {
   const secret = Deno.env.get('ENCRYPTION_SECRET') ?? ''
   const raw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret))
@@ -29,13 +35,11 @@ async function encrypt(text: string, key: CryptoKey): Promise<string> {
   return btoa(String.fromCharCode(...buf))
 }
 
-// Encrypt if value is a non-empty string, otherwise return null
 async function enc(v: string | null | undefined, key: CryptoKey): Promise<string | null> {
   if (!v) return null
   return encrypt(v, key)
 }
 
-// ─── Auth helpers ─────────────────────────────────────────────────────────────
 async function hashStr(s: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s.toLowerCase().trim()))
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
@@ -46,7 +50,6 @@ async function hashClabe(clabe: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-// ─── Handler ──────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
 
@@ -58,9 +61,7 @@ Deno.serve(async (req) => {
       has_fiscal, razon_social, rfc, regimen_fiscal,
       cp_fiscal, ciudad_fiscal, estado_fiscal, colonia_fiscal, calle_fiscal,
       whatsapp, email,
-      // Banking fields — only present when CLABE changed
       clabe, banco, banco_code, banco_domain, titular_cuenta,
-      // Custom slug
       custom_slug,
     } = body
 
@@ -68,7 +69,6 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'slug requerido' }), { status: 400, headers: CORS })
     }
 
-    // Read user JWT from custom header (Authorization carries anon key for gateway)
     const userJwt = (req.headers.get('x-user-jwt') ?? '').trim()
     if (!userJwt) {
       return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: CORS })
@@ -79,9 +79,12 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
-    // Verify user JWT via Supabase Auth REST API
+    // Verify user JWT and get their current account email
     const authRes = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
-      headers: { 'Authorization': `Bearer ${userJwt}`, 'apikey': Deno.env.get('SUPABASE_ANON_KEY') ?? '' }
+      headers: {
+        'Authorization': `Bearer ${userJwt}`,
+        'apikey': Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      }
     })
     if (!authRes.ok) {
       return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: CORS })
@@ -91,39 +94,39 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: CORS })
     }
 
-    // Verify the link belongs to this user
-    const emailHash = await hashStr(userEmail)
+    // ── Ownership check via account_email_hash (NEVER changes) ───────────────
+    // This is independent of the card's contact email (email_hash), which CAN change.
+    const accountEmailHash = await hashStr(userEmail)
+
     const { data: existing, error: fetchErr } = await supabase
       .from('links')
-      .select('id, email_hash')
+      .select('id, account_email_hash')
       .eq('slug', slug)
       .maybeSingle()
 
     if (fetchErr || !existing) {
       return new Response(JSON.stringify({ error: 'Link no encontrado' }), { status: 404, headers: CORS })
     }
-    if (existing.email_hash !== emailHash) {
+    if (existing.account_email_hash !== accountEmailHash) {
       return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 403, headers: CORS })
     }
 
-    // ── Build update payload ────────────────────────────────────────────────
-    // Non-sensitive fields stored as plain text (same as create-link)
+    // ── Build update payload ─────────────────────────────────────────────────
     const updates: Record<string, unknown> = {}
 
-    if (alias          !== undefined) updates.alias          = alias || null
+    if (alias          !== undefined) updates.alias          = alias         || null
     if (card_gradient  !== undefined) updates.card_gradient  = card_gradient
     if (card_design    !== undefined) updates.card_design    = card_design
     if (bg_color       !== undefined) updates.bg_color       = bg_color
     if (show_whatsapp  !== undefined) updates.show_whatsapp  = !!show_whatsapp
     if (show_email     !== undefined) updates.show_email     = !!show_email
-    if (icon_id        !== undefined) updates.icon_id        = icon_id  || null
-    if (icon_color     !== undefined) updates.icon_color     = icon_color || null
+    if (icon_id        !== undefined) updates.icon_id        = icon_id       || null
+    if (icon_color     !== undefined) updates.icon_color     = icon_color    || null
     if (has_fiscal     !== undefined) updates.has_fiscal     = !!has_fiscal
-    if (cp_fiscal      !== undefined) updates.cp_fiscal      = cp_fiscal      || null
-    if (ciudad_fiscal  !== undefined) updates.ciudad_fiscal  = ciudad_fiscal  || null
-    if (estado_fiscal  !== undefined) updates.estado_fiscal  = estado_fiscal  || null
+    if (cp_fiscal      !== undefined) updates.cp_fiscal      = cp_fiscal     || null
+    if (ciudad_fiscal  !== undefined) updates.ciudad_fiscal  = ciudad_fiscal || null
+    if (estado_fiscal  !== undefined) updates.estado_fiscal  = estado_fiscal || null
 
-    // Sensitive fields — must be encrypted before storing (mirrors create-link.ts)
     const encKey = await getEncKey()
 
     if (nombre         !== undefined) updates.nombre         = await enc(nombre,         encKey)
@@ -135,21 +138,22 @@ Deno.serve(async (req) => {
     if (colonia_fiscal !== undefined) updates.colonia_fiscal = await enc(colonia_fiscal, encKey)
     if (calle_fiscal   !== undefined) updates.calle_fiscal   = await enc(calle_fiscal,   encKey)
 
-    // Email — encrypt value + re-hash for fast lookup; only update when provided
+    // Card contact email — update email + email_hash only.
+    // account_email_hash is intentionally NOT touched here.
     if (email !== undefined && email) {
       const emailClean = String(email).toLowerCase().trim()
       updates.email      = await enc(emailClean, encKey)
       updates.email_hash = await hashStr(emailClean)
+      // account_email_hash stays as-is — ownership identifier never changes
     }
 
-    // CLABE change: re-encrypt and re-hash; verify new CLABE is not taken by another link
+    // CLABE change
     if (clabe !== undefined && clabe) {
       const clabeClean = String(clabe).replace(/\D/g, '')
       if (clabeClean.length !== 18) {
         return new Response(JSON.stringify({ error: 'CLABE debe tener 18 dígitos' }), { status: 400, headers: CORS })
       }
       const newHash = await hashClabe(clabeClean)
-      // Check uniqueness — exclude current link
       const { data: conflict } = await supabase
         .from('links').select('id').eq('clabe_hash', newHash).neq('slug', slug).maybeSingle()
       if (conflict) {
@@ -158,18 +162,17 @@ Deno.serve(async (req) => {
       updates.clabe      = await enc(clabeClean, encKey)
       updates.clabe_hash = newHash
     }
-    if (banco       !== undefined) updates.banco       = banco       || null
-    if (banco_code  !== undefined) updates.banco_code  = banco_code  || null
-    if (banco_domain!== undefined) updates.banco_domain= banco_domain|| null
+    if (banco        !== undefined) updates.banco        = banco        || null
+    if (banco_code   !== undefined) updates.banco_code   = banco_code   || null
+    if (banco_domain !== undefined) updates.banco_domain = banco_domain || null
 
-    // Custom slug — check uniqueness across both slug and custom_slug columns
+    // Custom slug
     if (custom_slug !== undefined && custom_slug) {
       const SLUG_RE = /^[a-z0-9-]{3,20}$/
       const cs = String(custom_slug).trim().toLowerCase()
       if (!SLUG_RE.test(cs)) {
         return new Response(JSON.stringify({ error: 'custom_slug_inválido' }), { status: 400, headers: CORS })
       }
-      // Check not taken by another link (either as slug or custom_slug)
       const [bySlug, byCustom] = await Promise.all([
         supabase.from('links').select('id').eq('slug', cs).neq('slug', slug).maybeSingle(),
         supabase.from('links').select('id').eq('custom_slug', cs).neq('slug', slug).maybeSingle(),

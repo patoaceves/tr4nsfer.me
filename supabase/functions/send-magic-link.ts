@@ -1,8 +1,12 @@
 // send-magic-link
 // Receives: { email: string }
-// Checks email exists in links table, then sends magic link via Admin API.
+// Checks email exists as an account owner, then sends magic link via Admin API.
 // Always returns { sent: true } to prevent email enumeration.
 // Rate limited: 1 request per email per 5 minutes via rate_limits table.
+//
+// ACCOUNT CHECK: uses account_email_hash — the stable ownership identifier.
+// This is intentionally separate from email_hash (card contact email),
+// so users can log in even if they later changed their card's contact email.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -18,9 +22,6 @@ async function hashEmail(email: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-// ── Rate limiting ────────────────────────────────────────────────────────────
-// Uses rate_limits table: { key TEXT PK, hits INT, window_start TIMESTAMPTZ }
-// Returns false if the caller is over the limit.
 async function checkRateLimit(
   supabase: ReturnType<typeof createClient>,
   key: string,
@@ -29,7 +30,6 @@ async function checkRateLimit(
 ): Promise<boolean> {
   const now = Date.now()
 
-  // Fire-and-forget: purge entries older than 2x window to keep table small
   supabase.from('rate_limits')
     .delete()
     .lt('window_start', new Date(now - windowMs * 2).toISOString())
@@ -44,14 +44,12 @@ async function checkRateLimit(
   if (data) {
     const windowStart = new Date(data.window_start).getTime()
     if (windowStart > now - windowMs) {
-      // Still in the same window
       if (data.hits >= maxHits) return false
       await supabase.from('rate_limits').update({ hits: data.hits + 1 }).eq('key', key)
       return true
     }
   }
 
-  // First request or window expired — open a new window
   await supabase.from('rate_limits').upsert({
     key,
     hits: 1,
@@ -80,26 +78,41 @@ Deno.serve(async (req) => {
 
     const emailHash = await hashEmail(emailClean)
 
-    // ── 1. Rate limit: 1 magic link per email cada 5 minutos ─────────────────
+    // ── 1. Rate limit: 1 magic link per email per 5 minutes ─────────────────
     const allowed = await checkRateLimit(supabase, `magic:${emailHash}`, 1, 5 * 60 * 1000)
     if (!allowed) {
-      // Still return 200 — don't reveal that the email exists AND is being hammered
       return new Response(JSON.stringify({ sent: true }), {
         headers: { ...CORS, 'Content-Type': 'application/json' },
       })
     }
 
-    // ── 2. Check whether this email has a registered link ───────────────────
-    // We deliberately do NOT short-circuit with an error if no account is found.
-    // Returning { sent: true } regardless prevents email enumeration.
-    const { data } = await supabase
+    // ── 2. Check whether this email is a registered account owner ───────────
+    // We check account_email_hash — the stable identifier that NEVER changes
+    // even if the user later updates their card's contact email.
+    // This ensures users can always log in with their original account email.
+    //
+    // Fallback to email_hash for rows not yet migrated.
+    const { data: byAccount } = await supabase
       .from('links')
       .select('id')
-      .eq('email_hash', emailHash)
+      .eq('account_email_hash', emailHash)
+      .limit(1)
       .maybeSingle()
 
-    if (!data) {
-      // No account — return 200 anyway, just don't hit the mail API
+    // Legacy fallback: rows where account_email_hash not yet set
+    let found = !!byAccount
+    if (!found) {
+      const { data: byEmailHash } = await supabase
+        .from('links')
+        .select('id')
+        .eq('email_hash', emailHash)
+        .limit(1)
+        .maybeSingle()
+      found = !!byEmailHash
+    }
+
+    if (!found) {
+      // No account — return 200 anyway to prevent email enumeration
       return new Response(JSON.stringify({ sent: true }), {
         headers: { ...CORS, 'Content-Type': 'application/json' },
       })

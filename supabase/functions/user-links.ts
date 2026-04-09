@@ -2,12 +2,12 @@
 // Auth flow:
 //   Portal sends  → Authorization: Bearer <anon_key>  (gateway accepts this always)
 //                 → x-user-jwt: <user_access_token>   (our function verifies this)
-// This cleanly separates gateway auth from user identity.
 //
-// Legacy fallback: rows created before email_hash column was added are found by
-// decrypting email and comparing. Once all rows have been back-filled (check via
-// Supabase: SELECT COUNT(*) FROM links WHERE email_hash IS NULL), set env var
-// DISABLE_LEGACY_FALLBACK=true to remove this overhead entirely.
+// OWNERSHIP: uses account_email_hash for lookup — the stable hash set at link creation.
+// This is intentionally separate from email_hash (card contact email), which can change.
+//
+// Legacy fallback: rows without account_email_hash are found via email_hash or by
+// decrypting email. Once all rows are migrated, set DISABLE_LEGACY_FALLBACK=true.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -16,7 +16,6 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-jwt',
 }
 
-// ─── Verify user JWT via Supabase Auth REST ────────────────────────────────────
 async function verifyAndGetEmail(userJwt: string): Promise<string | null> {
   try {
     const res = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
@@ -33,7 +32,6 @@ async function verifyAndGetEmail(userJwt: string): Promise<string | null> {
   }
 }
 
-// ─── Crypto helpers ───────────────────────────────────────────────────────────
 async function getEncKey(): Promise<CryptoKey> {
   const secret = Deno.env.get('ENCRYPTION_SECRET') ?? ''
   const raw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret))
@@ -56,10 +54,9 @@ async function hashEmail(email: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-// ─── Handler ──────────────────────────────────────────────────────────────────
 const COLS = 'slug,custom_slug,banco,banco_code,banco_domain,alias,card_gradient,card_design,bg_color,' +
              'show_whatsapp,show_email,logo_url,profile_type,nombre_negocio,has_fiscal,' +
-             'icon_id,icon_color,created_at,nombre,whatsapp,email,email_hash'
+             'icon_id,icon_color,created_at,nombre,whatsapp,email,email_hash,account_email_hash'
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } })
@@ -74,31 +71,47 @@ Deno.serve(async (req) => {
     const userEmail = await verifyAndGetEmail(userJwt)
     if (!userEmail) return json({ error: 'JWT inválido o expirado' }, 401)
 
-    const emailHash = await hashEmail(userEmail)
+    const accountEmailHash = await hashEmail(userEmail)
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
-    // ── Primary: fast indexed lookup by email_hash ────────────────────────────
+    // ── Primary: fast indexed lookup by account_email_hash ───────────────────
+    // account_email_hash is the stable ownership identifier — never changes.
     let { data: links, error: linksErr } = await supabase
       .from('links').select(COLS)
-      .eq('email_hash', emailHash)
+      .eq('account_email_hash', accountEmailHash)
       .order('created_at', { ascending: false })
 
     if (linksErr) throw linksErr
 
-    // ── Legacy fallback: rows created before email_hash column existed ────────
-    // Disable by setting DISABLE_LEGACY_FALLBACK=true once all rows are migrated.
-    // Monitor: SELECT COUNT(*) FROM links WHERE email_hash IS NULL
+    // ── Legacy fallback 1: rows back-filled to email_hash but not yet to account_email_hash ──
     if ((!links || links.length === 0) && Deno.env.get('DISABLE_LEGACY_FALLBACK') !== 'true') {
-      console.warn(`[user-links] legacy fallback triggered for email_hash=${emailHash.slice(0,8)}… — set DISABLE_LEGACY_FALLBACK=true when all rows are migrated`)
+      const { data: byEmailHash } = await supabase
+        .from('links').select(COLS)
+        .eq('email_hash', accountEmailHash)
+        .is('account_email_hash', null)
+        .order('created_at', { ascending: false })
+
+      if (byEmailHash && byEmailHash.length > 0) {
+        console.warn(`[user-links] legacy fallback 1: back-filling account_email_hash for ${byEmailHash.length} row(s)`)
+        await supabase.from('links')
+          .update({ account_email_hash: accountEmailHash })
+          .in('slug', byEmailHash.map(r => r.slug))
+        links = byEmailHash
+      }
+    }
+
+    // ── Legacy fallback 2: rows without any hash — decrypt and compare ────────
+    if ((!links || links.length === 0) && Deno.env.get('DISABLE_LEGACY_FALLBACK') !== 'true') {
+      console.warn(`[user-links] legacy fallback 2 triggered for account_email_hash=${accountEmailHash.slice(0,8)}…`)
 
       const encKey = await getEncKey()
       const { data: legacy } = await supabase
         .from('links').select(COLS)
-        .is('email_hash', null)
+        .is('account_email_hash', null)
         .order('created_at', { ascending: false })
         .limit(300)
 
@@ -109,10 +122,9 @@ Deno.serve(async (req) => {
       }
 
       if (matched.length > 0) {
-        console.warn(`[user-links] back-filling email_hash for ${matched.length} row(s) — slugs: ${matched.map(r => r.slug).join(', ')}`)
-        // Back-fill email_hash for future fast lookups
+        console.warn(`[user-links] legacy fallback 2: back-filling ${matched.length} row(s) — slugs: ${matched.map(r => r.slug).join(', ')}`)
         await supabase.from('links')
-          .update({ email_hash: emailHash })
+          .update({ account_email_hash: accountEmailHash })
           .in('slug', matched.map(r => r.slug))
         links = matched
       }
@@ -122,8 +134,13 @@ Deno.serve(async (req) => {
 
     const encKey = await getEncKey()
     const decrypted = await Promise.all(links.map(async (link) => {
-      const { email_hash: _eh, email: _e, ...rest } = link
-      return { ...rest, nombre: await safeDec(link.nombre, encKey), whatsapp: await safeDec(link.whatsapp, encKey) }
+      // Strip internal hash fields from the response
+      const { email_hash: _eh, account_email_hash: _aeh, email: _e, ...rest } = link
+      return {
+        ...rest,
+        nombre:   await safeDec(link.nombre,   encKey),
+        whatsapp: await safeDec(link.whatsapp, encKey),
+      }
     }))
 
     let expirable: Record<string, unknown[]> = {}

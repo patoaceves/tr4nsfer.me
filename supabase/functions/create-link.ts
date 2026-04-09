@@ -50,40 +50,45 @@ Deno.serve(async (req) => {
     )
 
     const clabeClean = body.clabe ? String(body.clabe).replace(/\D/g, '') : null
-    const clabeHash = clabeClean ? await hashClabe(clabeClean) : null
+    const clabeHash  = clabeClean ? await hashClabe(clabeClean) : null
+
+    // email_hash        = hash of the card's contact email (can change later via update-link)
+    // account_email_hash = hash of the account owner email (NEVER changes — ownership identifier)
+    // At creation time both are always the same value.
     const emailHash = body.email ? await hashEmail(body.email) : null
 
     const fields = {
-      clabe:          await enc(body.clabe),
-      clabe_hash:     clabeHash,
-      titular_cuenta: await enc(body.titular_cuenta),
-      whatsapp:       await enc(body.whatsapp),
-      email:          await enc(body.email),
-      email_hash:     emailHash,
-      nombre:         await enc(body.nombre),
-      banco:          body.banco,
-      banco_code:     body.banco_code,
-      banco_domain:   body.banco_domain,
-      alias:          body.alias,
-      card_gradient:  body.card_gradient,
-      card_design:    body.card_design,
-      bg_color:       body.bg_color,
-      show_whatsapp:  body.show_whatsapp ?? false,
-      show_email:     body.show_email ?? false,
-      logo_url:       body.logo_url ?? null,
-      profile_type:   body.profile_type ?? 'personal',
-      nombre_negocio: body.nombre_negocio ?? null,
-      has_fiscal:     body.has_fiscal ?? false,
-      razon_social:   await enc(body.razon_social),
-      rfc:            await enc(body.rfc),
-      regimen_fiscal: await enc(body.regimen_fiscal),
-      cp_fiscal:      body.cp_fiscal ?? null,
-      ciudad_fiscal:  body.ciudad_fiscal ?? null,
-      estado_fiscal:  body.estado_fiscal ?? null,
-      colonia_fiscal: await enc(body.colonia_fiscal),
-      calle_fiscal:   await enc(body.calle_fiscal),
-      icon_id:        body.icon_id ?? null,
-      icon_color:     body.icon_color ?? null,
+      clabe:               await enc(body.clabe),
+      clabe_hash:          clabeHash,
+      titular_cuenta:      await enc(body.titular_cuenta),
+      whatsapp:            await enc(body.whatsapp),
+      email:               await enc(body.email),
+      email_hash:          emailHash,
+      account_email_hash:  emailHash,   // ← stable ownership identifier, set once here
+      nombre:              await enc(body.nombre),
+      banco:               body.banco,
+      banco_code:          body.banco_code,
+      banco_domain:        body.banco_domain,
+      alias:               body.alias,
+      card_gradient:       body.card_gradient,
+      card_design:         body.card_design,
+      bg_color:            body.bg_color,
+      show_whatsapp:       body.show_whatsapp ?? false,
+      show_email:          body.show_email ?? false,
+      logo_url:            body.logo_url ?? null,
+      profile_type:        body.profile_type ?? 'personal',
+      nombre_negocio:      body.nombre_negocio ?? null,
+      has_fiscal:          body.has_fiscal ?? false,
+      razon_social:        await enc(body.razon_social),
+      rfc:                 await enc(body.rfc),
+      regimen_fiscal:      await enc(body.regimen_fiscal),
+      cp_fiscal:           body.cp_fiscal ?? null,
+      ciudad_fiscal:       body.ciudad_fiscal ?? null,
+      estado_fiscal:       body.estado_fiscal ?? null,
+      colonia_fiscal:      await enc(body.colonia_fiscal),
+      calle_fiscal:        await enc(body.calle_fiscal),
+      icon_id:             body.icon_id ?? null,
+      icon_color:          body.icon_color ?? null,
     }
 
     let slug = ''
