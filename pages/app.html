@@ -821,7 +821,7 @@ function selectType(type){
 }
 
 function goBackToType(){
-  if(EDIT_MODE){window.location.href='portal.html';return;}
+  if(EDIT_MODE){window.location.href='/portal';return;}
   if($('type-back-btn'))$('type-back-btn').style.display='none';
   $('view-type').style.display='flex';
   $('app-hero').style.display='none';
@@ -1365,6 +1365,19 @@ async function initEditMode(){
   $('app-hero').style.display='';
   transitionHero('Editar mi Link','Actualiza el diseño y la información de tu perfil.');
 
+  /* ── Volver button (edit mode only) ── */
+  const heroEl=$('app-hero');
+  if(heroEl&&!$('edit-back-btn')){
+    const backBtn=document.createElement('button');
+    backBtn.id='edit-back-btn';
+    backBtn.innerHTML='&#8592; Volver a Mis Links';
+    backBtn.style.cssText='background:none;border:none;color:var(--muted);font-size:13px;font-weight:500;font-family:"Inter",sans-serif;cursor:pointer;padding:4px 0;margin-bottom:16px;display:flex;align-items:center;gap:6px;transition:color .15s;';
+    backBtn.onmouseover=function(){this.style.color='var(--text)';}
+    backBtn.onmouseout=function(){this.style.color='var(--muted)';}
+    backBtn.onclick=function(){window.location.href='/portal#links';};
+    heroEl.insertBefore(backBtn,heroEl.firstChild);
+  }
+
   /* hide consent block — not needed when editing */
   const step2Footer=$('step2-footer');
   if(step2Footer){
@@ -1436,6 +1449,30 @@ async function initEditMode(){
     if($('show_whatsapp'))$('show_whatsapp').checked=!!data.show_whatsapp;
     if($('show_email'))$('show_email').checked=!!data.show_email;
 
+    /* ── Nombre de negocio toggle + value ── */
+    if(data.nombre_negocio&&$('show_nombre_negocio')){
+      $('show_nombre_negocio').checked=true;
+      $('show_nombre_negocio').dispatchEvent(new Event('change'));
+      if($('nombre-negocio'))$('nombre-negocio').value=data.nombre_negocio;
+      updateNombreNegocioPreview();
+    }
+
+    /* ── Logo toggle + preview ── */
+    if(data.logo_url&&$('show_logo')){
+      $('show_logo').checked=true;
+      onLogoToggle();
+      // Show logo preview from URL
+      const logoThumb=$('logo-thumb');
+      const logoDzSquare=$('logo-dz-square');
+      if(logoThumb){logoThumb.src=data.logo_url;logoThumb.style.display='block';}
+      if(logoDzSquare){const plusIcon=logoDzSquare.querySelector('svg');if(plusIcon)plusIcon.style.display='none';}
+      // Show on live card
+      const lcLogoSq=$('lc-logo-sq');const lcLogoImg=$('lc-logo-img');
+      if(lcLogoImg){lcLogoImg.src=data.logo_url;}
+      if(lcLogoSq){lcLogoSq.classList.add('visible');}
+      logoBase64=data.logo_url; // keep existing URL if user doesn't re-upload
+    }
+
     /* icon */
     if(data.profile_type==='negocios'){const iconSec=$('icon-editor-section');if(iconSec)iconSec.style.display='block';}
     if(data.icon_id){selectedIconId=data.icon_id;selectedIconColor=data.icon_color||'rgba(255,255,255,1)';updateCardIcon(data.icon_id);}
@@ -1464,6 +1501,29 @@ async function initEditMode(){
       const fd={...data,...fiscalData};
       const fmap={razon_social:'razon-social',rfc:'rfc',regimen_fiscal:'regimen-fiscal',cp_fiscal:'cp-fiscal',ciudad_fiscal:'ciudad-fiscal',estado_fiscal:'estado-fiscal',calle_fiscal:'calle-fiscal'};
       Object.entries(fmap).forEach(([k,id])=>{if(fd[k]&&$(id))$(id).value=fd[k];});
+      // Trigger CP lookup to show address rows and pre-select colonia
+      if(fd.cp_fiscal&&$('cp-fiscal')&&fd.cp_fiscal.length===5){
+        $('cp-fiscal').dispatchEvent(new Event('input'));
+        // After CP lookup resolves, set colonia as "otra" with the saved value
+        if(fd.colonia_fiscal){
+          setTimeout(()=>{
+            const sel=$('colonia-fiscal');
+            if(sel){
+              // Try to find matching option
+              let found=false;
+              for(const opt of sel.options){
+                if(opt.value===fd.colonia_fiscal){sel.value=fd.colonia_fiscal;found=true;break;}
+              }
+              if(!found){
+                // Add as option and select it
+                const opt=document.createElement('option');
+                opt.value=fd.colonia_fiscal;opt.textContent=fd.colonia_fiscal;
+                sel.appendChild(opt);sel.value=fd.colonia_fiscal;
+              }
+            }
+          },1200); // wait for CP lookup
+        }
+      }
     }
 
     /* ── Show Step 1 first (with inline Continue button below the card) ── */
@@ -1530,7 +1590,7 @@ async function saveEditedLink(){
     hidePageLoader(()=>{
       const overlay=$('save-success-overlay');
       if(overlay)overlay.style.display='flex';
-      setTimeout(()=>window.location.href='portal.html#links',2200);
+      setTimeout(()=>window.location.href='/portal#links',2200);
     });
   }catch(e){
     hidePageLoader(()=>{btn.disabled=false;textEl.textContent='Error. Intenta de nuevo.';showToast('No se pudieron guardar los cambios.','error');});

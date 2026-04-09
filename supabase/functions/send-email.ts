@@ -9,13 +9,22 @@ const CORS = {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+
+  // Parse body immediately so we can respond fast
+  let body: Record<string, unknown>
+  try { body = await req.json() } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers: CORS })
+  }
+
+  // Run the actual send asynchronously — prevents EarlyDrop when client disconnects
+  const sendWork = (async () => {
   try {
     const {
       slug, email, nombre,
       qr_data_url,          // base64 PNG from client (optional)
       profile_type, nombre_negocio,
       whatsapp,
-    } = await req.json()
+    } = body as Record<string, string>
 
     if (!email || !slug) throw new Error('Missing email or slug')
 
@@ -175,12 +184,20 @@ Deno.serve(async (req) => {
 
     if (!res.ok) throw new Error(`Resend error: ${await res.text()}`)
 
-    return new Response(JSON.stringify({ sent: true }), {
-      headers: { ...CORS, 'Content-Type': 'application/json' }
-    })
   } catch (e) {
-    return new Response(JSON.stringify({ error: (e as Error).message }), {
-      status: 500, headers: { ...CORS, 'Content-Type': 'application/json' }
-    })
+    console.error('[send-email] error:', (e as Error).message)
   }
+  })() // end sendWork
+
+  // Tell Supabase to keep function alive until email is fully sent
+  // This prevents EarlyDrop when the browser closes the connection first
+  try {
+    // @ts-ignore — EdgeRuntime is available in Supabase Edge Functions
+    if (typeof EdgeRuntime !== 'undefined') EdgeRuntime.waitUntil(sendWork)
+  } catch (_) { /* ignore if not available */ }
+
+  // Respond immediately — don't make the browser wait for Resend
+  return new Response(JSON.stringify({ sent: true }), {
+    headers: { ...CORS, 'Content-Type': 'application/json' }
+  })
 })
