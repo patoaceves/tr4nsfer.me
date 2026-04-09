@@ -370,7 +370,7 @@ async function sendLink() {
     btn.innerHTML = '<span class="btn-spinner"></span>Enviando…';
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth?return=portal' }
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth' }
     });
     if (error) {
       console.error('[auth] signInWithOtp error:', error);
@@ -401,7 +401,7 @@ async function resendLink() {
   try {
     const { error } = await sb.auth.signInWithOtp({
       email: currentEmail,
-      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth?return=portal' }
+      options: { shouldCreateUser: true, emailRedirectTo: 'https://tr4nsfer.me/auth' }
     });
     if (error) throw error;
     btn.textContent = 'Link reenviado ✓';
