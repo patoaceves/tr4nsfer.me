@@ -126,6 +126,7 @@ Deno.serve(async (req) => {
     if (cp_fiscal      !== undefined) updates.cp_fiscal      = cp_fiscal     || null
     if (ciudad_fiscal  !== undefined) updates.ciudad_fiscal  = ciudad_fiscal || null
     if (estado_fiscal  !== undefined) updates.estado_fiscal  = estado_fiscal || null
+    if ('logo_url' in body)           updates.logo_url       = body.logo_url || null
 
     const encKey = await getEncKey()
 

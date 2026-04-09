@@ -564,12 +564,12 @@
             </div>
             <div id="cp-autofill-row" style="display:none;">
               <div class="form-row" style="margin-bottom:10px;">
-                <div class="field" style="margin-bottom:0;"><label>Municipio / Ciudad <span class="opt">— opcional</span></label><input type="text" id="ciudad-fiscal" placeholder="EJ. CUAUHTÉMOC" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/></div>
+                <div class="field" style="margin-bottom:0;"><label>Municipio / Ciudad <span class="req">*</span></label><input type="text" id="ciudad-fiscal" placeholder="EJ. CUAUHTÉMOC" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/></div>
                 <div class="field" style="margin-bottom:0;"><label>Estado</label><input type="text" id="estado-fiscal" readonly placeholder="AUTO-DETECTADO" style="text-transform:uppercase;"/></div>
               </div>
-              <div class="field" id="fg-colonia" style="margin-bottom:10px;"><label>Colonia <span class="opt">— opcional</span></label><select id="colonia-fiscal"><option value="">Selecciona tu colonia</option></select></div>
+              <div class="field" id="fg-colonia" style="margin-bottom:10px;"><label>Colonia <span class="req">*</span></label><select id="colonia-fiscal"><option value="">Selecciona tu colonia</option></select></div>
               <div id="colonia-otra-wrap" style="display:none;margin-bottom:10px;"><input type="text" id="colonia-otra" placeholder="ESCRIBE TU COLONIA" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/></div>
-              <div class="field" id="fg-calle"><label>Calle y número <span class="opt">— opcional</span></label><input type="text" id="calle-fiscal" placeholder="EJ. AV. INSURGENTES SUR 123" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/></div>
+              <div class="field" id="fg-calle"><label>Calle y n&#250;mero <span class="req">*</span></label><input type="text" id="calle-fiscal" placeholder="EJ. AV. INSURGENTES SUR 123" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"/><span class="field-error">Ingresa la calle y n&#250;mero.</span></div>
             </div>
           </div>
         </div>
@@ -604,7 +604,7 @@
           <div class="contact-preview" id="contact-preview" style="display:none;">
             <div class="cp-row" id="cp-wa" style="display:none;"><div class="cp-row-left"><div class="cp-label">WhatsApp</div><div class="cp-value" id="cp-wa-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-wa-text',this)">Copiar</button></div>
             <div class="cp-row" id="cp-email" style="display:none;"><div class="cp-row-left"><div class="cp-label">Correo electr&#243;nico</div><div class="cp-value" id="cp-email-text">&#8212;</div></div><button class="cp-copy" onclick="cpCopy('cp-email-text',this)">Copiar</button></div>
-            <div class="cp-row" id="cp-fiscal-row" style="display:none;"><div class="cp-row-left"><div class="cp-label">Datos fiscales</div><div class="cp-value">RFC · Régimen · Dirección</div></div><button class="cp-copy" style="pointer-events:none;">Ver &#8594;</button></div>
+            <div class="cp-row" id="cp-fiscal-row" style="display:none;"><div class="cp-row-left"><div class="cp-label">Datos fiscales</div><div class="cp-value" style="font-size:12px;opacity:.7;">RFC &#183; R&#233;gimen &#183; Direcci&#243;n</div></div><button class="cp-copy" style="pointer-events:none;">Ver &#8594;</button></div>
           </div>
         </div>
       </div>
@@ -920,7 +920,9 @@ function goToStep2(){
     $('fg-nombre-negocio').style.display=isNeg?'':'none';$('fg-logo').style.display=isNeg?'':'none';
     const div=$('negocio-section-divider');if(div)div.style.display=isNeg?'block':'none';
     if(isNeg){$('fg-nombre-negocio').style.display='none';if(div)div.style.display='none';}
-    const sfCb=$('show_fiscal');if(sfCb)sfCb.checked=false;const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');
+    const sfCb=$('show_fiscal');
+    // Don't reset fiscal toggle in edit mode — it was pre-filled from DB
+    if(sfCb&&!EDIT_MODE){sfCb.checked=false;const ff=$('fiscal-fields');if(ff)ff.classList.remove('visible');}
     updateContactPreview();window.scrollTo({top:0,behavior:'smooth'});
   });
 }
@@ -1365,17 +1367,28 @@ async function initEditMode(){
   $('app-hero').style.display='';
   transitionHero('Editar mi Link','Actualiza el diseño y la información de tu perfil.');
 
-  /* ── Volver button (edit mode only) ── */
-  const heroEl=$('app-hero');
-  if(heroEl&&!$('edit-back-btn')){
+  /* ── Volver button: inject at top of app-hero (visible on mobile + desktop hero) ── */
+  if(!$('edit-back-btn')){
     const backBtn=document.createElement('button');
     backBtn.id='edit-back-btn';
     backBtn.innerHTML='&#8592; Volver a Mis Links';
-    backBtn.style.cssText='background:none;border:none;color:var(--muted);font-size:13px;font-weight:500;font-family:"Inter",sans-serif;cursor:pointer;padding:4px 0;margin-bottom:16px;display:flex;align-items:center;gap:6px;transition:color .15s;';
+    backBtn.style.cssText='background:none;border:none;color:var(--muted);font-size:13px;font-weight:500;font-family:"Inter",sans-serif;cursor:pointer;padding:4px 0;margin-bottom:16px;display:inline-flex;align-items:center;gap:6px;transition:color .15s;';
     backBtn.onmouseover=function(){this.style.color='var(--text)';}
     backBtn.onmouseout=function(){this.style.color='var(--muted)';}
     backBtn.onclick=function(){window.location.href='/portal#links';};
-    heroEl.insertBefore(backBtn,heroEl.firstChild);
+    const hero=$('app-hero');if(hero)hero.insertBefore(backBtn,hero.firstChild);
+  }
+  /* ── Also inject inside step1 card header (always visible on desktop step 1) ── */
+  if(!$('edit-back-btn-s1')){
+    const backS1=document.createElement('button');
+    backS1.id='edit-back-btn-s1';
+    backS1.innerHTML='&#8592; Volver a Mis Links';
+    backS1.style.cssText='background:none;border:none;color:var(--muted);font-size:12px;font-weight:500;font-family:"Inter",sans-serif;cursor:pointer;padding:0 0 10px;display:inline-flex;align-items:center;gap:5px;transition:color .15s;';
+    backS1.onmouseover=function(){this.style.color='var(--text)';}
+    backS1.onmouseout=function(){this.style.color='var(--muted)';}
+    backS1.onclick=function(){window.location.href='/portal#links';};
+    const cardHdr=$('panel-step1')&&$('panel-step1').querySelector('.card-header');
+    if(cardHdr)cardHdr.insertBefore(backS1,cardHdr.firstChild);
   }
 
   /* hide consent block — not needed when editing */
@@ -1443,102 +1456,101 @@ async function initEditMode(){
 
     /* ──────────────────────────────────────────────────────────
        RESTORE ALL SAVED STATE
-       Order matters: toggles → values → derived UI → preview
+       Order: profile type → toggles+values → design → preview
     ────────────────────────────────────────────────────────── */
 
     /* 1. Profile type + slug + alias */
-    profileType = data.profile_type || 'personal';
-    if(data.custom_slug && $('slug-custom')) $('slug-custom').value = data.custom_slug;
+    profileType=data.profile_type||'personal';
+    if(data.custom_slug&&$('slug-custom'))$('slug-custom').value=data.custom_slug;
 
-    /* 2. show_email toggle + email value */
-    if($('show_email')) $('show_email').checked = !!data.show_email;
-    if(data.email && $('email')) {
-      $('email').value = data.email;
-      emailCheckState = 'ok';
-      const ring = $('email-ring'), ver = $('email-verified');
-      if(ring) ring.classList.remove('visible');
-      if(ver) ver.style.display = 'block';
+    /* 2. show_email toggle + email value (get-link decrypts when show_email=true) */
+    if($('show_email'))$('show_email').checked=!!data.show_email;
+    if(data.email&&$('email')){
+      $('email').value=data.email;
+      emailCheckState='ok';
+      const ring=$('email-ring'),ver=$('email-verified');
+      if(ring)ring.classList.remove('visible');
+      if(ver)ver.style.display='block';
     }
 
     /* 3. show_whatsapp toggle + whatsapp value */
-    if($('show_whatsapp')) $('show_whatsapp').checked = !!data.show_whatsapp;
-    if(data.whatsapp && $('whatsapp')) {
+    if($('show_whatsapp'))$('show_whatsapp').checked=!!data.show_whatsapp;
+    if(data.whatsapp&&$('whatsapp')){
       const WA_CC=[{cc:'52',len:10},{cc:'34',len:9},{cc:'57',len:10},{cc:'54',len:10},{cc:'56',len:9},{cc:'55',len:11},{cc:'1',len:10}];
-      let matched = false;
-      for(const e of WA_CC) {
-        if(data.whatsapp.startsWith(e.cc) && data.whatsapp.length === e.cc.length + e.len) {
-          const local = data.whatsapp.slice(e.cc.length);
-          const sel = $('wa-country');
-          if(sel) { for(const opt of sel.options) { if(opt.value === '+'+e.cc) { sel.value = '+'+e.cc; break; } } }
-          $('whatsapp').value = e.cc === '52' ? fmtWA(local) : local;
-          $('whatsapp').dataset.raw = local;
-          matched = true; break;
+      let matched=false;
+      for(const e of WA_CC){
+        if(data.whatsapp.startsWith(e.cc)&&data.whatsapp.length===e.cc.length+e.len){
+          const local=data.whatsapp.slice(e.cc.length);
+          const sel=$('wa-country');
+          if(sel){for(const opt of sel.options){if(opt.value==='+'+e.cc){sel.value='+'+e.cc;break;}}}
+          $('whatsapp').value=e.cc==='52'?fmtWA(local):local;
+          $('whatsapp').dataset.raw=local;
+          matched=true;break;
         }
       }
-      if(!matched) { $('whatsapp').value = data.whatsapp; $('whatsapp').dataset.raw = data.whatsapp; }
+      if(!matched){$('whatsapp').value=data.whatsapp;$('whatsapp').dataset.raw=data.whatsapp;}
     }
 
     /* 4. Nombre del negocio toggle + value */
-    if(data.nombre_negocio && $('show_nombre_negocio')) {
-      $('show_nombre_negocio').checked = true;
+    if(data.nombre_negocio&&$('show_nombre_negocio')){
+      $('show_nombre_negocio').checked=true;
       $('show_nombre_negocio').dispatchEvent(new Event('change'));
-      if($('nombre-negocio')) $('nombre-negocio').value = data.nombre_negocio;
+      if($('nombre-negocio'))$('nombre-negocio').value=data.nombre_negocio;
       updateNombreNegocioPreview();
     }
 
-    /* 5. Logo toggle + preview */
-    if(data.logo_url && $('show_logo')) {
-      $('show_logo').checked = true;
+    /* 5. Logo toggle + preview (keep existing URL so user doesn't need to re-upload) */
+    if(data.logo_url&&$('show_logo')){
+      $('show_logo').checked=true;
       onLogoToggle();
-      const logoThumb = $('logo-thumb'), logoDzSq = $('logo-dz-square');
-      if(logoThumb) { logoThumb.src = data.logo_url; logoThumb.style.display = 'block'; }
-      if(logoDzSq) { const plus = logoDzSq.querySelector('svg'); if(plus) plus.style.display = 'none'; }
-      const lcLogoSq = $('lc-logo-sq'), lcLogoImg = $('lc-logo-img');
-      if(lcLogoImg) lcLogoImg.src = data.logo_url;
-      if(lcLogoSq) lcLogoSq.classList.add('visible');
-      logoBase64 = data.logo_url;
+      const logoThumb=$('logo-thumb'),logoDzSq=$('logo-dz-square');
+      if(logoThumb){logoThumb.src=data.logo_url;logoThumb.style.display='block';}
+      if(logoDzSq){const plus=logoDzSq.querySelector('svg');if(plus)plus.style.display='none';}
+      const lcLogoSq=$('lc-logo-sq'),lcLogoImg=$('lc-logo-img');
+      if(lcLogoImg)lcLogoImg.src=data.logo_url;
+      if(lcLogoSq)lcLogoSq.classList.add('visible');
+      logoBase64=data.logo_url; // preserve URL — only replaced if user uploads a new image
     }
 
     /* 6. Datos fiscales toggle + all fiscal fields */
-    if(data.has_fiscal && $('show_fiscal')) {
-      $('show_fiscal').checked = true;
+    if(data.has_fiscal&&$('show_fiscal')){
+      $('show_fiscal').checked=true;
       $('show_fiscal').dispatchEvent(new Event('change'));
-      const fd = { ...data, ...fiscalData };
-      const fmap = { razon_social:'razon-social', rfc:'rfc', regimen_fiscal:'regimen-fiscal',
-                     cp_fiscal:'cp-fiscal', ciudad_fiscal:'ciudad-fiscal',
-                     estado_fiscal:'estado-fiscal', calle_fiscal:'calle-fiscal' };
-      Object.entries(fmap).forEach(([k,id]) => { if(fd[k] && $(id)) $(id).value = fd[k]; });
-      // Trigger CP lookup to show colonia dropdown
-      if(fd.cp_fiscal && $('cp-fiscal') && fd.cp_fiscal.length === 5) {
+      const fd={...data,...fiscalData};
+      const fmap={razon_social:'razon-social',rfc:'rfc',regimen_fiscal:'regimen-fiscal',
+                  cp_fiscal:'cp-fiscal',ciudad_fiscal:'ciudad-fiscal',
+                  estado_fiscal:'estado-fiscal',calle_fiscal:'calle-fiscal'};
+      Object.entries(fmap).forEach(([k,id])=>{if(fd[k]&&$(id))$(id).value=fd[k];});
+      // Trigger CP lookup to show colonia dropdown with saved value
+      if(fd.cp_fiscal&&$('cp-fiscal')&&fd.cp_fiscal.length===5){
         $('cp-fiscal').dispatchEvent(new Event('input'));
-        if(fd.colonia_fiscal) {
-          setTimeout(() => {
-            const sel = $('colonia-fiscal');
-            if(!sel) return;
-            let found = false;
-            for(const opt of sel.options) { if(opt.value === fd.colonia_fiscal) { sel.value = fd.colonia_fiscal; found = true; break; } }
-            if(!found) { const opt = document.createElement('option'); opt.value = fd.colonia_fiscal; opt.textContent = fd.colonia_fiscal; sel.appendChild(opt); sel.value = fd.colonia_fiscal; }
-          }, 1200);
+        if(fd.colonia_fiscal){
+          setTimeout(()=>{
+            const sel=$('colonia-fiscal');if(!sel)return;
+            let found=false;
+            for(const opt of sel.options){if(opt.value===fd.colonia_fiscal){sel.value=fd.colonia_fiscal;found=true;break;}}
+            if(!found){const opt=document.createElement('option');opt.value=fd.colonia_fiscal;opt.textContent=fd.colonia_fiscal;sel.appendChild(opt);sel.value=fd.colonia_fiscal;}
+          },1200);
         }
       }
     }
 
     /* 7. Icon */
-    if(data.profile_type === 'negocios') { const iconSec = $('icon-editor-section'); if(iconSec) iconSec.style.display = 'block'; }
-    if(data.icon_id) { selectedIconId = data.icon_id; selectedIconColor = data.icon_color || 'rgba(255,255,255,1)'; updateCardIcon(data.icon_id); }
+    if(data.profile_type==='negocios'){const iconSec=$('icon-editor-section');if(iconSec)iconSec.style.display='block';}
+    if(data.icon_id){selectedIconId=data.icon_id;selectedIconColor=data.icon_color||'rgba(255,255,255,1)';updateCardIcon(data.icon_id);}
 
-    /* 8. Card design + colors */
-    if(data.card_design != null && data.card_design >= 0) {
-      selectedDesign = data.card_design;
-      document.querySelectorAll('.design-thumb').forEach((t,i) => t.classList.toggle('active', i === selectedDesign));
-      renderDesign($('card-design-layer'), selectedDesign);
+    /* 8. Card design + colors (last — needs all other state set first) */
+    if(data.card_design!=null&&data.card_design>=0){
+      selectedDesign=data.card_design;
+      document.querySelectorAll('.design-thumb').forEach((t,i)=>t.classList.toggle('active',i===selectedDesign));
+      renderDesign($('card-design-layer'),selectedDesign);
     }
-    if(data.card_gradient) {
-      selectedCardGradient = data.card_gradient;
-      document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s => s.classList.remove('active'));
+    if(data.card_gradient){
+      selectedCardGradient=data.card_gradient;
+      document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
     }
-    if(data.bg_color) selectedBgColor = data.bg_color;
-    applyCardColor(); applyBgColor();
+    if(data.bg_color)selectedBgColor=data.bg_color;
+    applyCardColor();applyBgColor();
 
     /* ── Show Step 1 first (with inline Continue button below the card) ── */
     showMainLayout();
@@ -1579,6 +1591,9 @@ async function saveEditedLink(){
       show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),
       show_email:!!($('show_email')&&$('show_email').checked),
       icon_id:selectedIconId||null,icon_color:selectedIconColor||null,
+      // logo_url: send current value — logoBase64 is set to existing URL in initEditMode
+      // so it's only null if the link never had a logo
+      logo_url:logoBase64||null,
     };
     // Email y whatsapp — solo se envían si el usuario los escribió (no se puede pre-llenar por encriptación)
     const emailVal=$('email')&&$('email').value.trim();
@@ -1635,7 +1650,6 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
     if (navLink && email) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
     const mobileLink = document.getElementById('mobile-nav-account');
     if (mobileLink && email) { mobileLink.textContent = email; mobileLink.classList.remove('nav-active'); }
-    // Update header CTA button
     const headerBtn = document.querySelector('header .btn-nav');
     if (headerBtn && email) { headerBtn.textContent = '+ Nuevo Link'; }
     const mobileCta = document.querySelector('.mobile-nav .mobile-cta');
