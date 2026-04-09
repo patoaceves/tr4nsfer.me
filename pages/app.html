@@ -1441,90 +1441,104 @@ async function initEditMode(){
     if($('clabe-exists-cta'))$('clabe-exists-cta').style.display='none';
     if($('email-exists-cta'))$('email-exists-cta').style.display='none';
 
-    /* ── Step 2: pre-fill design + personal fields ── */
-    profileType=data.profile_type||'personal';
-    if(data.custom_slug)$('slug-custom').value=data.custom_slug;
+    /* ──────────────────────────────────────────────────────────
+       RESTORE ALL SAVED STATE
+       Order matters: toggles → values → derived UI → preview
+    ────────────────────────────────────────────────────────── */
 
-    /* Fill email/whatsapp if available (show_* toggles) */
-    if($('show_whatsapp'))$('show_whatsapp').checked=!!data.show_whatsapp;
-    if($('show_email'))$('show_email').checked=!!data.show_email;
+    /* 1. Profile type + slug + alias */
+    profileType = data.profile_type || 'personal';
+    if(data.custom_slug && $('slug-custom')) $('slug-custom').value = data.custom_slug;
 
-    /* ── Nombre de negocio toggle + value ── */
-    if(data.nombre_negocio&&$('show_nombre_negocio')){
-      $('show_nombre_negocio').checked=true;
+    /* 2. show_email toggle + email value */
+    if($('show_email')) $('show_email').checked = !!data.show_email;
+    if(data.email && $('email')) {
+      $('email').value = data.email;
+      emailCheckState = 'ok';
+      const ring = $('email-ring'), ver = $('email-verified');
+      if(ring) ring.classList.remove('visible');
+      if(ver) ver.style.display = 'block';
+    }
+
+    /* 3. show_whatsapp toggle + whatsapp value */
+    if($('show_whatsapp')) $('show_whatsapp').checked = !!data.show_whatsapp;
+    if(data.whatsapp && $('whatsapp')) {
+      const WA_CC=[{cc:'52',len:10},{cc:'34',len:9},{cc:'57',len:10},{cc:'54',len:10},{cc:'56',len:9},{cc:'55',len:11},{cc:'1',len:10}];
+      let matched = false;
+      for(const e of WA_CC) {
+        if(data.whatsapp.startsWith(e.cc) && data.whatsapp.length === e.cc.length + e.len) {
+          const local = data.whatsapp.slice(e.cc.length);
+          const sel = $('wa-country');
+          if(sel) { for(const opt of sel.options) { if(opt.value === '+'+e.cc) { sel.value = '+'+e.cc; break; } } }
+          $('whatsapp').value = e.cc === '52' ? fmtWA(local) : local;
+          $('whatsapp').dataset.raw = local;
+          matched = true; break;
+        }
+      }
+      if(!matched) { $('whatsapp').value = data.whatsapp; $('whatsapp').dataset.raw = data.whatsapp; }
+    }
+
+    /* 4. Nombre del negocio toggle + value */
+    if(data.nombre_negocio && $('show_nombre_negocio')) {
+      $('show_nombre_negocio').checked = true;
       $('show_nombre_negocio').dispatchEvent(new Event('change'));
-      if($('nombre-negocio'))$('nombre-negocio').value=data.nombre_negocio;
+      if($('nombre-negocio')) $('nombre-negocio').value = data.nombre_negocio;
       updateNombreNegocioPreview();
     }
 
-    /* ── Logo toggle + preview ── */
-    if(data.logo_url&&$('show_logo')){
-      $('show_logo').checked=true;
+    /* 5. Logo toggle + preview */
+    if(data.logo_url && $('show_logo')) {
+      $('show_logo').checked = true;
       onLogoToggle();
-      // Show logo preview from URL
-      const logoThumb=$('logo-thumb');
-      const logoDzSquare=$('logo-dz-square');
-      if(logoThumb){logoThumb.src=data.logo_url;logoThumb.style.display='block';}
-      if(logoDzSquare){const plusIcon=logoDzSquare.querySelector('svg');if(plusIcon)plusIcon.style.display='none';}
-      // Show on live card
-      const lcLogoSq=$('lc-logo-sq');const lcLogoImg=$('lc-logo-img');
-      if(lcLogoImg){lcLogoImg.src=data.logo_url;}
-      if(lcLogoSq){lcLogoSq.classList.add('visible');}
-      logoBase64=data.logo_url; // keep existing URL if user doesn't re-upload
+      const logoThumb = $('logo-thumb'), logoDzSq = $('logo-dz-square');
+      if(logoThumb) { logoThumb.src = data.logo_url; logoThumb.style.display = 'block'; }
+      if(logoDzSq) { const plus = logoDzSq.querySelector('svg'); if(plus) plus.style.display = 'none'; }
+      const lcLogoSq = $('lc-logo-sq'), lcLogoImg = $('lc-logo-img');
+      if(lcLogoImg) lcLogoImg.src = data.logo_url;
+      if(lcLogoSq) lcLogoSq.classList.add('visible');
+      logoBase64 = data.logo_url;
     }
 
-    /* icon */
-    if(data.profile_type==='negocios'){const iconSec=$('icon-editor-section');if(iconSec)iconSec.style.display='block';}
-    if(data.icon_id){selectedIconId=data.icon_id;selectedIconColor=data.icon_color||'rgba(255,255,255,1)';updateCardIcon(data.icon_id);}
-
-    /* card design + colors */
-    if(data.card_design!=null&&data.card_design>=0){
-      selectedDesign=data.card_design;
-      document.querySelectorAll('.design-thumb').forEach((t,i)=>{t.classList.toggle('active',i===selectedDesign);});
-      renderDesign($('card-design-layer'),selectedDesign);
-    }
-    if(data.card_gradient){
-      selectedCardGradient=data.card_gradient;
-      document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s=>s.classList.remove('active'));
-    }
-    if(data.bg_color)selectedBgColor=data.bg_color;
-    applyCardColor();applyBgColor();
-
-    /* pre-fill email / whatsapp — editable in edit mode */
-    if(data.show_email&&$('email')){$('email').value='';}   // encrypted, can't prefill — user re-enters if changing
-    if(data.show_whatsapp&&$('whatsapp')){$('whatsapp').value='';}
-
-    /* fiscal */
-    if(data.has_fiscal&&$('show_fiscal')){
-      $('show_fiscal').checked=true;
+    /* 6. Datos fiscales toggle + all fiscal fields */
+    if(data.has_fiscal && $('show_fiscal')) {
+      $('show_fiscal').checked = true;
       $('show_fiscal').dispatchEvent(new Event('change'));
-      const fd={...data,...fiscalData};
-      const fmap={razon_social:'razon-social',rfc:'rfc',regimen_fiscal:'regimen-fiscal',cp_fiscal:'cp-fiscal',ciudad_fiscal:'ciudad-fiscal',estado_fiscal:'estado-fiscal',calle_fiscal:'calle-fiscal'};
-      Object.entries(fmap).forEach(([k,id])=>{if(fd[k]&&$(id))$(id).value=fd[k];});
-      // Trigger CP lookup to show address rows and pre-select colonia
-      if(fd.cp_fiscal&&$('cp-fiscal')&&fd.cp_fiscal.length===5){
+      const fd = { ...data, ...fiscalData };
+      const fmap = { razon_social:'razon-social', rfc:'rfc', regimen_fiscal:'regimen-fiscal',
+                     cp_fiscal:'cp-fiscal', ciudad_fiscal:'ciudad-fiscal',
+                     estado_fiscal:'estado-fiscal', calle_fiscal:'calle-fiscal' };
+      Object.entries(fmap).forEach(([k,id]) => { if(fd[k] && $(id)) $(id).value = fd[k]; });
+      // Trigger CP lookup to show colonia dropdown
+      if(fd.cp_fiscal && $('cp-fiscal') && fd.cp_fiscal.length === 5) {
         $('cp-fiscal').dispatchEvent(new Event('input'));
-        // After CP lookup resolves, set colonia as "otra" with the saved value
-        if(fd.colonia_fiscal){
-          setTimeout(()=>{
-            const sel=$('colonia-fiscal');
-            if(sel){
-              // Try to find matching option
-              let found=false;
-              for(const opt of sel.options){
-                if(opt.value===fd.colonia_fiscal){sel.value=fd.colonia_fiscal;found=true;break;}
-              }
-              if(!found){
-                // Add as option and select it
-                const opt=document.createElement('option');
-                opt.value=fd.colonia_fiscal;opt.textContent=fd.colonia_fiscal;
-                sel.appendChild(opt);sel.value=fd.colonia_fiscal;
-              }
-            }
-          },1200); // wait for CP lookup
+        if(fd.colonia_fiscal) {
+          setTimeout(() => {
+            const sel = $('colonia-fiscal');
+            if(!sel) return;
+            let found = false;
+            for(const opt of sel.options) { if(opt.value === fd.colonia_fiscal) { sel.value = fd.colonia_fiscal; found = true; break; } }
+            if(!found) { const opt = document.createElement('option'); opt.value = fd.colonia_fiscal; opt.textContent = fd.colonia_fiscal; sel.appendChild(opt); sel.value = fd.colonia_fiscal; }
+          }, 1200);
         }
       }
     }
+
+    /* 7. Icon */
+    if(data.profile_type === 'negocios') { const iconSec = $('icon-editor-section'); if(iconSec) iconSec.style.display = 'block'; }
+    if(data.icon_id) { selectedIconId = data.icon_id; selectedIconColor = data.icon_color || 'rgba(255,255,255,1)'; updateCardIcon(data.icon_id); }
+
+    /* 8. Card design + colors */
+    if(data.card_design != null && data.card_design >= 0) {
+      selectedDesign = data.card_design;
+      document.querySelectorAll('.design-thumb').forEach((t,i) => t.classList.toggle('active', i === selectedDesign));
+      renderDesign($('card-design-layer'), selectedDesign);
+    }
+    if(data.card_gradient) {
+      selectedCardGradient = data.card_gradient;
+      document.querySelectorAll('#card-swatches .swatch,#card-swatches .swatch-add').forEach(s => s.classList.remove('active'));
+    }
+    if(data.bg_color) selectedBgColor = data.bg_color;
+    applyCardColor(); applyBgColor();
 
     /* ── Show Step 1 first (with inline Continue button below the card) ── */
     showMainLayout();
@@ -1621,6 +1635,11 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
     if (navLink && email) { navLink.textContent = email; navLink.style.color = 'var(--teal)'; }
     const mobileLink = document.getElementById('mobile-nav-account');
     if (mobileLink && email) { mobileLink.textContent = email; mobileLink.classList.remove('nav-active'); }
+    // Update header CTA button
+    const headerBtn = document.querySelector('header .btn-nav');
+    if (headerBtn && email) { headerBtn.textContent = '+ Nuevo Link'; }
+    const mobileCta = document.querySelector('.mobile-nav .mobile-cta');
+    if (mobileCta && email) { mobileCta.textContent = 'Nuevo Link →'; }
   }
   // Check on load in case already signed in
   sb.auth.getSession().then(({ data: { session } }) => {
