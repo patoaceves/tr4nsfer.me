@@ -2,6 +2,9 @@
 const SUPABASE_URL      = 'https://wtmwwbsjwdisalnzlsnc.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'
 const SLUG_RE           = /^[a-z0-9][a-z0-9-]{2,29}$/
+// System paths that must NEVER be intercepted by this Worker
+const SYSTEM_PATHS      = new Set(['auth','app','portal','index','robots','sitemap','favicon',
+                                    'terminos','privacidad','terms','privacy','ayuda','help'])
 const BOT_RE            = /WhatsApp|Telegram|Twitterbot|facebookexternalhit|LinkedInBot|Slackbot|Discordbot|iMessage|Viber/i
 
 function esc(s) {
@@ -19,7 +22,7 @@ export default {
     const ua   = request.headers.get('user-agent') || ''
     const slug = url.pathname.slice(1)
 
-    if (!slug || !SLUG_RE.test(slug)) return fetch(request)
+    if (!slug || !SLUG_RE.test(slug) || SYSTEM_PATHS.has(slug)) return fetch(request)
 
     // ── BOT: serve OG meta tags for social previews ──────────────────────────
     if (BOT_RE.test(ua)) {
