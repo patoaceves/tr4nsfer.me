@@ -4,7 +4,15 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="robots" content="noindex, nofollow"/>
-  <meta name="theme-color" id="theme-color-meta" content="#000000"/>
+  <!-- theme-color dual: Safari necesita ambos media queries explícitos.
+       Sin el de "light", en modo claro Safari ignora el meta y pinta la barra negro.
+       El Worker de Cloudflare reemplaza los content="#000000" server-side antes
+       de que el HTML llegue al browser, para que iOS lo lea en parse time. -->
+  <meta name="theme-color" id="tc-light" content="#000000" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" id="tc-dark"  content="#000000" media="(prefers-color-scheme: dark)">
+  <!-- color-scheme: dark le dice a Safari que renderice scrollbars e inputs en modo oscuro.
+       El JS lo actualiza a "light" si el bg_color del perfil es claro. -->
+  <meta name="color-scheme" id="cs-meta" content="dark">
   <title>tr4nsfer.me</title>
   <!-- OG / social preview — filled dynamically after data loads -->
   <meta property="og:site_name" content="tr4nsfer.me"/>
@@ -24,6 +32,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
+    /* Safari lee el color del chrome del browser desde el elemento <html>,
+       no desde divs con position:fixed encima. Sin este background declarado
+       explícitamente en html, Safari ve "transparente" y pinta la barra de negro
+       aunque el fondo visual de la página sea otro color. */
+    html{background:#000000;}
     *{margin:0;padding:0;box-sizing:border-box;}
     :root{--teal:#00c896;--bg:#000;--muted:rgba(255,255,255,0.45);--text:#fff;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px 48px;}
@@ -419,9 +432,19 @@ function renderProfile(d){
   var isLightBg=(0.299*bgR+0.587*bgG+0.114*bgB)/255>=0.5;
   document.body.classList.toggle('bg-light',isLightBg);
   document.body.style.background=d.bg_color||'#000';
-  // Update browser chrome color (mobile Safari/Chrome tab bar)
+  // Fix theme Safari: el color del chrome del browser se lee desde html, no desde body ni divs fijos.
+  // Actualizar documentElement.style.background + ambas metas (light y dark) + color-scheme.
+  var bgVal=d.bg_color||'#000000';
+  document.documentElement.style.background=bgVal;
+  var tcLight=document.getElementById('tc-light');
+  var tcDark=document.getElementById('tc-dark');
+  var csMeta=document.getElementById('cs-meta');
+  if(tcLight)tcLight.setAttribute('content',bgVal);
+  if(tcDark)tcDark.setAttribute('content',bgVal);
+  if(csMeta)csMeta.setAttribute('content',isLightBg?'light':'dark');
+  // Update browser chrome color (mobile Safari/Chrome tab bar) — kept for legacy compat
   var tcMeta=document.getElementById('theme-color-meta');
-  if(tcMeta)tcMeta.setAttribute('content',d.bg_color||'#000000');
+  if(tcMeta)tcMeta.setAttribute('content',bgVal);
 
   // Branding logo (dentro de la card siempre blanco, hardcodeado en HTML)
   var brLogo=$('branding-logo');if(brLogo)brLogo.src=isLightBg?'../assets/img/logo.png':'../assets/img/logo-white.png';

@@ -104,11 +104,16 @@ export default {
       } catch (_) {}
 
       const html     = await pageResp.text()
-      // Replace the default black theme-color with the card's actual bg_color
-      const modified = html.replace(
-        'id="theme-color-meta" content="#000000"',
-        `id="theme-color-meta" content="${bgColor}"`
-      )
+      // Reemplazar ambos theme-color metas (light y dark) + el background del html.
+      // El Worker inyecta el bg_color antes de que el HTML llegue al browser para que
+      // iOS Safari lo lea en parse time — JS llega demasiado tarde para esto.
+      const modified = html
+        .replace('id="tc-light" content="#000000"', `id="tc-light" content="${bgColor}"`)
+        .replace('id="tc-dark"  content="#000000"', `id="tc-dark"  content="${bgColor}"`)
+        // Fallback: legacy meta tag por si la página aún no fue actualizada
+        .replace('id="theme-color-meta" content="#000000"', `id="theme-color-meta" content="${bgColor}"`)
+        // Inyectar background en html element via style inline para que Safari lo lea
+        .replace('<html lang="es">', `<html lang="es" style="background:${bgColor}">`)
 
       return new Response(modified, {
         status: pageResp.status,
