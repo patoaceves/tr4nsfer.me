@@ -115,11 +115,16 @@
     .link-card-url{display:flex;align-items:center;gap:7px;padding:8px 12px;background:var(--input-bg);border:1px solid var(--border2);border-radius:9px;margin-bottom:14px;cursor:pointer;transition:border-color .15s;}
     .link-card-url:hover{border-color:rgba(0,200,150,.2);}
     .link-card-url span{font-size:12px;color:var(--teal);font-family:'Inter',monospace;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .link-card-actions{display:flex;gap:8px;}
+    .link-card-actions{display:flex;gap:8px;align-items:center;}
     .lc-btn{flex:1;padding:8px 12px;border-radius:9px;border:1px solid var(--border2);background:transparent;color:var(--text-soft);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:background .15s,border-color .15s,color .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
     .lc-btn:hover{background:rgba(255,255,255,.04);border-color:var(--dim);}
     .lc-btn.primary{background:var(--teal-dim);border-color:var(--teal-border);color:var(--teal);}
     .lc-btn.primary:hover{background:rgba(0,200,150,.14);}
+    /* icon-only: tamaño fijo, no crece */
+    .lc-icon{flex:0 0 34px;width:34px;height:34px;padding:0;}
+    /* botón verde expirable — destaca sobre los demás */
+    .lc-btn-exp{flex:0 0 auto;background:var(--teal-dim);border-color:var(--teal-border);color:var(--teal);padding:8px 14px;font-weight:700;}
+    .lc-btn-exp:hover{background:rgba(0,200,150,.18);border-color:var(--teal);}
 
     /* expirable link chips on the card */
     .exp-chips{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
@@ -737,9 +742,15 @@ function renderLinkCards(links, expMap) {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           Editar
         </button>
-        <button class="lc-btn" onclick="window.open('${url}','_blank')">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="15 3 21 3 21 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          Visitar
+        <button class="lc-btn lc-icon" onclick="copyText('${url}','Link copiado')" title="Copiar link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="lc-btn lc-icon" onclick="window.open('${url}','_blank')" title="Visitar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="15 3 21 3 21 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="lc-btn lc-btn-exp" onclick="openExpirableModal('${slug}')" title="Generar link temporal">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Link temporal
         </button>
       </div>`;
     grid.appendChild(card);

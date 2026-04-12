@@ -103,6 +103,12 @@ export default {
         }
       } catch (_) {}
 
+      // Guard: si Vercel devolvió algo que no es 200 (un 307, 404, 500…)
+      // no intentamos procesar el body — lo pasamos tal cual al browser.
+      // Sin este guard, construíamos un new Response({status:307}) sin copiar
+      // el header Location, y el browser recibía un 307 sin saber a dónde ir.
+      if (!pageResp.ok) return pageResp
+
       const html     = await pageResp.text()
       // Reemplazar ambos theme-color metas (light y dark) + el background del html.
       // El Worker inyecta el bg_color antes de que el HTML llegue al browser para que
