@@ -545,7 +545,40 @@ function hideLoader(cb){_cb=cb||null;_done=true;}
 async function init(){
   var p=new URLSearchParams(window.location.search);
   var slug=p.get('id')||window.location.pathname.replace(/\//g,'').split('?')[0];
+  var expCode=p.get('exp')||null;
   if(!slug){hideLoader(function(){$('state-error').style.display='flex';});return;}
+
+  // ── Fix #1: validar código de link temporal antes de mostrar el perfil ──────
+  // Si viene ?exp=CODE verificamos contra la tabla expirable_links.
+  // Si el código no existe o ya expiró, mostramos error sin revelar datos.
+  if(expCode){
+    try{
+      var sbClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+      var expResult=await sbClient
+        .from('expirable_links')
+        .select('expires_at')
+        .eq('slug',slug)
+        .eq('code',expCode)
+        .maybeSingle();
+      var expRow=expResult.data;
+      if(!expRow||new Date(expRow.expires_at).getTime()<=Date.now()){
+        hideLoader(function(){
+          var errEl=$('state-error');
+          errEl.style.display='flex';
+          var title=errEl.querySelector('.state-title');
+          var sub=errEl.querySelector('.state-sub');
+          if(title)title.textContent='Link expirado';
+          if(sub)sub.textContent='Este link de acceso temporal ya no está disponible.';
+        });
+        return;
+      }
+    }catch(e){
+      hideLoader(function(){$('state-error').style.display='flex';});
+      return;
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   try{
     var r=await fetch(SUPABASE_URL+'/functions/v1/get-link?slug='+slug,{
       headers:{'Authorization':'Bearer '+SUPABASE_ANON_KEY}

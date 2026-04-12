@@ -105,6 +105,10 @@ Deno.serve(async (req) => {
     }
 
     // ── Legacy fallback 2: rows without any hash — decrypt and compare ────────
+    // Fix #5: este fallback descifra emails de hasta N rows en Edge Function — es caro.
+    // Una vez que todos los rows tengan account_email_hash seteado, agregar la variable
+    // de entorno DISABLE_LEGACY_FALLBACK=true en el dashboard de Supabase para desactivarlo.
+    // Señal de que ya no es necesario: que fallback 1 nunca haga back-fill en producción.
     if ((!links || links.length === 0) && Deno.env.get('DISABLE_LEGACY_FALLBACK') !== 'true') {
       console.warn(`[user-links] legacy fallback 2 triggered for account_email_hash=${accountEmailHash.slice(0,8)}…`)
 
@@ -113,7 +117,7 @@ Deno.serve(async (req) => {
         .from('links').select(COLS)
         .is('account_email_hash', null)
         .order('created_at', { ascending: false })
-        .limit(300)
+        .limit(100)   // Fix #5: cap reducido de 300→100. Más de 100 rows sin hash = migración pendiente urgente.
 
       const matched = []
       for (const row of (legacy ?? [])) {

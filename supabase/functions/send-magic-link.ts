@@ -119,6 +119,13 @@ Deno.serve(async (req) => {
     }
 
     // ── 3. Send magic link via Admin API ─────────────────────────────────────
+    // Fix #6: create_user:true crea el registro en Supabase Auth si aún no existe.
+    // Esto es intencional: el usuario creó su link sin autenticación (flujo anon → link),
+    // y el primer magic link es el momento en que se "activa" su cuenta de auth.
+    // Hay dos clases de usuarios en el sistema:
+    //   A) Solo link (sin auth): crearon link pero nunca ingresaron al portal.
+    //   B) Link + auth: activados al primer magic link. Pueden editar desde el portal.
+    // create_user:true convierte A→B de forma transparente sin fricciones extra.
     const redirectTo = 'https://tr4nsfer.me/auth?return=portal'
     const otpRes = await fetch(
       `${supabaseUrl}/auth/v1/magiclink?redirect_to=${encodeURIComponent(redirectTo)}`,

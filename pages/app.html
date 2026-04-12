@@ -34,7 +34,8 @@
     @keyframes plDot{0%,42%{transform:scale(0);opacity:0;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}51%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
     @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
     /* HEADER */
-    header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+    header{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);}
+    header.header-hidden{transform:translateY(-100%);}
     .logo{display:inline-flex;align-items:center;text-decoration:none;}
     .logo img{height:28px;width:auto;display:block;}
     nav{display:flex;align-items:center;gap:36px;}
@@ -1018,10 +1019,29 @@ function onLogoToggle(){
 // ── FIX: comprime la imagen antes de guardar ──
 async function onLogoFile(input){
   const file=input.files[0];if(!file)return;
+
+  // Fix #4: guardia de tamaño — rechazar archivos mayores a 5MB antes de leer.
+  // El logo se guarda como base64 en Supabase; aunque se comprime a ~50-80KB,
+  // archivos enormes consumen RAM del hilo principal innecesariamente.
+  const MAX_INPUT_BYTES=5*1024*1024; // 5 MB
+  const MAX_OUTPUT_BYTES=200*1024;   // 200 KB post-compresión (≈266KB base64)
+  if(file.size>MAX_INPUT_BYTES){
+    alert('El archivo es demasiado grande (máx. 5 MB). Usa una imagen más pequeña.');
+    input.value='';return;
+  }
+
   const reader=new FileReader();
   reader.onload=async(e)=>{
     // Comprimir a máx 512px, calidad JPEG 0.78 (~50-80KB para logos típicos)
     const compressed=await compressImage(e.target.result,512,0.78);
+
+    // Verificar que el resultado comprimido sea razonable
+    // base64 = (bytes * 4/3); 200KB binario ≈ 267KB base64
+    if(compressed.length>MAX_OUTPUT_BYTES*(4/3)+100){
+      alert('No se pudo reducir suficientemente el logo. Prueba con una imagen más simple o de menor resolución.');
+      input.value='';return;
+    }
+
     logoBase64=compressed;
     const thumb=$('logo-thumb');thumb.src=compressed;thumb.style.display='block';
     $('logo-plus-icon').style.display='none';
@@ -1678,6 +1698,24 @@ $('app-hero').style.display='none';$('main-layout').style.display='none';
       if (mobileLink) { mobileLink.textContent = 'Mi Cuenta'; mobileLink.classList.remove('nav-active'); }
     }
   });
+})();
+</script>
+<script>
+(function(){
+  var header=document.querySelector('header');
+  if(!header)return;
+  var lastY=window.scrollY,ticking=false,THRESHOLD=80;
+  function update(){
+    var y=window.scrollY,delta=y-lastY;
+    if(y<THRESHOLD){header.classList.remove('header-hidden');}
+    else if(delta>4){
+      header.classList.add('header-hidden');
+      var mn=document.getElementById('mobile-nav');var hb=document.getElementById('hamburger-btn');
+      if(mn&&mn.classList.contains('open')){mn.classList.remove('open');if(hb)hb.classList.remove('open');document.body.style.overflow='';}
+    }else if(delta<-4){header.classList.remove('header-hidden');}
+    lastY=y;ticking=false;
+  }
+  window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(update);ticking=true;}},{passive:true});
 })();
 </script>
 </body>

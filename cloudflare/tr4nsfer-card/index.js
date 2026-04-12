@@ -1,7 +1,10 @@
 // Cloudflare Worker — tr4nsfer-card
 const SUPABASE_URL      = 'https://wtmwwbsjwdisalnzlsnc.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck'
-const SLUG_RE           = /^[a-z0-9][a-z0-9-]{2,29}$/
+// Fix #3: SLUG_RE alineado a 3-20 chars — igual que create-link, update-link y la ruta de vercel.json.
+// El valor anterior ({2,29}) permitía slugs de hasta 30 chars que el Worker hubiera interceptado
+// pero que la ruta de Vercel no hubiera matcheado, dejando al usuario en el index.
+const SLUG_RE           = /^[a-z0-9][a-z0-9-]{2,19}$/
 // System paths that must NEVER be intercepted by this Worker
 const SYSTEM_PATHS      = new Set(['auth','app','portal','index','robots','sitemap','favicon',
                                     'terminos','privacidad','terms','privacy','ayuda','help'])
