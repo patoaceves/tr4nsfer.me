@@ -1128,55 +1128,28 @@ sb.auth.onAuthStateChange((event, session) => {
 </script>
 
 <script>
-/* ── Header + Sidebar hide-on-scroll ────────────────────────────────────────
-   El header se oculta al bajar y reaparece al subir.
-   El sidebar (desktop) sigue coordinado: su top pasa de 64px→0 cuando el
-   header se oculta, evitando el hueco visual que quedaría si se movieran
-   de forma independiente.                                                  */
 (function(){
-  var header  = document.querySelector('header');
-  var sidebar = document.querySelector('.sidebar');
-  if(!header) return;
-
-  var lastY=window.scrollY, ticking=false, THRESHOLD=80, hidden=false;
-
-  function setHidden(hide){
-    if(hide===hidden) return;
-    hidden=hide;
-    if(hide){
+  var header=document.querySelector('header');
+  var sidebar=document.querySelector('.sidebar');
+  if(!header)return;
+  var prev=0;
+  window.addEventListener('scroll',function(){
+    var cur=window.pageYOffset||document.documentElement.scrollTop;
+    if(cur<80){
+      header.classList.remove('header-hidden');
+      if(sidebar)sidebar.style.top='64px';
+    }else if(cur>prev){
       header.classList.add('header-hidden');
-      if(sidebar) sidebar.style.top='0px';
-      // cerrar mobile nav si estaba abierto
-      var mn=document.getElementById('mobile-nav');
-      var hb=document.getElementById('hamburger-btn');
+      if(sidebar)sidebar.style.top='0px';
+      var mn=document.getElementById('mobile-nav');var hb=document.getElementById('hamburger-btn');
       var ov=document.getElementById('sidebar-overlay');
-      if(mn&&mn.classList.contains('open')){
-        mn.classList.remove('open');
-        if(hb)hb.classList.remove('open');
-        document.body.style.overflow='';
-      }
-      // cerrar sidebar móvil si estaba abierto
-      if(sidebar&&sidebar.classList.contains('open')){
-        sidebar.classList.remove('open');
-        if(ov)ov.classList.remove('open');
-        document.body.style.overflow='';
-      }
+      if(mn&&mn.classList.contains('open')){mn.classList.remove('open');if(hb)hb.classList.remove('open');document.body.style.overflow='';}
+      if(sidebar&&sidebar.classList.contains('open')){sidebar.classList.remove('open');if(ov)ov.classList.remove('open');document.body.style.overflow='';}
     }else{
       header.classList.remove('header-hidden');
-      if(sidebar) sidebar.style.top='64px';
+      if(sidebar)sidebar.style.top='64px';
     }
-  }
-
-  function update(){
-    var y=window.scrollY, delta=y-lastY;
-    if(y<THRESHOLD)        setHidden(false);
-    else if(delta>4)       setHidden(true);
-    else if(delta<-4)      setHidden(false);
-    lastY=y; ticking=false;
-  }
-
-  window.addEventListener('scroll',function(){
-    if(!ticking){requestAnimationFrame(update);ticking=true;}
+    prev=cur;
   },{passive:true});
 })();
 </script>

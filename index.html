@@ -765,33 +765,24 @@
     })();
   </script>
   <script>
-  /* ── Header hide-on-scroll ─────────────────────────────────────────────────
-     Oculta el header al hacer scroll down, lo muestra al subir.
-     Por debajo del threshold (80px del top) siempre es visible.           */
   (function(){
     var header=document.querySelector('header');
     if(!header)return;
-    var lastY=window.scrollY,ticking=false,THRESHOLD=80;
-    function update(){
-      var y=window.scrollY,delta=y-lastY;
-      if(y<THRESHOLD){
+    var prev=0;
+    window.addEventListener('scroll',function(){
+      var cur=window.pageYOffset||document.documentElement.scrollTop;
+      if(cur<80){
         header.classList.remove('header-hidden');
-      }else if(delta>4){
+      }else if(cur>prev){
         header.classList.add('header-hidden');
-        // cerrar mobile nav si está abierto
         var mn=document.getElementById('mobile-nav');
         var hb=document.getElementById('hamburger-btn');
-        if(mn&&mn.classList.contains('open')){
-          mn.classList.remove('open');
-          if(hb)hb.classList.remove('open');
-          document.body.style.overflow='';
-        }
-      }else if(delta<-4){
+        if(mn&&mn.classList.contains('open')){mn.classList.remove('open');if(hb)hb.classList.remove('open');document.body.style.overflow='';}
+      }else{
         header.classList.remove('header-hidden');
       }
-      lastY=y;ticking=false;
-    }
-    window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(update);ticking=true;}},{passive:true});
+      prev=cur;
+    },{passive:true});
   })();
   </script>
 </body>
