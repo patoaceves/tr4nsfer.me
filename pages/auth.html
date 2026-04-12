@@ -258,9 +258,9 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ── QUERY PARAMS ── */
 const params   = new URLSearchParams(location.search);
-const RETURN   = params.get('return') || 'app';   // 'app' | 'portal'
+const RETURN   = params.get('return') || 'portal'; // 'portal' | 'app' — default portal, cualquier login es para gestionar cuenta
 const REASON   = params.get('reason') || '';       // 'clabe' | 'email' | 'existing' | ''
-const RETURN_URL = RETURN === 'portal' ? '/portal' : '/app';
+const RETURN_URL = RETURN === 'app' ? '/app' : '/portal';
 
 /* ── STATE ── */
 let currentEmail = '';

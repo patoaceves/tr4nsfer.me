@@ -126,6 +126,9 @@ Deno.serve(async (req) => {
     //   A) Solo link (sin auth): crearon link pero nunca ingresaron al portal.
     //   B) Link + auth: activados al primer magic link. Pueden editar desde el portal.
     // create_user:true convierte A→B de forma transparente sin fricciones extra.
+    // Fix redirect: redirect_to va tanto en el query param como en el body.
+    // La Admin API de Supabase puede ignorar el query param en algunos deployments;
+    // ponerlo en el body garantiza que el email generado use esta URL de retorno.
     const redirectTo = 'https://tr4nsfer.me/auth?return=portal'
     const otpRes = await fetch(
       `${supabaseUrl}/auth/v1/magiclink?redirect_to=${encodeURIComponent(redirectTo)}`,
@@ -136,7 +139,7 @@ Deno.serve(async (req) => {
           'Authorization': `Bearer ${serviceKey}`,
           'apikey': serviceKey,
         },
-        body: JSON.stringify({ email: emailClean, create_user: true }),
+        body: JSON.stringify({ email: emailClean, create_user: true, redirect_to: redirectTo }),
       }
     )
 

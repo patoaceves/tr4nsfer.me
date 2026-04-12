@@ -768,9 +768,13 @@
   (function(){
     var header=document.querySelector('header');
     if(!header)return;
-    var prev=0;
-    window.addEventListener('scroll',function(){
-      var cur=window.pageYOffset||document.documentElement.scrollTop;
+    var prev=0, busy=false;
+    function handler(){
+      if(busy)return; busy=true;
+      // index.html tiene html{overflow-y:scroll} — el scroll ocurre en el
+      // elemento <html>, no en window. Leer scrollTop de documentElement
+      // y escuchar en document para capturarlo en todos los browsers.
+      var cur=document.documentElement.scrollTop||document.body.scrollTop||window.pageYOffset||0;
       if(cur<80){
         header.classList.remove('header-hidden');
       }else if(cur>prev){
@@ -781,8 +785,11 @@
       }else{
         header.classList.remove('header-hidden');
       }
-      prev=cur;
-    },{passive:true});
+      prev=cur; busy=false;
+    }
+    // Escuchar en ambos — window para desktop Chrome/FF, document para Safari/iOS
+    window.addEventListener('scroll',handler,{passive:true});
+    document.addEventListener('scroll',handler,{passive:true});
   })();
   </script>
 </body>
