@@ -19,6 +19,18 @@ function fmtClabe(c) {
   return c.length === 18 ? `${c.slice(0,3)} ${c.slice(3,6)} ${c.slice(6,17)} ${c.slice(17)}` : c
 }
 
+// Luminancia del bg_color para decidir el color-scheme en parse time.
+// Misma fórmula que card.html (renderProfile): >= .5 => fondo claro => scheme light.
+// iOS Safari fija el color-scheme en parse time, por eso hay que resolverlo aquí
+// y no dejarlo al JS del cliente, que llega tarde para el chrome del navegador.
+function isLightHex(hex) {
+  const h = String(hex || '').replace('#','').padEnd(6,'0')
+  const r = parseInt(h.slice(0,2),16) || 0
+  const g = parseInt(h.slice(2,4),16) || 0
+  const b = parseInt(h.slice(4,6),16) || 0
+  return (0.299*r + 0.587*g + 0.114*b) / 255 >= 0.5
+}
+
 export default {
   async fetch(request, env) {
     const url  = new URL(request.url)
@@ -110,12 +122,17 @@ export default {
       if (!pageResp.ok) return pageResp
 
       const html     = await pageResp.text()
-      // Reemplazar ambos theme-color metas (light y dark) + el background del html.
+      // Si el bg_color es claro, el color-scheme debe ser "light"; si no, el navegador
+      // trata la pagina como dark y pinta el chrome oscuro aunque el bg sea blanco.
+      const scheme   = isLightHex(bgColor) ? 'light' : 'dark'
+      // Reemplazar ambos theme-color metas (light y dark) + color-scheme + el background del html.
       // El Worker inyecta el bg_color antes de que el HTML llegue al browser para que
       // iOS Safari lo lea en parse time — JS llega demasiado tarde para esto.
       const modified = html
         .replace('id="tc-light" content="#000000"', `id="tc-light" content="${bgColor}"`)
         .replace('id="tc-dark"  content="#000000"', `id="tc-dark"  content="${bgColor}"`)
+        // color-scheme en parse time: sin esto el chrome del navegador queda oscuro con bg claro
+        .replace('id="cs-meta" content="dark"', `id="cs-meta" content="${scheme}"`)
         // Fallback: legacy meta tag por si la página aún no fue actualizada
         .replace('id="theme-color-meta" content="#000000"', `id="theme-color-meta" content="${bgColor}"`)
         // Inyectar background en html element via style inline para que Safari lo lea
