@@ -114,6 +114,30 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Turnstile (anti-bot): solo se exige si TURNSTILE_SECRET está configurado.
+    // Sin el secret, este bloque es un no-op — permite desplegar el código antes
+    // de crear el widget en Cloudflare sin romper la creación de links.
+    const turnstileSecret = Deno.env.get('TURNSTILE_SECRET') ?? ''
+    if (turnstileSecret) {
+      const tsToken = body.cf_turnstile_token
+      if (!tsToken || typeof tsToken !== 'string') {
+        return new Response(JSON.stringify({ error: 'turnstile_required' }), {
+          status: 403, headers: { ...CORS, 'Content-Type': 'application/json' }
+        })
+      }
+      const vr = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: turnstileSecret, response: tsToken, remoteip: ip }),
+      })
+      const vd = await vr.json().catch(() => null)
+      if (!vd?.success) {
+        return new Response(JSON.stringify({ error: 'turnstile_failed' }), {
+          status: 403, headers: { ...CORS, 'Content-Type': 'application/json' }
+        })
+      }
+    }
+
     const clabeClean = body.clabe ? String(body.clabe).replace(/\D/g, '') : null
     const clabeHash  = clabeClean ? await hashClabe(clabeClean) : null
 

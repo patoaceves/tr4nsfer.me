@@ -367,6 +367,8 @@
     .email-ring.visible { display:block; animation:spin .7s linear infinite; }
     /* ─────────────────────────────────────────────────────────── */
   </style>
+  <!-- Turnstile: solo actúa si TURNSTILE_SITE_KEY (abajo en el JS) tiene valor -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 <div id="page-loader">
@@ -650,6 +652,8 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#00c896" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#00c896" stroke-width="2" stroke-linecap="round"/></svg>
         <span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.5;">Tus datos se cifran con <strong style="color:var(--teal);">AES-256-GCM</strong> antes de guardarse.</span>
       </div>
+      <!-- Turnstile: invisible mientras TURNSTILE_SITE_KEY esté vacío -->
+      <div id="turnstile-slot" style="margin-top:14px;display:none;"></div>
       <button class="btn btn-submit-form" id="submit-btn" onclick="submitForm()">
         <svg id="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span id="btn-text">Generar mi Link</span>
@@ -701,6 +705,34 @@
 <script>
 const SUPABASE_URL='https://wtmwwbsjwdisalnzlsnc.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bXd3YnNqd2Rpc2Fsbnpsc25jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTkyMzYsImV4cCI6MjA4ODEzNTIzNn0.3qpiZxBW5vemXZyW7qD8P9s94_Oi5CrwZQUkkFLL_ck';
+
+/* ── Turnstile (anti-bot en creación de links) ──────────────────────────────
+   Encendido en dos pasos, ambos requeridos:
+   1. Pegar aquí la Site Key del widget creado en Cloudflare (dominio tr4nsfer.me)
+   2. supabase secrets set TURNSTILE_SECRET=<secret_key>
+   Con TURNSTILE_SITE_KEY vacío: no se renderiza widget ni se manda token.
+   create-link solo exige token si TURNSTILE_SECRET está configurado. */
+const TURNSTILE_SITE_KEY='';
+let _turnstileWidgetId=null;
+function initTurnstile(){
+  if(!TURNSTILE_SITE_KEY)return;
+  var tryRender=function(){
+    if(!window.turnstile){setTimeout(tryRender,300);return;}
+    var slot=$('turnstile-slot');
+    if(!slot||_turnstileWidgetId!==null)return;
+    slot.style.display='block';
+    _turnstileWidgetId=window.turnstile.render(slot,{sitekey:TURNSTILE_SITE_KEY,theme:'dark'});
+  };
+  tryRender();
+}
+document.addEventListener('DOMContentLoaded',initTurnstile);
+function turnstileToken(){
+  if(!TURNSTILE_SITE_KEY||!window.turnstile||_turnstileWidgetId===null)return null;
+  try{return window.turnstile.getResponse(_turnstileWidgetId)||null;}catch(e){return null;}
+}
+function turnstileReset(){
+  if(window.turnstile&&_turnstileWidgetId!==null){try{window.turnstile.reset(_turnstileWidgetId);}catch(e){}}
+}
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);  // single shared client
 const $=id=>document.getElementById(id);
 /* ── EDIT MODE ── */
@@ -1211,7 +1243,8 @@ async function submitForm(){
   // nombre = titular_cuenta para personal; nombre del negocio para negocios
   const nombre=profileType==='negocios'?($('nombre-negocio')&&$('nombre-negocio').value.trim()||nombreCuenta):nombreCuenta;
   const nombreNegocio=profileType==='negocios'?nombre:null;
-  const fnResp=await fetch(`${SUPABASE_URL}/functions/v1/create-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked),custom_slug:customSlug||null,profile_type:profileType,nombre_negocio:nombreNegocio,logo_url:logoBase64||null,icon_id:selectedIconId||null,icon_color:selectedIconColor||null,has_fiscal:showFiscal,...(fiscalData||{})})});
+  const fnResp=await fetch(`${SUPABASE_URL}/functions/v1/create-link`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_ANON_KEY},body:JSON.stringify({clabe,titular_cuenta:nombreCuenta,banco,banco_code:bancoCode||null,banco_domain:bancoDomain,alias:alias||null,whatsapp:whatsapp||null,nombre,email,card_gradient:selectedCardGradient,card_design:selectedDesign,bg_color:selectedBgColor,show_whatsapp:!!($('show_whatsapp')&&$('show_whatsapp').checked),show_email:!!($('show_email')&&$('show_email').checked),custom_slug:customSlug||null,profile_type:profileType,nombre_negocio:nombreNegocio,logo_url:logoBase64||null,icon_id:selectedIconId||null,icon_color:selectedIconColor||null,has_fiscal:showFiscal,cf_turnstile_token:turnstileToken(),...(fiscalData||{})})});
+  if(fnResp.status===403){turnstileReset();hidePageLoader(()=>{textEl.textContent='Completa la verificación e intenta de nuevo.';submitBtn.disabled=false;setFloatingBtn({visible:true});});return;}
   if(fnResp.status===409){hidePageLoader(()=>{textEl.textContent='Generar mi Link';submitBtn.disabled=false;showMainLayout();$('main-layout').classList.add('step2');$('slug-error').textContent='Este link ya está en uso.';setError('fg-slug',true);slugCheckState='taken';slugStatusIcon('error');setFloatingBtn({visible:false});});return;}
   if(fnResp.status===429){hidePageLoader(()=>{textEl.textContent='Has creado varios links seguidos. Espera una hora e intenta de nuevo.';submitBtn.disabled=false;setFloatingBtn({visible:true});});return;}
   if(!fnResp.ok){hidePageLoader(()=>{textEl.textContent='Error. Intenta de nuevo.';submitBtn.disabled=false;setFloatingBtn({visible:true});});return;}
