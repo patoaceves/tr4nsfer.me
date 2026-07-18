@@ -576,19 +576,15 @@ async function init(){
   if(!slug){hideLoader(function(){$('state-error').style.display='flex';});return;}
 
   // ── Fix #1: validar código de link temporal antes de mostrar el perfil ──────
-  // Si viene ?exp=CODE verificamos contra la tabla expirable_links.
-  // Si el código no existe o ya expiró, mostramos error sin revelar datos.
+  // Si viene ?exp=CODE validamos vía RPC check_expirable_link (security definer).
+  // Ya no hay select directo a expirable_links: la política de lectura pública
+  // se eliminó porque permitía enumerar todos los slugs y códigos con la anon key.
+  // El RPC solo responde true/false para un par (slug, code) exacto y vigente.
   if(expCode){
     try{
       var sbClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-      var expResult=await sbClient
-        .from('expirable_links')
-        .select('expires_at')
-        .eq('slug',slug)
-        .eq('code',expCode)
-        .maybeSingle();
-      var expRow=expResult.data;
-      if(!expRow||new Date(expRow.expires_at).getTime()<=Date.now()){
+      var rpcResult=await sbClient.rpc('check_expirable_link',{p_slug:slug,p_code:expCode});
+      if(rpcResult.error||rpcResult.data!==true){
         hideLoader(function(){
           var errEl=$('state-error');
           errEl.style.display='flex';

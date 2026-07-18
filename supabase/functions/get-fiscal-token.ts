@@ -5,7 +5,7 @@
 const CORS = { 'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type' }
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const SLUG_RE = /^[a-z0-9-]{3,30}$/
+const SLUG_RE = /^[a-z0-9][a-z0-9-]{2,19}$/ // canónico: igual que Worker, vercel.json y create-link
 
 async function getHmacKey(): Promise<CryptoKey> {
   const secret = Deno.env.get('FISCAL_TOKEN_SECRET') ?? Deno.env.get('ENCRYPTION_SECRET') ?? 'fallback-secret'

@@ -6,7 +6,7 @@ const CORS = {
 }
 
 // Only allow slugs that match the generated or custom-slug format
-const SLUG_RE = /^[a-z0-9-]{3,30}$/
+const SLUG_RE = /^[a-z0-9][a-z0-9-]{2,19}$/ // canónico: igual que Worker, vercel.json y create-link
 
 async function getKey(): Promise<CryptoKey> {
   const secret = Deno.env.get('ENCRYPTION_SECRET') ?? ''

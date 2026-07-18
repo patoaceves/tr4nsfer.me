@@ -37,6 +37,15 @@ function generateSlug(): string {
   return [0,1,2,3,4,5].map(i => lp.includes(i) ? L[Math.floor(Math.random()*26)] : N[Math.floor(Math.random()*10)]).join('')
 }
 
+// Regex canónico de slugs — mismo que el Worker (SLUG_RE) y la ruta de vercel.json.
+const SLUG_RE = /^[a-z0-9][a-z0-9-]{2,19}$/
+// Rutas del sistema que NUNCA pueden registrarse como custom slug.
+// Espejo de SYSTEM_PATHS en el Worker de Cloudflare: si alguien registrara "app"
+// o "portal", Vercel rutea esas paths antes que la de slugs y su card quedaría
+// inaccesible para siempre (y bloquearía el nombre para el sitio).
+const RESERVED = new Set(['auth','app','portal','index','robots','sitemap','favicon',
+                          'terminos','privacidad','terms','privacy','ayuda','help'])
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
   try {
@@ -94,10 +103,21 @@ Deno.serve(async (req) => {
     let slug = ''
     const customSlug = body.custom_slug ? String(body.custom_slug).trim().toLowerCase() : ''
 
-    if (customSlug && /^[a-z0-9-]{3,20}$/.test(customSlug)) {
-      const { data: existing } = await supabase
-        .from('links').select('id').eq('slug', customSlug).maybeSingle()
-      if (existing) {
+    if (customSlug && SLUG_RE.test(customSlug)) {
+      // Reservados: rutas del sistema no se pueden registrar
+      if (RESERVED.has(customSlug)) {
+        return new Response(JSON.stringify({ error: 'slug_taken' }), {
+          status: 409, headers: { ...CORS, 'Content-Type': 'application/json' }
+        })
+      }
+      // Colisión contra AMBAS columnas — igual que update-link. Sin el check de
+      // custom_slug, un link nuevo podía "tapar" el custom_slug de alguien más,
+      // porque get-link resuelve primero por la columna slug.
+      const [bySlug, byCustom] = await Promise.all([
+        supabase.from('links').select('id').eq('slug', customSlug).maybeSingle(),
+        supabase.from('links').select('id').eq('custom_slug', customSlug).maybeSingle(),
+      ])
+      if (bySlug.data || byCustom.data) {
         return new Response(JSON.stringify({ error: 'slug_taken' }), {
           status: 409, headers: { ...CORS, 'Content-Type': 'application/json' }
         })
@@ -109,6 +129,10 @@ Deno.serve(async (req) => {
       let attempts = 0
       while (attempts < 5) {
         slug = generateSlug()
+        // El slug generado también puede chocar con un custom_slug existente
+        const { data: csHit } = await supabase
+          .from('links').select('id').eq('custom_slug', slug).maybeSingle()
+        if (csHit) { attempts++; continue }
         const { error } = await supabase.from('links').insert({ slug, ...fields })
         if (!error) break
         if (error.code === '23505') { attempts++; continue }

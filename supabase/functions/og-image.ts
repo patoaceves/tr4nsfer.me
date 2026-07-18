@@ -10,7 +10,7 @@ const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
-const SLUG_RE = /^[a-z0-9-]{3,30}$/
+const SLUG_RE = /^[a-z0-9][a-z0-9-]{2,19}$/ // canónico: igual que Worker, vercel.json y create-link
 
 // ─── resvg init (once per isolate) ─────────────────────────────────────────
 let _resvgReady = false

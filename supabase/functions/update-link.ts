@@ -169,9 +169,12 @@ Deno.serve(async (req) => {
 
     // Custom slug
     if (custom_slug !== undefined && custom_slug) {
-      const SLUG_RE = /^[a-z0-9-]{3,20}$/
+      const SLUG_RE = /^[a-z0-9][a-z0-9-]{2,19}$/
+      // Espejo de SYSTEM_PATHS del Worker + create-link: rutas del sistema no registrables
+      const RESERVED = new Set(['auth','app','portal','index','robots','sitemap','favicon',
+                                'terminos','privacidad','terms','privacy','ayuda','help'])
       const cs = String(custom_slug).trim().toLowerCase()
-      if (!SLUG_RE.test(cs)) {
+      if (!SLUG_RE.test(cs) || RESERVED.has(cs)) {
         return new Response(JSON.stringify({ error: 'custom_slug_inválido' }), { status: 400, headers: CORS })
       }
       const [bySlug, byCustom] = await Promise.all([
