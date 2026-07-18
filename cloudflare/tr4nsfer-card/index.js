@@ -47,8 +47,15 @@ const CARD_SOLIDS = {
 function cardColorFrom(gradient, design, fallback) {
   const g = String(gradient || '')
   if (design === 5 && CARD_SOLIDS[g]) return CARD_SOLIDS[g]
-  const m = g.match(/#[0-9a-fA-F]{6}/)
-  return m ? m[0] : (fallback || '#000000')
+  const m = g.match(/#[0-9a-fA-F]{6}/g) || []
+  if (m.length === 0) return fallback || '#000000'
+  if (m.length === 1) return m[0]
+  // Punto medio entre el primer y último stop: el primer stop solo puede ser
+  // tan oscuro que la barra se lee negra (ej. #171028); el promedio representa
+  // cómo se ve la tarjeta en conjunto.
+  const a = m[0], b = m[m.length - 1]
+  const mix = (i) => Math.round((parseInt(a.slice(i,i+2),16) + parseInt(b.slice(i,i+2),16)) / 2)
+  return '#' + [1,3,5].map(i => mix(i).toString(16).padStart(2,'0')).join('')
 }
 
 export default {
