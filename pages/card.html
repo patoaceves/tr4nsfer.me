@@ -433,18 +433,22 @@ function renderProfile(d){
   document.body.classList.toggle('bg-light',isLightBg);
   document.body.style.background=d.bg_color||'#000';
   // Fix theme Safari: el color del chrome del browser se lee desde html, no desde body ni divs fijos.
-  // Actualizar documentElement.style.background + ambas metas (light y dark) + color-scheme.
+  // theme-color = color de la CARD (primer hex del gradiente, o solid del preset).
+  // color-scheme + background del html = bg_color de la página.
   var bgVal=d.bg_color||'#000000';
+  var appliedCardBg=(isSolido&&preset)?preset.solid:cg;
+  var ccm=appliedCardBg.match(/#[0-9a-fA-F]{6}/);
+  var cardColor=ccm?ccm[0]:bgVal;
   document.documentElement.style.background=bgVal;
   var tcLight=document.getElementById('tc-light');
   var tcDark=document.getElementById('tc-dark');
   var csMeta=document.getElementById('cs-meta');
-  if(tcLight)tcLight.setAttribute('content',bgVal);
-  if(tcDark)tcDark.setAttribute('content',bgVal);
+  if(tcLight)tcLight.setAttribute('content',cardColor);
+  if(tcDark)tcDark.setAttribute('content',cardColor);
   if(csMeta)csMeta.setAttribute('content',isLightBg?'light':'dark');
   // Update browser chrome color (mobile Safari/Chrome tab bar) — kept for legacy compat
   var tcMeta=document.getElementById('theme-color-meta');
-  if(tcMeta)tcMeta.setAttribute('content',bgVal);
+  if(tcMeta)tcMeta.setAttribute('content',cardColor);
 
   // Branding logo (dentro de la card siempre blanco, hardcodeado en HTML)
   var brLogo=$('branding-logo');if(brLogo)brLogo.src=isLightBg?'../assets/img/logo.png':'../assets/img/logo-white.png';

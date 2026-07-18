@@ -31,6 +31,26 @@ function isLightHex(hex) {
   return (0.299*r + 0.587*g + 0.114*b) / 255 >= 0.5
 }
 
+// El theme-color (barra del navegador) toma el color de la CARD, no el bg_color
+// de la página. Espejo del render de card.html: diseño "solido" (index 5) con
+// preset conocido usa el solid; cualquier otro caso usa el primer hex del gradiente
+// (el 135deg arranca arriba-izquierda, que es lo que queda pegado a la barra).
+const CARD_SOLIDS = {
+  'linear-gradient(135deg,#004d38,#00c896)': '#00a87a',
+  'linear-gradient(135deg,#0d0d0d,#1f1f1f)': '#000000',
+  'linear-gradient(135deg,#7a2050,#e8719a)': '#c0537a',
+  'linear-gradient(135deg,#0f3460,#1a6fb5)': '#145a96',
+  'linear-gradient(135deg,#2d1b69,#8b5cf6)': '#5b3fcb',
+  'linear-gradient(135deg,#7c2d12,#f97316)': '#c45c1a',
+}
+
+function cardColorFrom(gradient, design, fallback) {
+  const g = String(gradient || '')
+  if (design === 5 && CARD_SOLIDS[g]) return CARD_SOLIDS[g]
+  const m = g.match(/#[0-9a-fA-F]{6}/)
+  return m ? m[0] : (fallback || '#000000')
+}
+
 export default {
   async fetch(request, env) {
     const url  = new URL(request.url)
@@ -107,11 +127,14 @@ export default {
         fetch(request)
       ])
 
-      let bgColor = '#000000'
+      let bgColor   = '#000000'
+      let cardColor = '#000000'
       try {
         if (apiResp.ok) {
           const data = await apiResp.json()
           if (data?.bg_color) bgColor = data.bg_color
+          // La barra del navegador debe igualar la CARD (gradiente), no el fondo de la página
+          cardColor = cardColorFrom(data?.card_gradient, data?.card_design, bgColor)
         }
       } catch (_) {}
 
@@ -129,13 +152,15 @@ export default {
       // El Worker inyecta el bg_color antes de que el HTML llegue al browser para que
       // iOS Safari lo lea en parse time — JS llega demasiado tarde para esto.
       const modified = html
-        .replace('id="tc-light" content="#000000"', `id="tc-light" content="${bgColor}"`)
-        .replace('id="tc-dark"  content="#000000"', `id="tc-dark"  content="${bgColor}"`)
-        // color-scheme en parse time: sin esto el chrome del navegador queda oscuro con bg claro
+        // theme-color = color de la CARD (barra del navegador morada si la card es morada)
+        .replace('id="tc-light" content="#000000"', `id="tc-light" content="${cardColor}"`)
+        .replace('id="tc-dark"  content="#000000"', `id="tc-dark"  content="${cardColor}"`)
+        // color-scheme sigue saliendo del bg_color de la página: controla inputs/scrollbars,
+        // que deben ir claros sobre fondo claro aunque la barra sea oscura
         .replace('id="cs-meta" content="dark"', `id="cs-meta" content="${scheme}"`)
         // Fallback: legacy meta tag por si la página aún no fue actualizada
-        .replace('id="theme-color-meta" content="#000000"', `id="theme-color-meta" content="${bgColor}"`)
-        // Inyectar background en html element via style inline para que Safari lo lea
+        .replace('id="theme-color-meta" content="#000000"', `id="theme-color-meta" content="${cardColor}"`)
+        // El background del html sí es el de la página (bg_color)
         .replace('<html lang="es">', `<html lang="es" style="background:${bgColor}">`)
 
       return new Response(modified, {
