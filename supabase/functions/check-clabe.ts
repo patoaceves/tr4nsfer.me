@@ -18,6 +18,7 @@ async function checkRateLimit(
 
   supabase.from('rate_limits')
     .delete()
+    .like('key', 'clabe-check:%')  // acotado: no borrar contadores de otras acciones (create-link usa ventana de 1h)
     .lt('window_start', new Date(now - windowMs * 2).toISOString())
     .then(() => {/* ignore */})
 

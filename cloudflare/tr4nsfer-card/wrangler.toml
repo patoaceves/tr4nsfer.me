@@ -1,0 +1,7 @@
+# tr4nsfer-card — Cloudflare Worker
+# Deploy: cd cloudflare/tr4nsfer-card && wrangler deploy
+# (usa la cuenta con la que hiciste wrangler login; las routes ya viven en el
+#  dashboard, no las declaramos aquí para no pisar la config existente)
+name = "tr4nsfer-card"
+main = "index.js"
+compatibility_date = "2026-07-01"

@@ -46,6 +46,51 @@ const SLUG_RE = /^[a-z0-9][a-z0-9-]{2,19}$/
 const RESERVED = new Set(['auth','app','portal','index','robots','sitemap','favicon',
                           'terminos','privacidad','terms','privacy','ayuda','help'])
 
+// ── Rate limiting ─────────────────────────────────────────────────────────────
+// Mismo patrón que check-clabe/check-email, con dos diferencias:
+// 1. El cleanup va acotado por prefijo (.like) — el cleanup global del patrón
+//    original borraba TODAS las filas viejas, así que la ventana de 1 min de los
+//    checks hubiera borrado los contadores de 1 hora de create-link.
+// 2. Fail-open: si la tabla no responde, se permite la operación (no bloquear
+//    creación de links por un hiccup de infra).
+async function checkRateLimit(
+  supabase: ReturnType<typeof createClient>,
+  key: string,
+  keyPrefix: string,
+  maxHits: number,
+  windowMs: number,
+): Promise<boolean> {
+  const now = Date.now()
+
+  supabase.from('rate_limits')
+    .delete()
+    .like('key', `${keyPrefix}%`)
+    .lt('window_start', new Date(now - windowMs * 2).toISOString())
+    .then(() => {/* ignore */})
+
+  const { data } = await supabase
+    .from('rate_limits')
+    .select('hits, window_start')
+    .eq('key', key)
+    .maybeSingle()
+
+  if (data) {
+    const windowStart = new Date(data.window_start).getTime()
+    if (windowStart > now - windowMs) {
+      if (data.hits >= maxHits) return false
+      await supabase.from('rate_limits').update({ hits: data.hits + 1 }).eq('key', key)
+      return true
+    }
+  }
+
+  await supabase.from('rate_limits').upsert({
+    key,
+    hits: 1,
+    window_start: new Date(now).toISOString(),
+  })
+  return true
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
   try {
@@ -57,6 +102,17 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
+
+    // Rate limit: 5 links por IP por hora. Crear un link es la operación más
+    // pesada del sistema (insert + cifrado) y no requiere auth, así que sin
+    // este candado cualquiera con la anon key podía spamear inserts.
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const allowed = await checkRateLimit(supabase, `create-link:${ip}`, 'create-link:', 5, 60 * 60 * 1000)
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: 'rate_limited' }), {
+        status: 429, headers: { ...CORS, 'Content-Type': 'application/json' }
+      })
+    }
 
     const clabeClean = body.clabe ? String(body.clabe).replace(/\D/g, '') : null
     const clabeHash  = clabeClean ? await hashClabe(clabeClean) : null
