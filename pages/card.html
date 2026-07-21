@@ -433,18 +433,11 @@ function renderProfile(d){
   document.body.classList.toggle('bg-light',isLightBg);
   document.body.style.background=d.bg_color||'#000';
   // Fix theme Safari: el color del chrome del browser se lee desde html, no desde body ni divs fijos.
-  // theme-color = color de la CARD (primer hex del gradiente, o solid del preset).
-  // color-scheme + background del html = bg_color de la página.
+  // theme-color + color-scheme + background del html salen del bg_color de la PÁGINA.
+  // (Se probó usar el color de la card — primer stop y punto medio del gradiente — y
+  //  con gradientes oscuros la barra se leía negra. La barra empalma con el fondo.)
   var bgVal=d.bg_color||'#000000';
-  var appliedCardBg=(isSolido&&preset)?preset.solid:cg;
-  // Punto medio del gradiente (no el primer stop, que puede leerse negro en la barra)
-  var ccm=appliedCardBg.match(/#[0-9a-fA-F]{6}/g)||[];
   var cardColor=bgVal;
-  if(ccm.length===1)cardColor=ccm[0];
-  else if(ccm.length>1){
-    var _a=ccm[0],_b=ccm[ccm.length-1];
-    cardColor='#'+[1,3,5].map(function(i){return Math.round((parseInt(_a.slice(i,i+2),16)+parseInt(_b.slice(i,i+2),16))/2).toString(16).padStart(2,'0');}).join('');
-  }
   document.documentElement.style.background=bgVal;
   var tcLight=document.getElementById('tc-light');
   var tcDark=document.getElementById('tc-dark');

@@ -31,32 +31,6 @@ function isLightHex(hex) {
   return (0.299*r + 0.587*g + 0.114*b) / 255 >= 0.5
 }
 
-// El theme-color (barra del navegador) toma el color de la CARD, no el bg_color
-// de la página. Espejo del render de card.html: diseño "solido" (index 5) con
-// preset conocido usa el solid; cualquier otro caso usa el primer hex del gradiente
-// (el 135deg arranca arriba-izquierda, que es lo que queda pegado a la barra).
-const CARD_SOLIDS = {
-  'linear-gradient(135deg,#004d38,#00c896)': '#00a87a',
-  'linear-gradient(135deg,#0d0d0d,#1f1f1f)': '#000000',
-  'linear-gradient(135deg,#7a2050,#e8719a)': '#c0537a',
-  'linear-gradient(135deg,#0f3460,#1a6fb5)': '#145a96',
-  'linear-gradient(135deg,#2d1b69,#8b5cf6)': '#5b3fcb',
-  'linear-gradient(135deg,#7c2d12,#f97316)': '#c45c1a',
-}
-
-function cardColorFrom(gradient, design, fallback) {
-  const g = String(gradient || '')
-  if (design === 5 && CARD_SOLIDS[g]) return CARD_SOLIDS[g]
-  const m = g.match(/#[0-9a-fA-F]{6}/g) || []
-  if (m.length === 0) return fallback || '#000000'
-  if (m.length === 1) return m[0]
-  // Punto medio entre el primer y último stop: el primer stop solo puede ser
-  // tan oscuro que la barra se lee negra (ej. #171028); el promedio representa
-  // cómo se ve la tarjeta en conjunto.
-  const a = m[0], b = m[m.length - 1]
-  const mix = (i) => Math.round((parseInt(a.slice(i,i+2),16) + parseInt(b.slice(i,i+2),16)) / 2)
-  return '#' + [1,3,5].map(i => mix(i).toString(16).padStart(2,'0')).join('')
-}
 
 export default {
   async fetch(request, env) {
@@ -134,14 +108,11 @@ export default {
         fetch(request)
       ])
 
-      let bgColor   = '#000000'
-      let cardColor = '#000000'
+      let bgColor = '#000000'
       try {
         if (apiResp.ok) {
           const data = await apiResp.json()
           if (data?.bg_color) bgColor = data.bg_color
-          // La barra del navegador debe igualar la CARD (gradiente), no el fondo de la página
-          cardColor = cardColorFrom(data?.card_gradient, data?.card_design, bgColor)
         }
       } catch (_) {}
 
@@ -159,15 +130,16 @@ export default {
       // El Worker inyecta el bg_color antes de que el HTML llegue al browser para que
       // iOS Safari lo lea en parse time — JS llega demasiado tarde para esto.
       const modified = html
-        // theme-color = color de la CARD (barra del navegador morada si la card es morada)
-        .replace('id="tc-light" content="#000000"', `id="tc-light" content="${cardColor}"`)
-        .replace('id="tc-dark"  content="#000000"', `id="tc-dark"  content="${cardColor}"`)
-        // color-scheme sigue saliendo del bg_color de la página: controla inputs/scrollbars,
-        // que deben ir claros sobre fondo claro aunque la barra sea oscura
+        // theme-color y color-scheme salen del bg_color de la PÁGINA. Se probó usar
+        // el color de la card (primer stop y luego punto medio del gradiente) y en
+        // ambos casos la barra se leía negra con gradientes oscuros — la barra debe
+        // empalmar con el fondo que la rodea, no con la tarjeta.
+        .replace('id="tc-light" content="#000000"', `id="tc-light" content="${bgColor}"`)
+        .replace('id="tc-dark"  content="#000000"', `id="tc-dark"  content="${bgColor}"`)
         .replace('id="cs-meta" content="dark"', `id="cs-meta" content="${scheme}"`)
         // Fallback: legacy meta tag por si la página aún no fue actualizada
-        .replace('id="theme-color-meta" content="#000000"', `id="theme-color-meta" content="${cardColor}"`)
-        // El background del html sí es el de la página (bg_color)
+        .replace('id="theme-color-meta" content="#000000"', `id="theme-color-meta" content="${bgColor}"`)
+        // El background del html es el de la página (bg_color)
         .replace('<html lang="es">', `<html lang="es" style="background:${bgColor}">`)
 
       return new Response(modified, {
